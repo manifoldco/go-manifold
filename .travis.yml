@@ -1,0 +1,11 @@
+language: go
+go:
+- 1.7.x
+- 1.8.x
+branches:
+  only:
+  - master
+install: make bootstrap
+notifications:
+  slack:
+    secure: GMMcTXXT4QjTijFDsCkE8RtNKCTUUKjLUSIYaq6mWWCBV4el1NOiRGMpgCFdsD9bW3jtCOuSD6eEaAC/laaLL5CVLHz0GHhWRRLTMMVG1S/KWNrwe4CFMdIf3125ukNaM3AsHhtqEAv25j3i5mi4tviRrM9/LCqO0Kwu3a/4j9M1CjYRaolkzya80lBpzK1gDEn7rVa8Zq+SGlXjEpuwZAKLV/C1YSm+atdKVi+Bjiz65MWNGB68u9aNcvmivPqQtP1/7QINBRJd9WwDyHxrTwum0jogmHzRLGyqQHnt85DREwdgxSOKb04rsxrfIivvEDrobTf2/JJKvGvMvXi80uiyg0WtYQZeM7fmmufKb716sdncyZcLH6e3aZUsfcsvlpgG5++8LQ9nvGS7brkynMMlkpA9ZX/14f/UeFlgzFi1Cx9GygFmYDjc8tZ1k184CWvE103K1s2qNvrufWaWMycoCiFILgUe4Psm38l5VyPkZJMKjsqAmLy5VAm8duGNJlLM0BCMXE8ilU7DmldPoYbNloAJgtwMNzC1eU92/vIV573jWAOpuV/H2EUwtJPnMo4ce3UfjuSFe+Jf8MmU4RTJpyrzd5jl4I8eBsMGRh9wKnQ7w9KwPxq6Q1SX0ZI6kddU2gCsTCl+5zqbDYwbS2ziXFebuCQ78fwvrgBwm5M=
