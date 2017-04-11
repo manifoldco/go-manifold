@@ -1,0 +1,31 @@
+hash: 78034ee51ea5c1275cb4fcde8034d9df95a5864a59c2ab5886a4f832c992ea8d
+updated: 2017-04-11T13:23:22.459592747-03:00
+imports:
+- name: github.com/asaskevich/govalidator
+  version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
+- name: github.com/go-openapi/errors
+  version: fc3f73a224499b047eda7191e5d22e1e9631e86f
+- name: github.com/go-openapi/runtime
+  version: e66a4c4406028a04ddafd6002c378ffd3db7e52b
+- name: github.com/go-openapi/strfmt
+  version: 93a31ef21ac23f317792fff78f9539219dd74619
+- name: github.com/go-openapi/swag
+  version: d5f8ebc3b1c55a4cf6489eeae7354f338cfe299e
+- name: github.com/mailru/easyjson
+  version: 2af9a745a611440bab0528e5ac19b2805a1c50eb
+  subpackages:
+  - buffer
+  - jlexer
+  - jwriter
+- name: github.com/mitchellh/mapstructure
+  version: 53818660ed4955e899c0bcafa97299a388bd7c8e
+- name: golang.org/x/net
+  version: d1e1b351919c6738fdeb9893d5c998b161464f0c
+  subpackages:
+  - context
+- name: gopkg.in/mgo.v2
+  version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
+  subpackages:
+  - bson
+  - internal/json
+testImports: []

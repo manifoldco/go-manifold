@@ -1,0 +1,5 @@
+package: github.com/manifoldco/go-manifold
+import:
+- package: github.com/asaskevich/govalidator
+  version: ^5.0.0
+- package: github.com/go-openapi/runtime
