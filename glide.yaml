@@ -3,3 +3,6 @@ import:
 - package: github.com/asaskevich/govalidator
   version: ^5.0.0
 - package: github.com/go-openapi/runtime
+- package: github.com/manifoldco/go-base32
+  version: ^1.0.0
+- package: github.com/dchest/blake2b
