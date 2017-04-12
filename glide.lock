@@ -1,8 +1,10 @@
-hash: 78034ee51ea5c1275cb4fcde8034d9df95a5864a59c2ab5886a4f832c992ea8d
-updated: 2017-04-11T13:23:22.459592747-03:00
+hash: c1f3a91d0fa49166fd1e43a0d55aa675f01824d244776da240d064cfa61c89ae
+updated: 2017-04-12T16:13:47.369452132-03:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
+- name: github.com/dchest/blake2b
+  version: 06006a921c7d13e3fdf63c401cb0e4529a26e6e4
 - name: github.com/go-openapi/errors
   version: fc3f73a224499b047eda7191e5d22e1e9631e86f
 - name: github.com/go-openapi/runtime
@@ -17,6 +19,8 @@ imports:
   - buffer
   - jlexer
   - jwriter
+- name: github.com/manifoldco/go-base32
+  version: b6687e64fc5e75d8bb58badb858d79c46b0eee96
 - name: github.com/mitchellh/mapstructure
   version: 53818660ed4955e899c0bcafa97299a388bd7c8e
 - name: golang.org/x/net
