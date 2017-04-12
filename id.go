@@ -47,15 +47,15 @@ type Mutable interface {
 // immutable objects, or a random value for mutable objects.
 type ID [byteLength]byte
 
-// NewMutable returns a new ID for a mutable object.
-func NewMutable(body Mutable) (ID, error) {
+// NewMutableID returns a new ID for a mutable object.
+func NewMutableID(body Mutable) (ID, error) {
 	t := body.Type()
 	return NewID(t)
 }
 
-// NewFakeMutable returns an ID for a fake mutable object, not relying on
+// NewFakeMutableID returns an ID for a fake mutable object, not relying on
 // the Body contents of the supplied mutable to generate the ID
-func NewFakeMutable(body Mutable, source string) (ID, error) {
+func NewFakeMutableID(body Mutable, source string) (ID, error) {
 	h, err := blake2b.New(&blake2b.Config{Size: 16})
 	if err != nil {
 		return ID{}, err
@@ -69,8 +69,8 @@ func NewFakeMutable(body Mutable, source string) (ID, error) {
 	return id, nil
 }
 
-// DeriveMutable returns a ID for a mutable object based on another ID.
-func DeriveMutable(body Mutable, base ID, derivableType idtype.Type) ID {
+// DeriveMutableID returns a ID for a mutable object based on another ID.
+func DeriveMutableID(body Mutable, base ID, derivableType idtype.Type) ID {
 	preamble := body.Type()
 	id := ID{idVersion<<4 | preamble.Upper(), preamble.Lower(), derivableType.Upper(), derivableType.Lower()}
 	copy(id[3:], base[3:17])
@@ -93,10 +93,10 @@ func NewID(t idtype.Type) (ID, error) {
 	return id, nil
 }
 
-// NewImmutable returns a new signed ID for an immutable object.
+// NewImmutableID returns a new signed ID for an immutable object.
 //
 // sig should be a registry.Signature type
-func NewImmutable(obj Immutable, sig interface{}) (ID, error) {
+func NewImmutableID(obj Immutable, sig interface{}) (ID, error) {
 	h, err := blake2b.New(&blake2b.Config{Size: 16})
 	if err != nil {
 		return ID{}, err
@@ -124,8 +124,8 @@ func NewImmutable(obj Immutable, sig interface{}) (ID, error) {
 	return id, nil
 }
 
-// DecodeFromString returns an ID that is stored in the given string.
-func DecodeFromString(value string) (ID, error) {
+// DecodeIDFromString returns an ID that is stored in the given string.
+func DecodeIDFromString(value string) (ID, error) {
 	buf, err := decodeFromByte([]byte(value))
 	if err != nil {
 		return ID{}, err
