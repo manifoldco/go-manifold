@@ -18,6 +18,9 @@ const (
 	byteLength = 18
 )
 
+// Comparator for empty IDs
+var emptyID [byteLength]byte
+
 // Identifiable is the interface implemented by objects that can be given
 // IDs.
 type Identifiable interface {
@@ -188,4 +191,9 @@ func decodeFromByte(raw []byte) ([]byte, error) {
 // is required.
 func (id ID) Validate(_ interface{}) error {
 	return nil
+}
+
+// IsEmpty returns whether or not the ID is empty (all zeros)
+func (id ID) IsEmpty() bool {
+	return id == emptyID
 }
