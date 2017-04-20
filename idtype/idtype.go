@@ -56,6 +56,10 @@ var (
 	BillingProfile    Type = 0x1F4
 	Trial             Type = 0x1F5
 	SubscriptionEvent Type = 0x1F6
+	Invoice           Type = 0x1F7 // Charges for users
+	InvoiceEvent      Type = 0x1F8 // record of payment or failure to pay
+	Payout            Type = 0x1F9 // Payouts for providers
+	PayoutEvent       Type = 0x1FA // record of payout of failure to payout
 
 	// Values from 0xF00 to 0x1000 are reserved for Manifold private internal
 	// only use.
@@ -164,4 +168,8 @@ func init() {
 	Register(BillingProfile, true, "billing_profile")
 	Register(Trial, false, "trial")
 	Register(SubscriptionEvent, false, "subscription_event")
+	Register(Invoice, false, "invoice")
+	Register(InvoiceEvent, false, "invoice_event")
+	Register(Payout, false, "payout")
+	Register(PayoutEvent, false, "payout_event")
 }
