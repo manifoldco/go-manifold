@@ -65,6 +65,8 @@ var (
 	Payout                    Type = 0x1FA // Payouts for providers
 	PayoutEvent               Type = 0x1FB // record of payout of failure to payout
 
+	BillingLock Type = 0x1FC
+
 	// Values from 0xF00 to 0x1000 are reserved for Manifold private internal
 	// only use.
 	ManifoldInternalReserved Type = 0xF00
