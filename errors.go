@@ -22,7 +22,7 @@ type HTTPError interface {
 // requestor
 type Error struct {
 	Type     errors.Type `json:"type"`
-	Messages []string    `json:"Message"`
+	Messages []string    `json:"message"`
 }
 
 // NewError returns an Error containing 1 or more error messages
