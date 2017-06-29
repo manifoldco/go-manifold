@@ -6,6 +6,7 @@ import "net/http"
 var (
 	BadRequestError       Type = "bad_request"
 	UnauthorizedError     Type = "unauthorized"
+	ForbiddenError        Type = "forbidden"
 	NotFoundError         Type = "not_found"
 	ConflictError         Type = "conflict"
 	InternalServerError   Type = "internal"
@@ -39,6 +40,7 @@ func TypeForStatusCode(code int) (Type, bool) {
 var statusCodeMap = map[Type]int{
 	BadRequestError:       http.StatusBadRequest,
 	UnauthorizedError:     http.StatusUnauthorized,
+	ForbiddenError:        http.StatusForbidden,
 	NotFoundError:         http.StatusNotFound,
 	ConflictError:         http.StatusConflict,
 	InternalServerError:   http.StatusInternalServerError,
