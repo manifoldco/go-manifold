@@ -29,8 +29,10 @@ type Type uint16
 //
 var (
 	// users, orgs, teams
-	User                Type = 0x000 // User object
-	ForgotPasswordToken Type = 0x001 // ForgotPasswordToken object
+	User                   Type = 0x000 // User object
+	ForgotPasswordToken    Type = 0x001 // ForgotPasswordToken object
+	Organization           Type = 0x002
+	OrganizationMembership Type = 0x003
 
 	// Authentication
 	Token                  Type = 0x064 // Dashboard Auth
@@ -153,6 +155,8 @@ type definition struct {
 func init() {
 	Register(User, true, "user")
 	Register(ForgotPasswordToken, true, "forgot_password_token")
+	Register(Organization, true, "organization")
+	Register(OrganizationMembership, true, "organization_membership")
 
 	Register(Token, true, "token")
 	Register(OAuthCredential, true, "oauth_credential")
