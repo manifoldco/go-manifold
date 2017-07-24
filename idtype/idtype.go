@@ -28,11 +28,12 @@ type Type uint16
 // ############################################################################
 //
 var (
-	// users, orgs, teams
+	// users, orgs, teams, invites
 	User                Type = 0x000 // User object
 	ForgotPasswordToken Type = 0x001 // ForgotPasswordToken object
 	Team                Type = 0x002
 	TeamMembership      Type = 0x003
+	Invite              Type = 0x004
 
 	// Authentication
 	Token                  Type = 0x064 // Dashboard Auth
@@ -157,6 +158,7 @@ func init() {
 	Register(ForgotPasswordToken, true, "forgot_password_token")
 	Register(Team, true, "team")
 	Register(TeamMembership, true, "team_membership")
+	Register(Invite, true, "invite")
 
 	Register(Token, true, "token")
 	Register(OAuthCredential, true, "oauth_credential")
