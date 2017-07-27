@@ -34,6 +34,7 @@ var (
 	Team                Type = 0x002
 	TeamMembership      Type = 0x003
 	Invite              Type = 0x004
+	MemberProfile       Type = 0x005
 
 	// Authentication
 	Token                  Type = 0x064 // Dashboard Auth
@@ -159,6 +160,7 @@ func init() {
 	Register(Team, true, "team")
 	Register(TeamMembership, true, "team_membership")
 	Register(Invite, true, "invite")
+	Register(MemberProfile, true, "member_profile")
 
 	Register(Token, true, "token")
 	Register(OAuthCredential, true, "oauth_credential")
