@@ -18,6 +18,9 @@ const (
 	byteLength = 18
 )
 
+// Comparator for empty IDs
+var emptyID [byteLength]byte
+
 // Identifiable is the interface implemented by objects that can be given
 // IDs.
 type Identifiable interface {
@@ -45,7 +48,7 @@ type Mutable interface {
 // The second byte holds the type of the object.
 // The remaining 16 bytes hold a digest of the contents of the object for
 // immutable objects, or a random value for mutable objects.
-type ID []byte
+type ID [byteLength]byte
 
 // NewMutableID returns a new ID for a mutable object.
 func NewMutableID(body Mutable) (ID, error) {
@@ -149,17 +152,13 @@ func (id ID) String() string {
 //
 // IDs are encoded in unpadded base32.
 func (id ID) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + id.String() + `"`), nil
+	return []byte("\"" + id.String() + "\""), nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface for IDs.
 func (id *ID) UnmarshalJSON(b []byte) error {
 	if len(b) < 2 || b[0] != byte('"') || b[len(b)-1] != byte('"') {
 		return errors.New("value is not a string")
-	}
-
-	if id.IsEmpty() {
-		return nil
 	}
 
 	return id.fillID(b[1 : len(b)-1])
@@ -171,7 +170,7 @@ func (id *ID) fillID(raw []byte) error {
 		return err
 	}
 
-	copy((*id)[:], out)
+	copy(id[:], out)
 	return nil
 }
 
@@ -187,21 +186,6 @@ func decodeFromByte(raw []byte) ([]byte, error) {
 	return out, nil
 }
 
-// Equals compares two ids
-func (id ID) Equals(other ID) bool {
-	if len(id) != len(other) {
-		return false
-	}
-
-	for i := range id {
-		if id[i] != other[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
 // Validate implements the Validate interface for goswagger.
 // We know that if the value has successfully parsed, it is valid, so no action
 // is required.
@@ -211,15 +195,5 @@ func (id ID) Validate(_ interface{}) error {
 
 // IsEmpty returns whether or not the ID is empty (all zeros)
 func (id ID) IsEmpty() bool {
-	if len(id) == 0 {
-		return true
-	}
-
-	for _, b := range id {
-		if b != 0 {
-			return false
-		}
-	}
-
-	return true
+	return id == emptyID
 }
