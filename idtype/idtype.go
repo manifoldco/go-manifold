@@ -54,6 +54,7 @@ var (
 	// Provisioned resources and related
 	Resource   Type = 0x190
 	Credential Type = 0x191
+	Project    Type = 0x192 // Resources can be grouped into projects
 
 	// Billing objects
 	BillingProfile Type = 0x1F4
