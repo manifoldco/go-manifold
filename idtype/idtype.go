@@ -176,6 +176,7 @@ func init() {
 
 	Register(Resource, true, "resource")
 	Register(Credential, true, "credential")
+	Register(Project, true, "project")
 
 	Register(BillingProfile, true, "billing_profile")
 	Register(PayoutProfile, true, "payout_profile")
