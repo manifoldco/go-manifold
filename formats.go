@@ -1,8 +1,9 @@
 package manifold
 
 import (
-	"github.com/asaskevich/govalidator"
 	"regexp"
+
+	"github.com/asaskevich/govalidator"
 
 	"github.com/manifoldco/go-manifold/errors"
 )
@@ -10,12 +11,15 @@ import (
 var (
 	labelRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-_]{1,128}$")
 	nameRegex  = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9 -]{2,128}$")
+	codeRegex  = regexp.MustCompile("^[0-9abcdefghjkmnpqrtuvwxyz]{16}$")
 )
 
 var (
 	errInvalidLabel = NewError(errors.BadRequestError, "Invalid label")
 	errInvalidName  = NewError(errors.BadRequestError, "Invalid name")
 	errInvalidEmail = NewError(errors.BadRequestError, "Invalid Email Provided")
+	errInvalidCode  = NewError(errors.BadRequestError,
+		"Invalid email verification code provided")
 )
 
 // Label represents any object's label field
@@ -52,4 +56,16 @@ func (e Email) Validate(_ interface{}) error {
 	}
 
 	return errInvalidEmail
+}
+
+// Code represents a manifold verification code ( E-Mail Verification )
+type Code string
+
+// Validate ensures the name value is valid
+func (c Code) Validate(_ interface{}) error {
+	if codeRegex.Match([]byte(c)) {
+		return nil
+	}
+
+	return errInvalidCode
 }

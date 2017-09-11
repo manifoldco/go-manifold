@@ -28,3 +28,28 @@ func TestEmail(t *testing.T) {
 		}
 	})
 }
+
+func TestCode(t *testing.T) {
+	t.Run("errors on invalid code", func(t *testing.T) {
+		c := Code("test")
+		err := c.Validate(nil)
+
+		if err == nil {
+			t.Error("Expected an error")
+		}
+
+		_, ok := err.(*Error)
+		if !ok {
+			t.Error("Expected a manifold Error")
+		}
+	})
+
+	t.Run("does not error on valid code", func(t *testing.T) {
+		c := Code("0123456789abcdef")
+		err := c.Validate(nil)
+
+		if err != nil {
+			t.Errorf("Unexpected Error: %s", err)
+		}
+	})
+}
