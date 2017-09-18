@@ -42,10 +42,11 @@ var (
 	OAuthAccessToken       Type = 0x067 // OAuth Access Token
 
 	// Things you can buy, and how you buy them
-	Provider Type = 0x0C8
-	Product  Type = 0x0C9
-	Plan     Type = 0x0CA
-	Region   Type = 0x0CB
+	Provider      Type = 0x0C8
+	Product       Type = 0x0C9
+	Plan          Type = 0x0CA
+	Region        Type = 0x0CB
+	ProviderEmail Type = 0x0CC
 
 	// Long-running actions for creating or modifying resources
 	Operation Type = 0x12C
