@@ -21,12 +21,13 @@ BOOTSTRAP=\
 	github.com/client9/misspell/cmd/misspell \
 	github.com/gordonklaus/ineffassign \
 	github.com/tsenart/deadcode \
-	github.com/alecthomas/gometalinter
+	github.com/alecthomas/gometalinter \
+	github.com/Masterminds/glide
 
 $(BOOTSTRAP):
 	go get -u $@
 bootstrap: $(BOOTSTRAP)
-	glide -v || curl http://glide.sh/get | sh
+	cd ${GOPATH}/src/github.com/Masterminds/glide && git checkout -B v0.12.3 tags/v0.12.3 && go install && cd -
 
 vendor: glide.lock
 	glide install
