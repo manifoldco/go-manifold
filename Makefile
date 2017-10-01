@@ -16,6 +16,7 @@ ci: $(LINTERS) test
 #################################################
 
 BOOTSTRAP=\
+	github.com/golang/dep/cmd/dep \
 	github.com/golang/lint/golint \
 	honnef.co/go/tools/cmd/gosimple \
 	github.com/client9/misspell/cmd/misspell \
@@ -27,10 +28,9 @@ BOOTSTRAP=\
 $(BOOTSTRAP):
 	go get -u $@
 bootstrap: $(BOOTSTRAP)
-	cd ${GOPATH}/src/github.com/Masterminds/glide && git checkout -B v0.12.3 tags/v0.12.3 && go install && cd -
 
-vendor: glide.lock
-	glide install
+vendor: Gopkg.lock
+	dep ensure
 
 
 .PHONY: bootstrap $(BOOTSTRAP)
@@ -40,7 +40,7 @@ vendor: glide.lock
 #################################################
 
 test: vendor
-	@CGO_ENABLED=0 go test -v $(glide nv)
+	@CGO_ENABLED=0 go test -v $(go list ./... | grep -v vendor)
 
 METALINT=gometalinter --tests --disable-all --vendor --deadline=5m -s data \
 	 ./... --enable
