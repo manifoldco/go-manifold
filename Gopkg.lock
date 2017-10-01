@@ -45,9 +45,21 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/manifoldco/go-base64"
+  packages = ["."]
+  revision = "bb5e620cf51d2bbe78e624a2c27117655ce73acc"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "53818660ed4955e899c0bcafa97299a388bd7c8e"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["ed25519","ed25519/internal/edwards25519","pbkdf2","scrypt"]
+  revision = "9419663f5a44be8b34ca85f08abc5fe1be11f8a3"
 
 [[projects]]
   name = "golang.org/x/net"
@@ -63,6 +75,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "394838c6d3f636ef89160b9e58f47ff3bef0a7ba488a03652d8d80f4d39f6fa0"
+  inputs-digest = "374fcc3540ff3d6d1c2f6395dc3217828cf6c44554e5fc83650f9b07e79fd12d"
   solver-name = "gps-cdcl"
   solver-version = 1

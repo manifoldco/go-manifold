@@ -1,0 +1,14 @@
+document: specs/identity.yaml
+output: zz_oag_generated_identity.go
+package:
+  path: github.com/manifoldco/go-manifold
+  name: manifold
+
+boilerplate:
+  client_prefix: Identity
+
+types:
+  Error: github.com/manifoldco/go-manifold.Error
+
+string_formats:
+  base32ID: github.com/manifoldco/go-manifold.ID

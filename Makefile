@@ -23,7 +23,7 @@ BOOTSTRAP=\
 	github.com/gordonklaus/ineffassign \
 	github.com/tsenart/deadcode \
 	github.com/alecthomas/gometalinter \
-	github.com/Masterminds/glide
+	github.com/jbowes/oag
 
 $(BOOTSTRAP):
 	go get -u $@
@@ -35,6 +35,15 @@ vendor: Gopkg.lock
 
 .PHONY: bootstrap $(BOOTSTRAP)
 
+#################################################
+# Code generation
+#################################################
+
+generated-%: specs/%.oag.yaml
+	@oag -c $<
+generated: $(patsubst specs/%.oag.yaml,generated-%,$(wildcard specs/*.oag.yaml))
+
+.PHONY: generated
 #################################################
 # Test and linting
 #################################################
