@@ -17,17 +17,13 @@ ci: $(LINTERS) test
 
 BOOTSTRAP=\
 	github.com/golang/dep/cmd/dep \
-	github.com/golang/lint/golint \
-	honnef.co/go/tools/cmd/gosimple \
-	github.com/client9/misspell/cmd/misspell \
-	github.com/gordonklaus/ineffassign \
-	github.com/tsenart/deadcode \
 	github.com/alecthomas/gometalinter \
 	github.com/jbowes/oag
 
 $(BOOTSTRAP):
 	go get -u $@
 bootstrap: $(BOOTSTRAP)
+	gometalinter --install
 
 vendor: Gopkg.lock
 	dep ensure
@@ -44,6 +40,7 @@ generated-%: specs/%.oag.yaml
 generated: $(patsubst specs/%.oag.yaml,generated-%,$(wildcard specs/*.oag.yaml))
 
 .PHONY: generated
+
 #################################################
 # Test and linting
 #################################################
