@@ -17,6 +17,7 @@ type Client struct {
 	client http.Client
 	IdentityClient
 	CatalogClient
+	MarketplaceClient
 }
 
 // New returns a new API client with the default configuration
@@ -25,10 +26,12 @@ func New(cfgs ...ConfigFunc) *Client {
 		http.Client{Transport: http.DefaultTransport},
 		*NewIdentity(),
 		*NewCatalog(),
+		*NewMarketplace(),
 	}
 
 	c.IdentityClient.common.backend.(*defaultBackend).client = &c.client
 	c.CatalogClient.common.backend.(*defaultBackend).client = &c.client
+	c.MarketplaceClient.common.backend.(*defaultBackend).client = &c.client
 
 	ForURLPattern(DefaultURLPattern)(c)
 	for _, cfg := range cfgs {
@@ -47,6 +50,7 @@ func ForURLPattern(pattern string) ConfigFunc {
 	return func(c *Client) {
 		c.IdentityClient.common.backend.(*defaultBackend).base = fmt.Sprintf(pattern, "identity")
 		c.CatalogClient.common.backend.(*defaultBackend).base = fmt.Sprintf(pattern, "catalog")
+		c.MarketplaceClient.common.backend.(*defaultBackend).base = fmt.Sprintf(pattern, "marketplace")
 	}
 }
 

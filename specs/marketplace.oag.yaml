@@ -1,0 +1,17 @@
+document: specs/marketplace.yaml
+output: zz_oag_generated_marketplace.go
+package:
+  path: github.com/manifoldco/go-manifold
+  name: manifold
+
+boilerplate:
+  base_url: disabled
+  backend: disabled
+  endpoint: disabled
+  client_prefix: Marketplace
+
+types:
+  Error: github.com/manifoldco/go-manifold.Error
+
+string_formats:
+  base32ID: github.com/manifoldco/go-manifold.ID

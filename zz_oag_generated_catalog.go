@@ -506,7 +506,6 @@ func (c *ProductsClient) List(ctx context.Context, opts *ProductsListOpts) *Prod
 				return &iter
 			}
 			q.Set("provider_id", string(b))
-
 		}
 	}
 
