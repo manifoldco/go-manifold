@@ -40,6 +40,7 @@ var (
 	OAuthCredential        Type = 0x065 // OAuth Client ID/Secret Pair
 	OAuthAuthorizationCode Type = 0x066 // OAuth Authorization COde
 	OAuthAccessToken       Type = 0x067 // OAuth Access Token
+	APIToken               Type = 0x068 // API access tokens
 
 	// Things you can buy, and how you buy them
 	Provider Type = 0x0C8
@@ -165,6 +166,7 @@ func init() {
 	Register(OAuthCredential, true, "oauth_credential")
 	Register(OAuthAuthorizationCode, true, "oauth_authorization_code")
 	Register(OAuthAccessToken, true, "oauth_access_token")
+	Register(APIToken, true, "api_token")
 
 	Register(Provider, true, "provider")
 	Register(Product, true, "product")
