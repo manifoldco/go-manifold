@@ -148,20 +148,16 @@ func (id ID) String() string {
 	return base32.EncodeToString(id[:])
 }
 
-// MarshalJSON implements the json.Marshaler interface for IDs.
+// MarshalText implements the encoding.TextMarshaler interface for IDs.
 //
 // IDs are encoded in unpadded base32.
-func (id ID) MarshalJSON() ([]byte, error) {
-	return []byte("\"" + id.String() + "\""), nil
+func (id ID) MarshalText() ([]byte, error) {
+	return []byte(id.String()), nil
 }
 
-// UnmarshalJSON implements the json.Unmarshaler interface for IDs.
-func (id *ID) UnmarshalJSON(b []byte) error {
-	if len(b) < 2 || b[0] != byte('"') || b[len(b)-1] != byte('"') {
-		return errors.New("value is not a string")
-	}
-
-	return id.fillID(b[1 : len(b)-1])
+// UnmarshalText implements the encoding.TextUnmarshaler interface for IDs.
+func (id *ID) UnmarshalText(b []byte) error {
+	return id.fillID(b)
 }
 
 func (id *ID) fillID(raw []byte) error {

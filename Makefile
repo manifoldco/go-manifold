@@ -16,31 +16,37 @@ ci: $(LINTERS) test
 #################################################
 
 BOOTSTRAP=\
-	github.com/golang/lint/golint \
-	honnef.co/go/tools/cmd/gosimple \
-	github.com/client9/misspell/cmd/misspell \
-	github.com/gordonklaus/ineffassign \
-	github.com/tsenart/deadcode \
+	github.com/golang/dep/cmd/dep \
 	github.com/alecthomas/gometalinter \
-	github.com/Masterminds/glide
+	github.com/jbowes/oag
 
 $(BOOTSTRAP):
 	go get -u $@
 bootstrap: $(BOOTSTRAP)
-	cd ${GOPATH}/src/github.com/Masterminds/glide && git checkout -B v0.12.3 tags/v0.12.3 && go install && cd -
+	gometalinter --install
 
-vendor: glide.lock
-	glide install
+vendor: Gopkg.lock
+	dep ensure
 
 
 .PHONY: bootstrap $(BOOTSTRAP)
+
+#################################################
+# Code generation
+#################################################
+
+generated-%: specs/%.oag.yaml
+	@oag -c $<
+generated: $(patsubst specs/%.oag.yaml,generated-%,$(wildcard specs/*.oag.yaml))
+
+.PHONY: generated
 
 #################################################
 # Test and linting
 #################################################
 
 test: vendor
-	@CGO_ENABLED=0 go test -v $(glide nv)
+	@CGO_ENABLED=0 go test -v $(go list ./... | grep -v vendor)
 
 METALINT=gometalinter --tests --disable-all --vendor --deadline=5m -s data \
 	 ./... --enable
