@@ -54,13 +54,13 @@ func ForURLPattern(pattern string) ConfigFunc {
 	}
 }
 
-// WithAPIKey returns a configuration func to set the API key to use for
+// WithAPIToken returns a configuration func to set the API key to use for
 // authentication.
-func WithAPIKey(key string) ConfigFunc {
+func WithAPIToken(token string) ConfigFunc {
 	return func(c *Client) {
 		ot := c.client.Transport
 		c.client.Transport = rtFunc(func(r *http.Request) (*http.Response, error) {
-			r.Header.Set("Authorization", "Bearer "+key)
+			r.Header.Set("Authorization", "Bearer "+token)
 			return ot.RoundTrip(r)
 		})
 	}
