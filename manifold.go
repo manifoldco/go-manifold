@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/manifoldco/go-base64"
 )
@@ -34,6 +35,8 @@ func New(cfgs ...ConfigFunc) *Client {
 	c.MarketplaceClient.common.backend.(*defaultBackend).client = &c.client
 
 	ForURLPattern(DefaultURLPattern)(c)
+	WithAPIToken(os.Getenv("MANIFOLD_API_TOKEN"))(c)
+
 	for _, cfg := range cfgs {
 		cfg(c)
 	}
