@@ -64,11 +64,14 @@ release:
 ifneq ($(shell git rev-parse --abbrev-ref HEAD),master)
 	$(error You are not on the master branch)
 endif
+ifneq ($(shell git status --porcelain),)
+	$(error You have uncommitted changes on your branch)
+endif
 ifndef VERSION
 	$(error You need to specify the version you want to tag)
 endif
-	cat version.go | sed -e 's|Version = ".*"|Version = "$(VERSION)"|' > version.go
-	git add .
+	sed -i -e 's|Version = ".*"|Version = "$(VERSION)"|' version.go
+	git add version.go
 	git commit -m "Tagging v$(VERSION)"
 	git tag v$(VERSION)
 	git push
