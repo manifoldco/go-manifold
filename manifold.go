@@ -35,7 +35,6 @@ func New(cfgs ...ConfigFunc) *Client {
 	c.MarketplaceClient.common.backend.(*defaultBackend).client = &c.client
 
 	ForURLPattern(DefaultURLPattern)(c)
-	WithAPIToken(os.Getenv("MANIFOLD_API_TOKEN"))(c)
 
 	for _, cfg := range cfgs {
 		cfg(c)
@@ -45,6 +44,7 @@ func New(cfgs ...ConfigFunc) *Client {
 	// provided a UserAgent, it will get loaded and overwrite our defaults since
 	// we re-assign the previous transport after this.
 	WithUserAgent("")(c)
+	WithAPIToken(os.Getenv("MANIFOLD_API_TOKEN"))(c)
 
 	return c
 }

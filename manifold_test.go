@@ -5,6 +5,7 @@ import (
 	"errors"
 	fmt "fmt"
 	http "net/http"
+	"os"
 	"testing"
 
 	manifold "github.com/manifoldco/go-manifold"
@@ -29,6 +30,31 @@ func TestConfig_WithUserAgent(t *testing.T) {
 
 		hct.reset()
 		hct.expectHeaderEquals(t, "User-Agent", fmt.Sprintf("%s (test)", defaultAgent))
+
+		c.Plans.List(context.Background(), nil)
+	})
+}
+
+func TestConfig_WithAPIToken(t *testing.T) {
+	hct := &headerCheckTransport{}
+	http.DefaultTransport = hct
+
+	token := os.Getenv("MANIFOLD_API_TOKEN")
+
+	t.Run("without extra configuration", func(t *testing.T) {
+		c := manifold.New()
+
+		hct.reset()
+		hct.expectHeaderEquals(t, "Authorization", fmt.Sprintf("Bearer %s", token))
+
+		c.Plans.List(context.Background(), nil)
+	})
+
+	t.Run("with extra configuration", func(t *testing.T) {
+		c := manifold.New(manifold.WithAPIToken("test-token"))
+
+		hct.reset()
+		hct.expectHeaderEquals(t, "Authorization", "Bearer test-token")
 
 		c.Plans.List(context.Background(), nil)
 	})
