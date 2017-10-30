@@ -21,3 +21,14 @@ If you are a provider, you'll want to look at
 [grafton](https://github.com/manifoldco/grafton) for verifying your
 implementation, or [go-signature](https://github.com/manifoldco/go-signature)
 for verifying requests have come from Manifold instead.
+
+## Releasing
+
+To release a new version of this package, use the Make target `release`:
+
+```
+$ VERSION=0.1.2 make release
+```
+
+This will update the Version in `version.go`, commit the changes and set up a
+new tag.
