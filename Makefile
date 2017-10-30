@@ -68,6 +68,8 @@ ifndef VERSION
 	$(error You need to specify the version you want to tag)
 endif
 	cat version.go | sed -e 's|Version = ".*"|Version = "$(VERSION)"|' > version.go
+	git add .
 	git commit -m "Tagging v$(VERSION)"
 	git tag v$(VERSION)
+	git push
 	git push --tags
