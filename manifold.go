@@ -35,11 +35,16 @@ func New(cfgs ...ConfigFunc) *Client {
 	c.MarketplaceClient.common.backend.(*defaultBackend).client = &c.client
 
 	ForURLPattern(DefaultURLPattern)(c)
-	WithAPIToken(os.Getenv("MANIFOLD_API_TOKEN"))(c)
 
 	for _, cfg := range cfgs {
 		cfg(c)
 	}
+
+	// We need to do this after we've set the configuration. In case someone
+	// provided a UserAgent, it will get loaded and overwrite our defaults since
+	// we re-assign the previous transport after this.
+	WithUserAgent("")(c)
+	WithAPIToken(os.Getenv("MANIFOLD_API_TOKEN"))(c)
 
 	return c
 }
@@ -64,6 +69,23 @@ func WithAPIToken(token string) ConfigFunc {
 		ot := c.client.Transport
 		c.client.Transport = rtFunc(func(r *http.Request) (*http.Response, error) {
 			r.Header.Set("Authorization", "Bearer "+token)
+			return ot.RoundTrip(r)
+		})
+	}
+}
+
+// WithUserAgent sets a specific user agent on the client. This will overwrite
+// any 'User-Agent' header that has been set before. We will prepend the
+// specified agent with `go-manifold-$version`.
+func WithUserAgent(agent string) ConfigFunc {
+	return func(c *Client) {
+		ot := c.client.Transport
+		c.client.Transport = rtFunc(func(r *http.Request) (*http.Response, error) {
+			if agent != "" {
+				agent = fmt.Sprintf(" (%s)", agent)
+			}
+
+			r.Header.Set("User-Agent", fmt.Sprintf("go-manifold-%s%s", Version, agent))
 			return ot.RoundTrip(r)
 		})
 	}
