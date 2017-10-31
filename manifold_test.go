@@ -49,7 +49,12 @@ func TestConfig_WithAPIToken(t *testing.T) {
 	})
 
 	t.Run("with env var", func(t *testing.T) {
+		token := os.Getenv("MANIFOLD_API_TOKEN")
 		os.Setenv("MANIFOLD_API_TOKEN", "s3cr3t")
+
+		defer func() {
+			os.Setenv("MANIFOLD_API_TOKEN", token)
+		}()
 
 		c := manifold.New()
 
