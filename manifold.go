@@ -68,7 +68,9 @@ func WithAPIToken(token string) ConfigFunc {
 	return func(c *Client) {
 		ot := c.client.Transport
 		c.client.Transport = rtFunc(func(r *http.Request) (*http.Response, error) {
-			r.Header.Set("Authorization", "Bearer "+token)
+			if token != "" {
+				r.Header.Set("Authorization", "Bearer "+token)
+			}
 			return ot.RoundTrip(r)
 		})
 	}
