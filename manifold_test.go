@@ -39,13 +39,27 @@ func TestConfig_WithAPIToken(t *testing.T) {
 	hct := &headerCheckTransport{}
 	http.DefaultTransport = hct
 
-	token := os.Getenv("MANIFOLD_API_TOKEN")
-
 	t.Run("without extra configuration", func(t *testing.T) {
 		c := manifold.New()
 
 		hct.reset()
-		hct.expectHeaderEquals(t, "Authorization", fmt.Sprintf("Bearer %s", token))
+		hct.expectHeaderEquals(t, "Authorization", "")
+
+		c.Plans.List(context.Background(), nil)
+	})
+
+	t.Run("with env var", func(t *testing.T) {
+		token := os.Getenv("MANIFOLD_API_TOKEN")
+		os.Setenv("MANIFOLD_API_TOKEN", "s3cr3t")
+
+		defer func() {
+			os.Setenv("MANIFOLD_API_TOKEN", token)
+		}()
+
+		c := manifold.New()
+
+		hct.reset()
+		hct.expectHeaderEquals(t, "Authorization", "Bearer s3cr3t")
 
 		c.Plans.List(context.Background(), nil)
 	})
