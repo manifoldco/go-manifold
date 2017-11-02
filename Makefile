@@ -45,13 +45,13 @@ generated: $(patsubst specs/%.oag.yaml,generated-%,$(wildcard specs/*.oag.yaml))
 # Test and linting
 #################################################
 
-test: vendor
-	@CGO_ENABLED=0 go test -v $(go list ./... | grep -v vendor)
+test: vendor $(GENERATED_NAMING_FILES)
+	@CGO_ENABLED=0 go test -v $$(go list ./... | grep -v vendor)
 
 METALINT=gometalinter --tests --disable-all --vendor --deadline=5m -s data \
 	 ./... --enable
 
-$(LINTERS): vendor
+$(LINTERS): vendor $(GENERATED_NAMING_FILES)
 	$(METALINT) $@
 
 .PHONY: $(LINTERS) test
@@ -76,3 +76,30 @@ endif
 	git tag v$(VERSION)
 	git push
 	git push --tags
+
+
+#################################################
+# Data generation
+#################################################
+
+GO_BUILD=CGO_ENABLED=0 go build -i --ldflags="-w"
+
+TOOLS=$(PREFIX)tools/bin
+
+GENERATED_NAMING_FILES=$(patsubst names/data/%.txt,names/data/zz_generated_%.go,$(wildcard names/data/*.txt))
+$(GENERATED_NAMING_FILES): names/data/zz_generated_%.go: $(TOOLS)/name-data names/data/%.txt
+	$^ $@
+
+TOOL_BINS=
+
+define TOOL_BIN_TMPL
+$(TOOLS)/$(1): vendor $$(call rwildcard,tools/$(1),*) $(2)
+	$(3) $(GO_BUILD) -o $$@ ./tools/$(1)
+TOOL_BINS += $(TOOLS)/$(1)
+endef
+
+$(eval $(call TOOL_BIN_TMPL,name-data))
+
+tools: $(TOOL_BINS)
+
+.PHONY: tools
