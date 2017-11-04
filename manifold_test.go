@@ -22,7 +22,7 @@ func TestConfig_WithUserAgent(t *testing.T) {
 		hct.reset()
 		hct.expectHeaderEquals(t, "User-Agent", defaultAgent)
 
-		c.Plans.List(context.Background(), nil)
+		c.Plans.List(context.Background(), nil, nil)
 	})
 
 	t.Run("with extra configuration", func(t *testing.T) {
@@ -31,7 +31,7 @@ func TestConfig_WithUserAgent(t *testing.T) {
 		hct.reset()
 		hct.expectHeaderEquals(t, "User-Agent", fmt.Sprintf("%s (test)", defaultAgent))
 
-		c.Plans.List(context.Background(), nil)
+		c.Plans.List(context.Background(), nil, nil)
 	})
 }
 
@@ -45,7 +45,7 @@ func TestConfig_WithAPIToken(t *testing.T) {
 		hct.reset()
 		hct.expectHeaderEquals(t, "Authorization", "")
 
-		c.Plans.List(context.Background(), nil)
+		c.Plans.List(context.Background(), nil, nil)
 	})
 
 	t.Run("with env var", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestConfig_WithAPIToken(t *testing.T) {
 		hct.reset()
 		hct.expectHeaderEquals(t, "Authorization", "Bearer s3cr3t")
 
-		c.Plans.List(context.Background(), nil)
+		c.Plans.List(context.Background(), nil, nil)
 	})
 
 	t.Run("with extra configuration", func(t *testing.T) {
@@ -70,7 +70,7 @@ func TestConfig_WithAPIToken(t *testing.T) {
 		hct.reset()
 		hct.expectHeaderEquals(t, "Authorization", "Bearer test-token")
 
-		c.Plans.List(context.Background(), nil)
+		c.Plans.List(context.Background(), nil, nil)
 	})
 }
 
