@@ -70,6 +70,11 @@ type PlanBody struct {
 	Cost      int  `json:"cost"` // Dollar value in cents
 }
 
+// PlansListOpts holds optional argument values
+type PlansListOpts struct {
+	Label *string `json:"label"` // Filter results to only include those that have this label.
+}
+
 // Product is a data type for API communication.
 type Product struct {
 	ID      ID          `json:"id"`
@@ -137,7 +142,8 @@ type ProductBodyTerms struct {
 type ProductsListOpts struct {
 	// Base32 encoded 18 byte identifier of the provider that these
 	// products must belong to.
-	ProviderID *ID `json:"provider_id"`
+	ProviderID *ID     `json:"provider_id"`
+	Label      *string `json:"label"` // Filter results to only include those that have this label.
 }
 
 // Provider is a data type for API communication.
@@ -156,6 +162,11 @@ type ProviderBody struct {
 	LogoURL          *string `json:"logo_url"`          // Optional
 	SupportEmail     *string `json:"support_email"`     // Optional
 	DocumentationURL *string `json:"documentation_url"` // Optional
+}
+
+// ProvidersListOpts holds optional argument values
+type ProvidersListOpts struct {
+	Label *string `json:"label"` // Filter results to only include those that have this label.
 }
 
 // Region is a data type for API communication.
@@ -390,7 +401,7 @@ func (c *PlansClient) Get(ctx context.Context, id ID) (*Plan, error) {
 // List corresponds to the GET /plans/ endpoint.
 //
 // Get a list of plans.
-func (c *PlansClient) List(ctx context.Context, productID []ID) *PlanIter {
+func (c *PlansClient) List(ctx context.Context, productID []ID, opts *PlansListOpts) *PlanIter {
 	iter := PlanIter{
 		first: true,
 		i:     -1,
@@ -405,6 +416,13 @@ func (c *PlansClient) List(ctx context.Context, productID []ID) *PlanIter {
 			return &iter
 		}
 		q.Add("product_id", string(b))
+	}
+
+	if opts != nil {
+
+		if opts.Label != nil {
+			q.Set("label", *opts.Label)
+		}
 	}
 
 	var req *http.Request
@@ -507,6 +525,10 @@ func (c *ProductsClient) List(ctx context.Context, opts *ProductsListOpts) *Prod
 			}
 			q.Set("provider_id", string(b))
 		}
+
+		if opts.Label != nil {
+			q.Set("label", *opts.Label)
+		}
 	}
 
 	var req *http.Request
@@ -591,7 +613,7 @@ func (c *ProvidersClient) Get(ctx context.Context, id ID) (*Provider, error) {
 // List corresponds to the GET /providers/ endpoint.
 //
 // List all available providers
-func (c *ProvidersClient) List(ctx context.Context) *ProviderIter {
+func (c *ProvidersClient) List(ctx context.Context, opts *ProvidersListOpts) *ProviderIter {
 	iter := ProviderIter{
 		first: true,
 		i:     -1,
@@ -599,8 +621,16 @@ func (c *ProvidersClient) List(ctx context.Context) *ProviderIter {
 
 	p := "/providers/"
 
+	var q url.Values
+	if opts != nil {
+		q = make(url.Values)
+		if opts.Label != nil {
+			q.Set("label", *opts.Label)
+		}
+	}
+
 	var req *http.Request
-	req, iter.err = c.backend.NewRequest(http.MethodGet, p, nil, nil)
+	req, iter.err = c.backend.NewRequest(http.MethodGet, p, q, nil)
 	if iter.err != nil {
 		return &iter
 	}
