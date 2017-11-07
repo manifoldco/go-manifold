@@ -148,6 +148,18 @@ func Register(typ Type, mutable bool, name string) {
 	definitions[typ] = definition{mutable, name}
 }
 
+// TypeFromString will return the type from a string interpretation of the type.
+// If the type is not found, this will panic.
+func TypeFromString(str string) Type {
+	for t, d := range definitions {
+		if d.name == str {
+			return t
+		}
+	}
+
+	panic("Type not registered")
+}
+
 var definitions = map[Type]definition{}
 
 type definition struct {
