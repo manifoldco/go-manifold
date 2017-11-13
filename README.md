@@ -2,7 +2,7 @@
 
 Go client API for manifold (unstable)
 
-[Code of Conduct](./.github/CONDUCT.md) |
+[Code of Conduct](./.github/CODE_OF_CONDUCT.md) |
 [Contribution Guidelines](./.github/CONTRIBUTING.md)
 
 [![GitHub release](https://img.shields.io/github/tag/manifoldco/go-manifold.svg?label=latest)](https://github.com/manifoldco/go-manifold/releases)
