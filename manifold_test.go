@@ -33,6 +33,25 @@ func TestConfig_WithUserAgent(t *testing.T) {
 
 		c.Plans.List(context.Background(), nil, nil)
 	})
+
+	t.Run("with multiple user agents", func(t *testing.T) {
+		c := manifold.New(manifold.WithUserAgent("test"), manifold.WithUserAgent("manifold"))
+
+		hct.reset()
+		hct.expectHeaderEquals(t, "User-Agent", fmt.Sprintf("%s (test)", defaultAgent))
+
+		c.Plans.List(context.Background(), nil, nil)
+	})
+
+	t.Run("with multiple calls - [GH 38]", func(t *testing.T) {
+		c := manifold.New(manifold.WithUserAgent("test"), manifold.WithUserAgent("manifold"))
+
+		hct.reset()
+		hct.expectHeaderEquals(t, "User-Agent", fmt.Sprintf("%s (test)", defaultAgent))
+
+		c.Plans.List(context.Background(), nil, nil)
+		c.Plans.List(context.Background(), nil, nil)
+	})
 }
 
 func TestConfig_WithAPIToken(t *testing.T) {
@@ -90,8 +109,8 @@ func (hct *headerCheckTransport) expectHeaderEquals(t *testing.T, key, value str
 
 func (hct *headerCheckTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	for key, value := range hct.checks {
-		if r.Header.Get(key) != value {
-			hct.t.Errorf("Expected header '%s' to be '%s', got '%s')", key, value, r.Header.Get(key))
+		if h := r.Header.Get(key); h != value {
+			hct.t.Errorf("Expected header '%s' to be '%s', got '%s')", key, value, h)
 		}
 	}
 

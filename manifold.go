@@ -83,11 +83,12 @@ func WithUserAgent(agent string) ConfigFunc {
 	return func(c *Client) {
 		ot := c.client.Transport
 		c.client.Transport = rtFunc(func(r *http.Request) (*http.Response, error) {
+			nagent := agent
 			if agent != "" {
-				agent = fmt.Sprintf(" (%s)", agent)
+				nagent = fmt.Sprintf(" (%s)", nagent)
 			}
 
-			r.Header.Set("User-Agent", fmt.Sprintf("go-manifold-%s%s", Version, agent))
+			r.Header.Set("User-Agent", fmt.Sprintf("go-manifold-%s%s", Version, nagent))
 			return ot.RoundTrip(r)
 		})
 	}
