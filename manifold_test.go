@@ -59,6 +59,13 @@ func TestConfig_WithAPIToken(t *testing.T) {
 	http.DefaultTransport = hct
 
 	t.Run("without extra configuration", func(t *testing.T) {
+		token := os.Getenv("MANIFOLD_API_TOKEN")
+		os.Unsetenv("MANIFOLD_API_TOKEN")
+
+		defer func() {
+			os.Setenv("MANIFOLD_API_TOKEN", token)
+		}()
+
 		c := manifold.New()
 
 		hct.reset()
