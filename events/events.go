@@ -19,8 +19,8 @@ const (
 	// EventUserCreated represents a user creation
 	EventUserCreated EventType = "user.created"
 
-	// EventResourceProvisioned represents a resource provision
-	EventResourceProvisioned EventType = "resource.provisioned"
+	// EventOperationProvisioned represents a provision operation
+	EventOperationProvisioned EventType = "operation.provisioned"
 
 	// EventResourceCreated represents a resource creation
 	EventResourceCreated EventType = "resource.created"
@@ -81,8 +81,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 	switch v.Type() {
 	case EventUserCreated:
 		body = &UserCreated{}
-	case EventResourceProvisioned:
-		body = &ResourceProvisioned{}
+	case EventOperationProvisioned:
+		body = &OperationProvisioned{}
 	case EventResourceCreated:
 		body = &ResourceCreated{}
 	default:
@@ -224,14 +224,16 @@ func (b *BaseEventBody) SetIPAddress(ip string) {
 	b.StructIPAddress = ip
 }
 
-// ResourceProvisioned represents a resource provision event.
-type ResourceProvisioned struct {
+// OperationProvisioned represents a provision operation event.
+type OperationProvisioned struct {
 	BaseEventBody
-	Data ResourceProvisionedData `json:"data"`
+	Data OperationProvisionedData `json:"data"`
 }
 
-// ResourceProvisionedData holds the event specific data.
-type ResourceProvisionedData struct {
+// OperationProvisionedData holds the event specific data.
+type OperationProvisionedData struct {
+	OperationID manifold.ID `json:"operation_id"`
+
 	ResourceID   manifold.ID `json:"resource_id"`
 	ResourceName string      `json:"_resource_name"`
 	Source       string      `json:"source"`
