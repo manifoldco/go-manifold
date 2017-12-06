@@ -204,4 +204,6 @@ func init() {
 	Register(ProviderSubscriptionEvent, false, "provider_subscription_event")
 	Register(Payout, false, "payout")
 	Register(PayoutEvent, false, "payout_event")
+
+	Register(ActivityEvent, false, "event")
 }
