@@ -19,6 +19,9 @@ const (
 	// EventUserCreated represents a user creation
 	EventUserCreated EventType = "user.created"
 
+	// EventResourceProvisioned represents a resource provision
+	EventResourceProvisioned EventType = "resource.provisioned"
+
 	// EventResourceCreated represents a resource creation
 	EventResourceCreated EventType = "resource.created"
 )
@@ -78,6 +81,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 	switch v.Type() {
 	case EventUserCreated:
 		body = &UserCreated{}
+	case EventResourceProvisioned:
+		body = &ResourceProvisioned{}
 	case EventResourceCreated:
 		body = &ResourceCreated{}
 	default:
@@ -219,13 +224,52 @@ func (b *BaseEventBody) SetIPAddress(ip string) {
 	b.StructIPAddress = ip
 }
 
+// ResourceProvisioned represents a resource provision event.
+type ResourceProvisioned struct {
+	BaseEventBody
+	Data ResourceProvisionedData `json:"data"`
+}
+
+// ResourceProvisionedData holds the event specific data.
+type ResourceProvisionedData struct {
+	ResourceID   manifold.ID `json:"resource_id"`
+	ResourceName string      `json:"_resource_name"`
+	Source       string      `json:"source"`
+
+	UserID    *manifold.ID `json:"user_id,omitempty"`
+	UserName  string       `json:"_user_name,omitempty"`
+	UserEmail string       `json:"_user_email,omitempty"`
+
+	TeamID   *manifold.ID `json:"team_id,omitempty"`
+	TeamName string       `json:"_team_name,omitempty"`
+
+	ProjectID   *manifold.ID `json:"project_id,omitempty"`
+	ProjectName string       `json:"_project_name,omitempty"`
+
+	Provider     *manifold.ID `json:"provider_id,omitempty"`
+	ProviderName string       `json:"_provider_name,omitempty"`
+
+	ProductID   *manifold.ID `json:"product_id,omitempty"`
+	ProductName string       `json:"_product_name,omitempty"`
+
+	PlanID   *manifold.ID `json:"plan_id,omitempty"`
+	PlanName string       `json:"_plan_name,omitempty"`
+	PlanCost int          `json:"_plan_cost,omitempty"`
+
+	RegionID       *manifold.ID `json:"region_id,omitempty"`
+	RegionName     string       `json:"_region_name,omitempty"`
+	RegionPlatform string       `json:"_region_platform,omitempty"`
+	RegionLocation string       `json:"_region_location,omitempty"`
+	RegionPriority int          `json:"_region_priority,omitempty"`
+}
+
 // UserCreated represents a user signup event.
 type UserCreated struct {
 	BaseEventBody
 	Data UserCreatedData `json:"data"`
 }
 
-// UserCreatedData holds the above event specific data.
+// UserCreatedData holds the event specific data.
 type UserCreatedData struct {
 	UserID   manifold.ID `json:"user_id"`
 	Email    string      `json:"email"`
@@ -238,7 +282,7 @@ type ResourceCreated struct {
 	Data ResourceCreatedData `json:"data"`
 }
 
-// ResourceCreatedData holds the above event specific data.
+// ResourceCreatedData holds the event specific data.
 type ResourceCreatedData struct {
 	Name       string       `json:"name"`
 	Label      string       `json:"label"`
