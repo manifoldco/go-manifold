@@ -205,5 +205,5 @@ func init() {
 	Register(Payout, false, "payout")
 	Register(PayoutEvent, false, "payout_event")
 
-	Register(ActivityEvent, false, "event")
+	Register(ActivityEvent, true, "event")
 }
