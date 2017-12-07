@@ -12,18 +12,33 @@ import (
 	"github.com/manifoldco/marketplace/ptr"
 )
 
-// EventType represents the different types of events.
-type EventType string
+// Type represents the different types of events.
+type Type string
 
 const (
-	// EventUserCreated represents a user creation
-	EventUserCreated EventType = "user.created"
+	// TypeUserCreated represents a user creation
+	TypeUserCreated Type = "user.created"
 
-	// EventOperationProvisioned represents a provision operation
-	EventOperationProvisioned EventType = "operation.provisioned"
+	// TypeOperationProvisioned represents a provision operation
+	TypeOperationProvisioned Type = "operation.provisioned"
 
-	// EventResourceCreated represents a resource creation
-	EventResourceCreated EventType = "resource.created"
+	// TypeResourceCreated represents a resource creation
+	TypeResourceCreated Type = "resource.created"
+)
+
+// State represents the state of an event. Events usually starts only
+// containing raw references to the system and later are processed to expand
+// objects information.
+type State string
+
+const (
+	// StatePending represents the event information is pending expansion. That's
+	// done as a worker job. Users don't have access while an event is pending.
+	StatePending State = "pending"
+
+	// StateDone represents the event information expansion is done. The event
+	// is immutable going forward. Users can access a done event.
+	StateDone State = "done"
 )
 
 // Event represents meaningful activities performed on the system.
@@ -31,7 +46,8 @@ type Event struct {
 	ID            manifold.ID `json:"id"`
 	StructType    string      `json:"type"`
 	StructVersion int         `json:"version"`
-	Body          EventBody   `json:"body"`
+	State         State       `json:"state"`
+	Body          Body        `json:"body"`
 }
 
 // GetID returns the ID associated with this event
@@ -71,19 +87,19 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	v := BaseEventBody{}
+	v := BaseBody{}
 	err = json.Unmarshal(t.Body, &v)
 	if err != nil {
 		return err
 	}
 
-	var body EventBody
+	var body Body
 	switch v.Type() {
-	case EventUserCreated:
+	case TypeUserCreated:
 		body = &UserCreated{}
-	case EventOperationProvisioned:
+	case TypeOperationProvisioned:
 		body = &OperationProvisioned{}
-	case EventResourceCreated:
+	case TypeResourceCreated:
 		body = &ResourceCreated{}
 	default:
 		return errors.New("Unrecognized Operation Type: " + string(v.Type()))
@@ -102,11 +118,11 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// EventBody represents methods all Events must implement.
-type EventBody interface {
+// Body represents methods all Events must implement.
+type Body interface {
 	Validate(interface{}) error
 
-	Type() EventType
+	Type() Type
 	SetType(string)
 
 	ActorID() manifold.ID
@@ -128,9 +144,9 @@ type EventBody interface {
 	SetIPAddress(string)
 }
 
-// BaseEventBody contains data associated with all events.
-type BaseEventBody struct {
-	EventType       EventType   `json:"type"`
+// BaseBody contains data associated with all events.
+type BaseBody struct {
+	EventType       Type        `json:"type"`
 	StructActorID   manifold.ID `json:"actor_id"`
 	StructScopeID   manifold.ID `json:"scope_id"`
 	StructRefID     manifold.ID `json:"ref_id"`
@@ -140,59 +156,59 @@ type BaseEventBody struct {
 }
 
 // Validate returns an error if the BaseEventBody is not valid
-func (b *BaseEventBody) Validate(v interface{}) error {
+func (b *BaseBody) Validate(v interface{}) error {
 	// TODO: luiz - add validation
 	return nil
 }
 
 // Type returns the body's EventType
-func (b *BaseEventBody) Type() EventType {
+func (b *BaseBody) Type() Type {
 	return b.EventType
 }
 
 // SetType sets the body's EventType
-func (b *BaseEventBody) SetType(s string) {
-	b.EventType = EventType(s)
+func (b *BaseBody) SetType(s string) {
+	b.EventType = Type(s)
 }
 
 // ActorID returns the body's ActorID
-func (b *BaseEventBody) ActorID() manifold.ID {
+func (b *BaseBody) ActorID() manifold.ID {
 	return b.StructActorID
 }
 
 // SetActorID sets the body's ActorID
-func (b *BaseEventBody) SetActorID(id manifold.ID) {
+func (b *BaseBody) SetActorID(id manifold.ID) {
 	b.StructActorID = id
 }
 
 // ScopeID returns the body's ScopeID
-func (b *BaseEventBody) ScopeID() manifold.ID {
+func (b *BaseBody) ScopeID() manifold.ID {
 	return b.StructScopeID
 }
 
 // SetScopeID sets the body's ScopeID
-func (b *BaseEventBody) SetScopeID(id manifold.ID) {
+func (b *BaseBody) SetScopeID(id manifold.ID) {
 	b.StructScopeID = id
 }
 
 // RefID returns the body's RefID
-func (b *BaseEventBody) RefID() manifold.ID {
+func (b *BaseBody) RefID() manifold.ID {
 	return b.StructRefID
 }
 
 // SetRefID sets the body's RefID
-func (b *BaseEventBody) SetRefID(id manifold.ID) {
+func (b *BaseBody) SetRefID(id manifold.ID) {
 	b.StructRefID = id
 }
 
 // CreatedAt returns the body's CreatedAt
-func (b *BaseEventBody) CreatedAt() *strfmt.DateTime {
+func (b *BaseBody) CreatedAt() *strfmt.DateTime {
 	t := strfmt.DateTime(b.StructCreatedAt)
 	return &t
 }
 
 // SetCreatedAt sets the body's CreatedAt
-func (b *BaseEventBody) SetCreatedAt(t *strfmt.DateTime) {
+func (b *BaseBody) SetCreatedAt(t *strfmt.DateTime) {
 	if t == nil {
 		b.StructCreatedAt = time.Now().UTC()
 	} else {
@@ -201,12 +217,12 @@ func (b *BaseEventBody) SetCreatedAt(t *strfmt.DateTime) {
 }
 
 // Source returns the body's Source
-func (b *BaseEventBody) Source() *string {
+func (b *BaseBody) Source() *string {
 	return ptr.String(string(b.StructSource))
 }
 
 // SetSource sets the body's Source
-func (b *BaseEventBody) SetSource(s *string) {
+func (b *BaseBody) SetSource(s *string) {
 	if s == nil {
 		b.StructSource = SourceSystem
 	} else {
@@ -215,18 +231,18 @@ func (b *BaseEventBody) SetSource(s *string) {
 }
 
 // IPAddress returns the body's IPAddress
-func (b *BaseEventBody) IPAddress() string {
+func (b *BaseBody) IPAddress() string {
 	return b.StructIPAddress
 }
 
 // SetIPAddress sets the body's IPAddress
-func (b *BaseEventBody) SetIPAddress(ip string) {
+func (b *BaseBody) SetIPAddress(ip string) {
 	b.StructIPAddress = ip
 }
 
 // OperationProvisioned represents a provision operation event.
 type OperationProvisioned struct {
-	BaseEventBody
+	BaseBody
 	Data OperationProvisionedData `json:"data"`
 }
 
@@ -267,7 +283,7 @@ type OperationProvisionedData struct {
 
 // UserCreated represents a user signup event.
 type UserCreated struct {
-	BaseEventBody
+	BaseBody
 	Data UserCreatedData `json:"data"`
 }
 
@@ -280,7 +296,7 @@ type UserCreatedData struct {
 
 // ResourceCreated represents a resource creation event.
 type ResourceCreated struct {
-	BaseEventBody
+	BaseBody
 	Data ResourceCreatedData `json:"data"`
 }
 
