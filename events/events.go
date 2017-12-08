@@ -36,6 +36,10 @@ const (
 	// done as a worker job. Users don't have access while an event is pending.
 	StatePending State = "pending"
 
+	// StateTracking represents the event is sending information to a 3rd-party
+	// analytics. Users can access an event while is tracking state.
+	StateTracking State = "tracking"
+
 	// StateDone represents the event information expansion is done. The event
 	// is immutable going forward. Users can access a done event.
 	StateDone State = "done"
