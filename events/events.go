@@ -72,6 +72,26 @@ func (e *Event) Validate(v interface{}) error {
 	return e.Body.Validate(v)
 }
 
+// StateType returns the event state type as a string
+func (e *Event) StateType() string {
+	return string(e.Body.Type())
+}
+
+// GetState returns the event's state
+func (e *Event) GetState() string {
+	return string(e.State)
+}
+
+// SetState sets the event's state
+func (e *Event) SetState(state string) {
+	e.State = State(state)
+}
+
+// SetUpdatedAt sets the event's updated at time to the current time.
+func (e *Event) SetUpdatedAt() {
+	e.Body.SetUpdatedAt()
+}
+
 type outEvent struct {
 	ID            manifold.ID     `json:"id"`
 	StructType    string          `json:"type"`
@@ -137,6 +157,9 @@ type Body interface {
 	CreatedAt() *strfmt.DateTime
 	SetCreatedAt(*strfmt.DateTime)
 
+	UpdatedAt() *strfmt.DateTime
+	SetUpdatedAt()
+
 	Source() *string
 	SetSource(*string)
 
@@ -151,6 +174,7 @@ type BaseBody struct {
 	StructScopeID   manifold.ID `json:"scope_id"`
 	StructRefID     manifold.ID `json:"ref_id"`
 	StructCreatedAt time.Time   `json:"created_at"`
+	StructUpdatedAt time.Time   `json:"updated_at"`
 	StructSource    SourceType  `json:"source"`
 	StructIPAddress string      `json:"ip_address"`
 }
@@ -214,6 +238,17 @@ func (b *BaseBody) SetCreatedAt(t *strfmt.DateTime) {
 	} else {
 		b.StructCreatedAt = time.Time(*t)
 	}
+}
+
+// UpdatedAt returns the body's CreatedAt
+func (b *BaseBody) UpdatedAt() *strfmt.DateTime {
+	t := strfmt.DateTime(b.StructUpdatedAt)
+	return &t
+}
+
+// SetUpdatedAt sets the body's CreatedAt
+func (b *BaseBody) SetUpdatedAt() {
+	b.StructUpdatedAt = time.Now().UTC()
 }
 
 // Source returns the body's Source
