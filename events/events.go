@@ -290,7 +290,7 @@ type OperationProvisionedData struct {
 	OperationID manifold.ID `json:"operation_id"`
 
 	ResourceID   manifold.ID `json:"resource_id"`
-	ResourceName string      `json:"_resource_name"`
+	ResourceName string      `json:"_resource_name,omitempty"`
 	Source       string      `json:"source"`
 
 	UserID    *manifold.ID `json:"user_id,omitempty"`
@@ -303,7 +303,7 @@ type OperationProvisionedData struct {
 	ProjectID   *manifold.ID `json:"project_id,omitempty"`
 	ProjectName string       `json:"_project_name,omitempty"`
 
-	Provider     *manifold.ID `json:"provider_id,omitempty"`
+	ProviderID   *manifold.ID `json:"provider_id,omitempty"`
 	ProviderName string       `json:"_provider_name,omitempty"`
 
 	ProductID   *manifold.ID `json:"product_id,omitempty"`
@@ -311,13 +311,13 @@ type OperationProvisionedData struct {
 
 	PlanID   *manifold.ID `json:"plan_id,omitempty"`
 	PlanName string       `json:"_plan_name,omitempty"`
-	PlanCost int          `json:"_plan_cost,omitempty"`
+	PlanCost *int         `json:"_plan_cost,omitempty"`
 
 	RegionID       *manifold.ID `json:"region_id,omitempty"`
 	RegionName     string       `json:"_region_name,omitempty"`
 	RegionPlatform string       `json:"_region_platform,omitempty"`
 	RegionLocation string       `json:"_region_location,omitempty"`
-	RegionPriority int          `json:"_region_priority,omitempty"`
+	RegionPriority float64      `json:"_region_priority,omitempty"`
 }
 
 // UserCreated represents a user signup event.
