@@ -45,6 +45,20 @@ const (
 	StateDone State = "done"
 )
 
+// SourceType represents where the request came from.
+type SourceType string
+
+const (
+	// SourceDashboard is a request coming from the dashboard
+	SourceDashboard SourceType = "dashboard"
+
+	// SourceCLI is a request coming from the cli
+	SourceCLI SourceType = "cli"
+
+	// SourceSystem is an internal request
+	SourceSystem SourceType = "system"
+)
+
 // Event represents meaningful activities performed on the system.
 type Event struct {
 	ID            manifold.ID `json:"id"`
@@ -119,12 +133,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 
 	var body Body
 	switch v.Type() {
-	case TypeUserCreated:
-		body = &UserCreated{}
 	case TypeOperationProvisioned:
 		body = &OperationProvisioned{}
-	case TypeResourceCreated:
-		body = &ResourceCreated{}
 	default:
 		return errors.New("Unrecognized Operation Type: " + string(v.Type()))
 	}
@@ -288,80 +298,82 @@ type OperationProvisioned struct {
 // OperationProvisionedData holds the event specific data.
 type OperationProvisionedData struct {
 	OperationID manifold.ID `json:"operation_id"`
+	Source      string      `json:"source"`
 
-	ResourceID   manifold.ID `json:"resource_id"`
-	ResourceName string      `json:"_resource_name,omitempty"`
-	Source       string      `json:"source"`
+	ResourceID manifold.ID `json:"resource_id"`
+	Resource   *Resource   `json;"resource,omitempty"`
 
-	UserID    *manifold.ID `json:"user_id,omitempty"`
-	UserName  string       `json:"_user_name,omitempty"`
-	UserEmail string       `json:"_user_email,omitempty"`
+	UserID *manifold.ID `json:"user_id,omitempty"`
+	User   *User        `json;"user,omitempty"`
 
-	TeamID   *manifold.ID `json:"team_id,omitempty"`
-	TeamName string       `json:"_team_name,omitempty"`
+	TeamID *manifold.ID `json:"team_id,omitempty"`
+	Team   *Team        `json;"team,omitempty"`
 
-	ProjectID   *manifold.ID `json:"project_id,omitempty"`
-	ProjectName string       `json:"_project_name,omitempty"`
+	ProjectID *manifold.ID `json:"project_id,omitempty"`
+	Project   *Project     `json;"project,omitempty"`
 
-	ProviderID   *manifold.ID `json:"provider_id,omitempty"`
-	ProviderName string       `json:"_provider_name,omitempty"`
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json;"provider,omitempty"`
 
-	ProductID   *manifold.ID `json:"product_id,omitempty"`
-	ProductName string       `json:"_product_name,omitempty"`
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json;"product,omitempty"`
 
-	PlanID   *manifold.ID `json:"plan_id,omitempty"`
-	PlanName string       `json:"_plan_name,omitempty"`
-	PlanCost *int         `json:"_plan_cost,omitempty"`
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json;"plan,omitempty"`
 
-	RegionID       *manifold.ID `json:"region_id,omitempty"`
-	RegionName     string       `json:"_region_name,omitempty"`
-	RegionPlatform string       `json:"_region_platform,omitempty"`
-	RegionLocation string       `json:"_region_location,omitempty"`
-	RegionPriority float64      `json:"_region_priority,omitempty"`
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json;"region,omitempty"`
 }
 
-// UserCreated represents a user signup event.
-type UserCreated struct {
-	BaseBody
-	Data UserCreatedData `json:"data"`
+// Resource is a simplified version for events data.
+type Resource struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
 }
 
-// UserCreatedData holds the event specific data.
-type UserCreatedData struct {
-	UserID   manifold.ID `json:"user_id"`
-	Email    string      `json:"email"`
-	UserName string      `json:"user_name"`
+// User is a simplified version for events data.
+type User struct {
+	ID    manifold.ID `json:"id"`
+	Name  string      `json:"name"`
+	Email string      `json:"email"`
 }
 
-// ResourceCreated represents a resource creation event.
-type ResourceCreated struct {
-	BaseBody
-	Data ResourceCreatedData `json:"data"`
+// Team is a simplified version for events data.
+type Team struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
 }
 
-// ResourceCreatedData holds the event specific data.
-type ResourceCreatedData struct {
-	Name       string       `json:"name"`
-	Label      string       `json:"label"`
-	ResourceID manifold.ID  `json:"resource_id"`
-	OwnerID    manifold.ID  `json:"owner_id"`
-	ProductID  *manifold.ID `json:"product_id,omitempty"`
-	PlanID     *manifold.ID `json:"plan_id,omitempty"`
-	RegionID   *manifold.ID `json:"region_id,omitempty"`
-	ProjectID  *manifold.ID `json:"project_id,omitempty"`
-	Source     string       `json:"source"`
+// Project is a simplified version for events data.
+type Project struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
 }
 
-// SourceType represents where the request came from.
-type SourceType string
+// Provider is a simplified version for events data.
+type Provider struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
+}
 
-const (
-	// SourceDashboard is a request coming from the dashboard
-	SourceDashboard SourceType = "dashboard"
+// Product is a simplified version for events data.
+type Product struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
+}
 
-	// SourceCLI is a request coming from the cli
-	SourceCLI SourceType = "cli"
+// Plan is a simplified version for events data.
+type Plan struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
+	Cost int         `json:"cost"`
+}
 
-	// SourceSystem is an internal request
-	SourceSystem SourceType = "system"
-)
+// Region is a simplified version for events data.
+type Region struct {
+	ID       manifold.ID `json:"id"`
+	Name     string      `json:"name"`
+	Platform string      `json:"platform"`
+	Location string      `json:"location"`
+	Priority float64     `json:"priority"`
+}
