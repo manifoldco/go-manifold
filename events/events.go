@@ -9,7 +9,6 @@ import (
 	manifold "github.com/manifoldco/go-manifold"
 	merrors "github.com/manifoldco/go-manifold/errors"
 	"github.com/manifoldco/go-manifold/idtype"
-	"github.com/manifoldco/marketplace/ptr"
 )
 
 // Type represents the different types of events.
@@ -267,7 +266,8 @@ func (b *BaseBody) SetUpdatedAt() {
 
 // Source returns the body's Source
 func (b *BaseBody) Source() *string {
-	return ptr.String(string(b.StructSource))
+	s := string(b.StructSource)
+	return &s
 }
 
 // SetSource sets the body's Source
