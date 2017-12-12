@@ -301,28 +301,28 @@ type OperationProvisionedData struct {
 	Source      string      `json:"source"`
 
 	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json;"resource,omitempty"`
+	Resource   *Resource   `json:"resource,omitempty"`
 
 	UserID *manifold.ID `json:"user_id,omitempty"`
-	User   *User        `json;"user,omitempty"`
+	User   *User        `json:"user,omitempty"`
 
 	TeamID *manifold.ID `json:"team_id,omitempty"`
-	Team   *Team        `json;"team,omitempty"`
+	Team   *Team        `json:"team,omitempty"`
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json;"project,omitempty"`
+	Project   *Project     `json:"project,omitempty"`
 
 	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json;"provider,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
 
 	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json;"product,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
 
 	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json;"plan,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
 
 	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json;"region,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
 }
 
 // Resource is a simplified version for events data.
