@@ -32,15 +32,16 @@ type State string
 
 const (
 	// StatePending represents the event information is pending expansion. That's
-	// done as a worker job. Users don't have access while an event is pending.
+	// accomplished by an asynchronous job. Users don't have access to an event
+	// while it is pending.
 	StatePending State = "pending"
 
 	// StateTracking represents the event is sending information to a 3rd-party
-	// analytics. Users can access an event while is tracking state.
+	// analytics. Users can access an event while is in the tracking state.
 	StateTracking State = "tracking"
 
 	// StateDone represents the event information expansion is done. The event
-	// is immutable going forward. Users can access a done event.
+	// is immutable going forward. Users can access a completed event.
 	StateDone State = "done"
 )
 
