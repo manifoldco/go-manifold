@@ -1,13 +1,13 @@
 package events
 
 import (
-	json "encoding/json"
-	"errors"
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	manifold "github.com/manifoldco/go-manifold"
-	merrors "github.com/manifoldco/go-manifold/errors"
+	"github.com/manifoldco/go-manifold"
+	"github.com/manifoldco/go-manifold/errors"
 	"github.com/manifoldco/go-manifold/idtype"
 )
 
@@ -15,14 +15,8 @@ import (
 type Type string
 
 const (
-	// TypeUserCreated represents a user creation
-	TypeUserCreated Type = "user.created"
-
 	// TypeOperationProvisioned represents a provision operation
 	TypeOperationProvisioned Type = "operation.provisioned"
-
-	// TypeResourceCreated represents a resource creation
-	TypeResourceCreated Type = "resource.created"
 )
 
 // State represents the state of an event. Events usually starts only
@@ -84,7 +78,7 @@ func (e *Event) Validate(v interface{}) error {
 	}
 
 	if e.Version() != 1 {
-		return manifold.NewError(merrors.BadRequestError, "Expected version to be 1")
+		return manifold.NewError(errors.BadRequestError, "Expected version to be 1")
 	}
 
 	return e.Body.Validate(v)
@@ -137,7 +131,7 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 	case TypeOperationProvisioned:
 		body = &OperationProvisioned{}
 	default:
-		return errors.New("Unrecognized Operation Type: " + string(v.Type()))
+		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
 
 	err = json.Unmarshal(o.Body, body)
