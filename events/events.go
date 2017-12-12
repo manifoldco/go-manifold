@@ -114,19 +114,20 @@ type outEvent struct {
 	ID            manifold.ID     `json:"id"`
 	StructType    string          `json:"type"`
 	StructVersion int             `json:"version"`
+	State         State           `json:"state"`
 	Body          json.RawMessage `json:"body"`
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface for an event
 func (e *Event) UnmarshalJSON(b []byte) error {
-	t := outEvent{}
-	err := json.Unmarshal(b, &t)
+	o := outEvent{}
+	err := json.Unmarshal(b, &o)
 	if err != nil {
 		return err
 	}
 
 	v := BaseBody{}
-	err = json.Unmarshal(t.Body, &v)
+	err = json.Unmarshal(o.Body, &v)
 	if err != nil {
 		return err
 	}
@@ -139,14 +140,15 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		return errors.New("Unrecognized Operation Type: " + string(v.Type()))
 	}
 
-	err = json.Unmarshal(t.Body, body)
+	err = json.Unmarshal(o.Body, body)
 	if err != nil {
 		return err
 	}
 
-	e.ID = t.ID
-	e.StructVersion = t.StructVersion
-	e.StructType = t.StructType
+	e.ID = o.ID
+	e.State = o.State
+	e.StructVersion = o.StructVersion
+	e.StructType = o.StructType
 	e.Body = body
 
 	return nil
