@@ -71,6 +71,8 @@ var (
 	PayoutEvent               Type = 0x1FB // record of payout of failure to payout
 	PayoutProfile             Type = 0x1FC // Payout profile for providers
 
+	ActivityEvent Type = 0x25D
+
 	// Values from 0xF00 to 0x1000 are reserved for Manifold private internal
 	// only use.
 	ManifoldInternalReserved Type = 0xF00
@@ -202,4 +204,6 @@ func init() {
 	Register(ProviderSubscriptionEvent, false, "provider_subscription_event")
 	Register(Payout, false, "payout")
 	Register(PayoutEvent, false, "payout_event")
+
+	Register(ActivityEvent, true, "event")
 }
