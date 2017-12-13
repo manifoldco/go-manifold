@@ -58,7 +58,6 @@ type Event struct {
 	ID            manifold.ID `json:"id"`
 	StructType    string      `json:"type"`
 	StructVersion int         `json:"version"`
-	State         State       `json:"state"`
 	Body          Body        `json:"body"`
 }
 
@@ -91,12 +90,12 @@ func (e *Event) StateType() string {
 
 // GetState returns the event's state
 func (e *Event) GetState() string {
-	return string(e.State)
+	return string(e.Body.State())
 }
 
 // SetState sets the event's state
 func (e *Event) SetState(state string) {
-	e.State = State(state)
+	e.Body.SetState(State(state))
 }
 
 // SetUpdatedAt sets the event's updated at time to the current time.
@@ -108,7 +107,6 @@ type outEvent struct {
 	ID            manifold.ID     `json:"id"`
 	StructType    string          `json:"type"`
 	StructVersion int             `json:"version"`
-	State         State           `json:"state"`
 	Body          json.RawMessage `json:"body"`
 }
 
@@ -140,7 +138,6 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 	}
 
 	e.ID = o.ID
-	e.State = o.State
 	e.StructVersion = o.StructVersion
 	e.StructType = o.StructType
 	e.Body = body
@@ -154,6 +151,9 @@ type Body interface {
 
 	Type() Type
 	SetType(string)
+
+	State() State
+	SetState(State)
 
 	ActorID() manifold.ID
 	SetActorID(manifold.ID)
@@ -180,6 +180,7 @@ type Body interface {
 // BaseBody contains data associated with all events.
 type BaseBody struct {
 	EventType       Type        `json:"type"`
+	StructState     State       `json:"state"`
 	StructActorID   manifold.ID `json:"actor_id"`
 	StructScopeID   manifold.ID `json:"scope_id"`
 	StructRefID     manifold.ID `json:"ref_id"`
@@ -203,6 +204,16 @@ func (b *BaseBody) Type() Type {
 // SetType sets the body's EventType
 func (b *BaseBody) SetType(s string) {
 	b.EventType = Type(s)
+}
+
+// State returns the body's State
+func (b *BaseBody) State() State {
+	return b.StructState
+}
+
+// SetState sets the body's State
+func (b *BaseBody) SetState(s State) {
+	b.StructState = s
 }
 
 // ActorID returns the body's ActorID
