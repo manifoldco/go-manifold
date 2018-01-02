@@ -20,6 +20,9 @@ const (
 
 	// TypeOperationDeprovisioned represents a deprovision operation
 	TypeOperationDeprovisioned Type = "operation.deprovisioned"
+
+	// TypeOperationResized represents a provision operation
+	TypeOperationResized Type = "operation.resized"
 )
 
 // State represents the state of an event. Events usually starts only
@@ -133,6 +136,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &OperationProvisioned{}
 	case TypeOperationDeprovisioned:
 		body = &OperationDeprovisioned{}
+	case TypeOperationResized:
+		body = &OperationResized{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -359,6 +364,41 @@ type OperationDeprovisionedData struct {
 
 	TeamID *manifold.ID `json:"team_id,omitempty"`
 	Team   *Team        `json:"team,omitempty"`
+}
+
+// OperationResized represents a resize operation event.
+type OperationResized struct {
+	BaseBody
+	Data OperationResizedData `json:"data"`
+}
+
+// OperationResizedData holds the event specific data.
+type OperationResizedData struct {
+	OperationID manifold.ID `json:"operation_id"`
+
+	ResourceID manifold.ID `json:"resource_id"`
+	Resource   *Resource   `json:"resource,omitempty"`
+
+	UserID *manifold.ID `json:"user_id,omitempty"`
+	User   *User        `json:"user,omitempty"`
+
+	TeamID *manifold.ID `json:"team_id,omitempty"`
+	Team   *Team        `json:"team,omitempty"`
+
+	ProjectID *manifold.ID `json:"project_id,omitempty"`
+	Project   *Project     `json:"project,omitempty"`
+
+	ProviderID *manifold.ID `json:"provider_id"`
+	Provider   *Provider    `json:"provider,omitempty"`
+
+	ProductID *manifold.ID `json:"product_id"`
+	Product   *Product     `json:"product,omitempty"`
+
+	PlanID *manifold.ID `json:"plan_id"`
+	Plan   *Plan        `json:"plan,omitempty"`
+
+	RegionID *manifold.ID `json:"region_id"`
+	Region   *Region      `json:"region,omitempty"`
 }
 
 // User is a simplified version for events data.
