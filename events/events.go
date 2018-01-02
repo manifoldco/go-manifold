@@ -17,6 +17,9 @@ type Type string
 const (
 	// TypeOperationProvisioned represents a provision operation
 	TypeOperationProvisioned Type = "operation.provisioned"
+
+	// TypeOperationDeprovisioned represents a deprovision operation
+	TypeOperationDeprovisioned Type = "operation.deprovisioned"
 )
 
 // State represents the state of an event. Events usually starts only
@@ -128,6 +131,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 	switch v.Type() {
 	case TypeOperationProvisioned:
 		body = &OperationProvisioned{}
+	case TypeOperationDeprovisioned:
+		body = &OperationDeprovisioned{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -337,6 +342,23 @@ type OperationProvisionedData struct {
 type Resource struct {
 	ID   manifold.ID `json:"id"`
 	Name string      `json:"name"`
+}
+
+// OperationDeprovisioned represents a deprovision operation event.
+type OperationDeprovisioned struct {
+	BaseBody
+	Data OperationDeprovisionedData `json:"data"`
+}
+
+// OperationDeprovisionedData holds the event specific data.
+type OperationDeprovisionedData struct {
+	OperationID manifold.ID `json:"operation_id"`
+
+	UserID *manifold.ID `json:"user_id,omitempty"`
+	User   *User        `json:"user,omitempty"`
+
+	TeamID *manifold.ID `json:"team_id,omitempty"`
+	Team   *Team        `json:"team,omitempty"`
 }
 
 // User is a simplified version for events data.
