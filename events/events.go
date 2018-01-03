@@ -388,17 +388,17 @@ type OperationResizedData struct {
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
 
-	ProviderID manifold.ID `json:"provider_id"`
-	Provider   *Provider   `json:"provider,omitempty"`
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
 
-	ProductID manifold.ID `json:"product_id"`
-	Product   *Product    `json:"product,omitempty"`
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
 
-	PlanID manifold.ID `json:"plan_id"`
-	Plan   *Plan       `json:"plan,omitempty"`
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
 
-	RegionID manifold.ID `json:"region_id"`
-	Region   *Region     `json:"region,omitempty"`
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
 }
 
 // User is a simplified version for events data.
