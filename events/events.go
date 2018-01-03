@@ -394,8 +394,11 @@ type OperationResizedData struct {
 	ProductID *manifold.ID `json:"product_id,omitempty"`
 	Product   *Product     `json:"product,omitempty"`
 
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
+	OldPlanID manifold.ID `json:"old_plan_id"`
+	OldPlan   *Plan       `json:"old_plan,omitempty"`
+
+	NewPlanID manifold.ID `json:"new_plan_id"`
+	NewPlan   *Plan       `json:"new_plan,omitempty"`
 
 	RegionID *manifold.ID `json:"region_id,omitempty"`
 	Region   *Region      `json:"region,omitempty"`
