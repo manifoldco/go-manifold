@@ -438,7 +438,7 @@ type OperationFailedData struct {
 	RegionID *manifold.ID `json:"region_id,omitempty"`
 	Region   *Region      `json:"region,omitempty"`
 
-	Error Error `json:"error"`
+	Error OperationError `json:"error"`
 }
 
 // User is a simplified version for events data.
@@ -460,6 +460,15 @@ type Operation struct {
 	Type      string      `json:"type"`
 	State     string      `json:"state"`
 	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
+}
+
+// OperationError represents an error message.
+type OperationError struct {
+	Message   string    `json:"message"`
+	Code      int       `json:"code"`
+	Attempt   int       `json:"count"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // Resource is a simplified version for events data.
@@ -500,11 +509,4 @@ type Region struct {
 	Platform string      `json:"platform"`
 	Location string      `json:"location"`
 	Priority float64     `json:"priority"`
-}
-
-// Error represents an error message.
-type Error struct {
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-	Count   int    `json:"count"`
 }
