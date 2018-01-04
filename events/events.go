@@ -432,8 +432,8 @@ type OperationFailedData struct {
 	ProductID *manifold.ID `json:"product_id,omitempty"`
 	Product   *Product     `json:"product,omitempty"`
 
-	PlanID *manifold.ID `json:"new_plan_id,omitempty"`
-	Plan   *Plan        `json:"new_plan,omitempty"`
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
 
 	RegionID *manifold.ID `json:"region_id,omitempty"`
 	Region   *Region      `json:"region,omitempty"`
