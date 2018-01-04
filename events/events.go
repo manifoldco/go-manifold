@@ -23,6 +23,9 @@ const (
 
 	// TypeOperationResized represents a provision operation
 	TypeOperationResized Type = "operation.resized"
+
+	// TypeOperationFailed represents a failed operation
+	TypeOperationFailed Type = "operation.failed"
 )
 
 // State represents the state of an event. Events usually starts only
@@ -138,6 +141,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &OperationDeprovisioned{}
 	case TypeOperationResized:
 		body = &OperationResized{}
+	case TypeOperationFailed:
+		body = &OperationFailed{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -404,6 +409,43 @@ type OperationResizedData struct {
 	Region   *Region      `json:"region,omitempty"`
 }
 
+// OperationFailed represents a resize operation event.
+type OperationFailed struct {
+	BaseBody
+	Data OperationFailedData `json:"data"`
+}
+
+// OperationFailedData holds the event specific data.
+type OperationFailedData struct {
+	OperationID manifold.ID `json:"operation_id"`
+
+	ResourceID manifold.ID `json:"resource_id"`
+	Resource   *Resource   `json:"resource,omitempty"`
+
+	UserID *manifold.ID `json:"user_id,omitempty"`
+	User   *User        `json:"user,omitempty"`
+
+	TeamID *manifold.ID `json:"team_id,omitempty"`
+	Team   *Team        `json:"team,omitempty"`
+
+	ProjectID *manifold.ID `json:"project_id,omitempty"`
+	Project   *Project     `json:"project,omitempty"`
+
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
+
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
+
+	PlanID *manifold.ID `json:"new_plan_id,omitempty"`
+	Plan   *Plan        `json:"new_plan,omitempty"`
+
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
+
+	Error Error `json:"error"`
+}
+
 // User is a simplified version for events data.
 type User struct {
 	ID    manifold.ID `json:"id"`
@@ -449,4 +491,11 @@ type Region struct {
 	Platform string      `json:"platform"`
 	Location string      `json:"location"`
 	Priority float64     `json:"priority"`
+}
+
+// Error represents an error message.
+type Error struct {
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+	Count   int    `json:"count"`
 }
