@@ -348,12 +348,6 @@ type OperationProvisionedData struct {
 	Region   *Region      `json:"region,omitempty"`
 }
 
-// Resource is a simplified version for events data.
-type Resource struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
-}
-
 // OperationDeprovisioned represents a deprovision operation event.
 type OperationDeprovisioned struct {
 	BaseBody
@@ -418,6 +412,7 @@ type OperationFailed struct {
 // OperationFailedData holds the event specific data.
 type OperationFailedData struct {
 	OperationID manifold.ID `json:"operation_id"`
+	Operation   *Operation  `json:"operation"`
 
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
@@ -455,6 +450,20 @@ type User struct {
 
 // Team is a simplified version for events data.
 type Team struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
+}
+
+// Operation is a simplified version for events data.
+type Operation struct {
+	ID        manifold.ID `json:"id"`
+	Type      string      `json:"type"`
+	State     string      `json:"state"`
+	CreatedAt time.Time   `json:"created_at"`
+}
+
+// Resource is a simplified version for events data.
+type Resource struct {
 	ID   manifold.ID `json:"id"`
 	Name string      `json:"name"`
 }
