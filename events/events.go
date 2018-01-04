@@ -414,8 +414,8 @@ type OperationFailedData struct {
 	OperationID manifold.ID `json:"operation_id"`
 	Operation   *Operation  `json:"operation"`
 
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
+	ResourceID *manifold.ID `json:"resource_id,omitempty"`
+	Resource   *Resource    `json:"resource,omitempty"`
 
 	UserID *manifold.ID `json:"user_id,omitempty"`
 	User   *User        `json:"user,omitempty"`
