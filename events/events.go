@@ -173,8 +173,12 @@ type Body interface {
 	ActorID() manifold.ID
 	SetActorID(manifold.ID)
 
+	Actor() *Actor
+
 	ScopeID() manifold.ID
 	SetScopeID(manifold.ID)
+
+	Scope() *Scope
 
 	RefID() manifold.ID
 	SetRefID(manifold.ID)
@@ -197,7 +201,9 @@ type BaseBody struct {
 	EventType       Type        `json:"type"`
 	StructState     State       `json:"state"`
 	StructActorID   manifold.ID `json:"actor_id"`
+	StructActor     *Actor      `json:"actor,omitempty"`
 	StructScopeID   manifold.ID `json:"scope_id"`
+	StructScope     *Scope      `json:"scope,omitempty"`
 	StructRefID     manifold.ID `json:"ref_id"`
 	StructCreatedAt time.Time   `json:"created_at"`
 	StructUpdatedAt time.Time   `json:"updated_at"`
@@ -241,6 +247,11 @@ func (b *BaseBody) SetActorID(id manifold.ID) {
 	b.StructActorID = id
 }
 
+// Actor returns the body's Actor
+func (b *BaseBody) Actor() *Actor {
+	return b.StructActor
+}
+
 // ScopeID returns the body's ScopeID
 func (b *BaseBody) ScopeID() manifold.ID {
 	return b.StructScopeID
@@ -249,6 +260,11 @@ func (b *BaseBody) ScopeID() manifold.ID {
 // SetScopeID sets the body's ScopeID
 func (b *BaseBody) SetScopeID(id manifold.ID) {
 	b.StructScopeID = id
+}
+
+// Scope returns the body's Scope
+func (b *BaseBody) Scope() *Scope {
+	return b.StructScope
 }
 
 // RefID returns the body's RefID
@@ -439,6 +455,18 @@ type OperationFailedData struct {
 	Region   *Region      `json:"region,omitempty"`
 
 	Error OperationError `json:"error"`
+}
+
+// Actor represents a simplified version either a user or a team.
+type Actor struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
+}
+
+// Scope represents a simplified version either a user or a team.
+type Scope struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
 }
 
 // User is a simplified version for events data.
