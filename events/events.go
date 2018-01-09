@@ -174,11 +174,13 @@ type Body interface {
 	SetActorID(manifold.ID)
 
 	Actor() *Actor
+	SetActor(*Actor)
 
 	ScopeID() manifold.ID
 	SetScopeID(manifold.ID)
 
 	Scope() *Scope
+	SetScope(*Scope)
 
 	RefID() manifold.ID
 	SetRefID(manifold.ID)
@@ -252,6 +254,11 @@ func (b *BaseBody) Actor() *Actor {
 	return b.StructActor
 }
 
+// SetActor returns the body's Actor
+func (b *BaseBody) SetActor(a *Actor) {
+	b.StructActor = a
+}
+
 // ScopeID returns the body's ScopeID
 func (b *BaseBody) ScopeID() manifold.ID {
 	return b.StructScopeID
@@ -265,6 +272,11 @@ func (b *BaseBody) SetScopeID(id manifold.ID) {
 // Scope returns the body's Scope
 func (b *BaseBody) Scope() *Scope {
 	return b.StructScope
+}
+
+// SetScope returns the body's Scope
+func (b *BaseBody) SetScope(s *Scope) {
+	b.StructScope = s
 }
 
 // RefID returns the body's RefID
