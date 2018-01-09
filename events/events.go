@@ -23,6 +23,9 @@ const (
 
 	// TypeOperationResized represents a provision operation
 	TypeOperationResized Type = "operation.resized"
+
+	// TypeOperationFailed represents a failed operation
+	TypeOperationFailed Type = "operation.failed"
 )
 
 // State represents the state of an event. Events usually starts only
@@ -138,6 +141,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &OperationDeprovisioned{}
 	case TypeOperationResized:
 		body = &OperationResized{}
+	case TypeOperationFailed:
+		body = &OperationFailed{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -343,12 +348,6 @@ type OperationProvisionedData struct {
 	Region   *Region      `json:"region,omitempty"`
 }
 
-// Resource is a simplified version for events data.
-type Resource struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
-}
-
 // OperationDeprovisioned represents a deprovision operation event.
 type OperationDeprovisioned struct {
 	BaseBody
@@ -404,11 +403,54 @@ type OperationResizedData struct {
 	Region   *Region      `json:"region,omitempty"`
 }
 
+// OperationFailed represents a resize operation event.
+type OperationFailed struct {
+	BaseBody
+	Data OperationFailedData `json:"data"`
+}
+
+// OperationFailedData holds the event specific data.
+type OperationFailedData struct {
+	OperationID manifold.ID `json:"operation_id"`
+	Operation   *Operation  `json:"operation"`
+
+	ResourceID *manifold.ID `json:"resource_id,omitempty"`
+	Resource   *Resource    `json:"resource,omitempty"`
+
+	UserID *manifold.ID `json:"user_id,omitempty"`
+	User   *User        `json:"user,omitempty"`
+
+	TeamID *manifold.ID `json:"team_id,omitempty"`
+	Team   *Team        `json:"team,omitempty"`
+
+	ProjectID *manifold.ID `json:"project_id,omitempty"`
+	Project   *Project     `json:"project,omitempty"`
+
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
+
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
+
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
+
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
+
+	Error OperationError `json:"error"`
+}
+
 // User is a simplified version for events data.
 type User struct {
 	ID    manifold.ID `json:"id"`
 	Name  string      `json:"name"`
 	Email string      `json:"email"`
+}
+
+// Validate returns whether or not the given User is valid
+func (User) Validate(v interface{}) error {
+	return nil
 }
 
 // Team is a simplified version for events data.
@@ -417,10 +459,58 @@ type Team struct {
 	Name string      `json:"name"`
 }
 
+// Validate returns whether or not the given Team is valid
+func (Team) Validate(v interface{}) error {
+	return nil
+}
+
+// Operation is a simplified version for events data.
+type Operation struct {
+	ID        manifold.ID `json:"id"`
+	Type      string      `json:"type"`
+	State     string      `json:"state"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
+}
+
+// Validate returns whether or not the given Operation is valid
+func (Operation) Validate(v interface{}) error {
+	return nil
+}
+
+// OperationError represents an error message.
+type OperationError struct {
+	Message   string    `json:"message"`
+	Code      int       `json:"code"`
+	Attempt   int       `json:"count"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// Validate returns whether or not the given OperationError is valid
+func (OperationError) Validate(v interface{}) error {
+	return nil
+}
+
+// Resource is a simplified version for events data.
+type Resource struct {
+	ID   manifold.ID `json:"id"`
+	Name string      `json:"name"`
+}
+
+// Validate returns whether or not the given Resource is valid
+func (Resource) Validate(v interface{}) error {
+	return nil
+}
+
 // Project is a simplified version for events data.
 type Project struct {
 	ID   manifold.ID `json:"id"`
 	Name string      `json:"name"`
+}
+
+// Validate returns whether or not the given Project is valid
+func (Project) Validate(v interface{}) error {
+	return nil
 }
 
 // Provider is a simplified version for events data.
@@ -429,10 +519,20 @@ type Provider struct {
 	Name string      `json:"name"`
 }
 
+// Validate returns whether or not the given Provider is valid
+func (Provider) Validate(v interface{}) error {
+	return nil
+}
+
 // Product is a simplified version for events data.
 type Product struct {
 	ID   manifold.ID `json:"id"`
 	Name string      `json:"name"`
+}
+
+// Validate returns whether or not the given Product is valid
+func (Product) Validate(v interface{}) error {
+	return nil
 }
 
 // Plan is a simplified version for events data.
@@ -442,6 +542,11 @@ type Plan struct {
 	Cost int         `json:"cost"`
 }
 
+// Validate returns whether or not the given Plan is valid
+func (Plan) Validate(v interface{}) error {
+	return nil
+}
+
 // Region is a simplified version for events data.
 type Region struct {
 	ID       manifold.ID `json:"id"`
@@ -449,4 +554,9 @@ type Region struct {
 	Platform string      `json:"platform"`
 	Location string      `json:"location"`
 	Priority float64     `json:"priority"`
+}
+
+// Validate returns whether or not the given Region is valid
+func (Region) Validate(v interface{}) error {
+	return nil
 }
