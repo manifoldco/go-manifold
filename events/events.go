@@ -474,14 +474,26 @@ type OperationFailedData struct {
 
 // Actor represents a simplified version either a user or a team.
 type Actor struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID    manifold.ID `json:"id"`
+	Name  string      `json:"name"`
+	Email string      `json:"email,omitempty"`
+}
+
+// Validate returns whether or not the given Actor is valid
+func (Actor) Validate(v interface{}) error {
+	return nil
 }
 
 // Scope represents a simplified version either a user or a team.
 type Scope struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID    manifold.ID `json:"id"`
+	Name  string      `json:"name"`
+	Email string      `json:"email,omitempty"`
+}
+
+// Validate returns whether or not the given Scope is valid
+func (Scope) Validate(v interface{}) error {
+	return nil
 }
 
 // User is a simplified version for events data.
