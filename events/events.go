@@ -357,11 +357,13 @@ type OwnerData struct {
 
 // SetOwner sets the owner depending if it is a user or a team.
 func (o *OwnerData) SetOwner(id manifold.ID) {
-	switch id.Type() {
+	switch t := id.Type(); t {
 	case idtype.User:
 		o.UserID = &id
 	case idtype.Team:
 		o.TeamID = &id
+	default:
+		panic(fmt.Sprintf("Invalid idtype %s", t))
 	}
 }
 
@@ -472,7 +474,7 @@ type OperationFailedData struct {
 	Error OperationError `json:"error"`
 }
 
-// Actor represents a simplified version either a user or a team.
+// Actor represents a simplified version of either a user or a team.
 type Actor struct {
 	ID    manifold.ID `json:"id"`
 	Name  string      `json:"name"`
@@ -484,7 +486,7 @@ func (Actor) Validate(v interface{}) error {
 	return nil
 }
 
-// Scope represents a simplified version either a user or a team.
+// Scope represents a simplified version of either a user or a team.
 type Scope struct {
 	ID    manifold.ID `json:"id"`
 	Name  string      `json:"name"`
