@@ -343,7 +343,28 @@ func (b *BaseBody) SetIPAddress(ip string) {
 // OperationProvisioned represents a provision operation event.
 type OperationProvisioned struct {
 	BaseBody
-	Data OperationProvisionedData `json:"data"`
+	Data *OperationProvisionedData `json:"data"`
+}
+
+// OwnerData represents the owner of the event reference.
+type OwnerData struct {
+	UserID *manifold.ID `json:"user_id,omitempty"`
+	User   *User        `json:"user,omitempty"`
+
+	TeamID *manifold.ID `json:"team_id,omitempty"`
+	Team   *Team        `json:"team,omitempty"`
+}
+
+// SetOwner sets the owner depending if it is a user or a team.
+func (o *OwnerData) SetOwner(id manifold.ID) {
+	switch t := id.Type(); t {
+	case idtype.User:
+		o.UserID = &id
+	case idtype.Team:
+		o.TeamID = &id
+	default:
+		panic(fmt.Sprintf("Invalid idtype %s", t))
+	}
 }
 
 // OperationProvisionedData holds the event specific data.
@@ -354,11 +375,7 @@ type OperationProvisionedData struct {
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
 
-	UserID *manifold.ID `json:"user_id,omitempty"`
-	User   *User        `json:"user,omitempty"`
-
-	TeamID *manifold.ID `json:"team_id,omitempty"`
-	Team   *Team        `json:"team,omitempty"`
+	OwnerData
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
@@ -379,24 +396,20 @@ type OperationProvisionedData struct {
 // OperationDeprovisioned represents a deprovision operation event.
 type OperationDeprovisioned struct {
 	BaseBody
-	Data OperationDeprovisionedData `json:"data"`
+	Data *OperationDeprovisionedData `json:"data"`
 }
 
 // OperationDeprovisionedData holds the event specific data.
 type OperationDeprovisionedData struct {
 	OperationID manifold.ID `json:"operation_id"`
 
-	UserID *manifold.ID `json:"user_id,omitempty"`
-	User   *User        `json:"user,omitempty"`
-
-	TeamID *manifold.ID `json:"team_id,omitempty"`
-	Team   *Team        `json:"team,omitempty"`
+	OwnerData
 }
 
 // OperationResized represents a resize operation event.
 type OperationResized struct {
 	BaseBody
-	Data OperationResizedData `json:"data"`
+	Data *OperationResizedData `json:"data"`
 }
 
 // OperationResizedData holds the event specific data.
@@ -406,11 +419,7 @@ type OperationResizedData struct {
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
 
-	UserID *manifold.ID `json:"user_id,omitempty"`
-	User   *User        `json:"user,omitempty"`
-
-	TeamID *manifold.ID `json:"team_id,omitempty"`
-	Team   *Team        `json:"team,omitempty"`
+	OwnerData
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
@@ -434,7 +443,7 @@ type OperationResizedData struct {
 // OperationFailed represents a resize operation event.
 type OperationFailed struct {
 	BaseBody
-	Data OperationFailedData `json:"data"`
+	Data *OperationFailedData `json:"data"`
 }
 
 // OperationFailedData holds the event specific data.
@@ -445,11 +454,7 @@ type OperationFailedData struct {
 	ResourceID *manifold.ID `json:"resource_id,omitempty"`
 	Resource   *Resource    `json:"resource,omitempty"`
 
-	UserID *manifold.ID `json:"user_id,omitempty"`
-	User   *User        `json:"user,omitempty"`
-
-	TeamID *manifold.ID `json:"team_id,omitempty"`
-	Team   *Team        `json:"team,omitempty"`
+	OwnerData
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
@@ -469,16 +474,28 @@ type OperationFailedData struct {
 	Error OperationError `json:"error"`
 }
 
-// Actor represents a simplified version either a user or a team.
+// Actor represents a simplified version of either a user or a team.
 type Actor struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID    manifold.ID `json:"id"`
+	Name  string      `json:"name"`
+	Email string      `json:"email,omitempty"`
 }
 
-// Scope represents a simplified version either a user or a team.
+// Validate returns whether or not the given Actor is valid
+func (Actor) Validate(v interface{}) error {
+	return nil
+}
+
+// Scope represents a simplified version of either a user or a team.
 type Scope struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID    manifold.ID `json:"id"`
+	Name  string      `json:"name"`
+	Email string      `json:"email,omitempty"`
+}
+
+// Validate returns whether or not the given Scope is valid
+func (Scope) Validate(v interface{}) error {
+	return nil
 }
 
 // User is a simplified version for events data.
