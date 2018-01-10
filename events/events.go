@@ -356,16 +356,12 @@ type OwnerData struct {
 }
 
 // SetOwner sets the owner depending if it is a user or a team.
-func (o *OwnerData) SetOwner(id manifold.ID, data interface{}) {
+func (o *OwnerData) SetOwner(id manifold.ID) {
 	switch id.Type() {
 	case idtype.User:
-		user := data.(*User)
 		o.UserID = &id
-		o.User = user
 	case idtype.Team:
-		team := data.(*Team)
 		o.TeamID = &id
-		o.Team = team
 	}
 }
 
