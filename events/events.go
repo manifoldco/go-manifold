@@ -346,27 +346,6 @@ type OperationProvisioned struct {
 	Data *OperationProvisionedData `json:"data"`
 }
 
-// OwnerData represents the owner of the event reference.
-type OwnerData struct {
-	UserID *manifold.ID `json:"user_id,omitempty"`
-	User   *User        `json:"user,omitempty"`
-
-	TeamID *manifold.ID `json:"team_id,omitempty"`
-	Team   *Team        `json:"team,omitempty"`
-}
-
-// SetOwner sets the owner depending if it is a user or a team.
-func (o *OwnerData) SetOwner(id manifold.ID) {
-	switch t := id.Type(); t {
-	case idtype.User:
-		o.UserID = &id
-	case idtype.Team:
-		o.TeamID = &id
-	default:
-		panic(fmt.Sprintf("Invalid idtype %s", t))
-	}
-}
-
 // OperationProvisionedData holds the event specific data.
 type OperationProvisionedData struct {
 	OperationID manifold.ID `json:"operation_id"`
@@ -374,8 +353,6 @@ type OperationProvisionedData struct {
 
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
-
-	OwnerData
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
@@ -402,8 +379,25 @@ type OperationDeprovisioned struct {
 // OperationDeprovisionedData holds the event specific data.
 type OperationDeprovisionedData struct {
 	OperationID manifold.ID `json:"operation_id"`
+	Source      string      `json:"source"`
 
-	OwnerData
+	ResourceID manifold.ID `json:"resource_id"`
+	Resource   *Resource   `json:"resource,omitempty"`
+
+	ProjectID *manifold.ID `json:"project_id,omitempty"`
+	Project   *Project     `json:"project,omitempty"`
+
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
+
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
+
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
+
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
 }
 
 // OperationResized represents a resize operation event.
@@ -415,11 +409,10 @@ type OperationResized struct {
 // OperationResizedData holds the event specific data.
 type OperationResizedData struct {
 	OperationID manifold.ID `json:"operation_id"`
+	Source      string      `json:"source"`
 
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
-
-	OwnerData
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
@@ -453,8 +446,6 @@ type OperationFailedData struct {
 
 	ResourceID *manifold.ID `json:"resource_id,omitempty"`
 	Resource   *Resource    `json:"resource,omitempty"`
-
-	OwnerData
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
