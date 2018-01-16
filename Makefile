@@ -28,7 +28,6 @@ bootstrap: $(BOOTSTRAP)
 vendor: Gopkg.lock
 	dep ensure
 
-
 .PHONY: bootstrap $(BOOTSTRAP)
 
 #################################################
@@ -54,7 +53,9 @@ METALINT=gometalinter --tests --disable-all --vendor --deadline=5m -s data \
 $(LINTERS): vendor $(GENERATED_NAMING_FILES)
 	$(METALINT) $@
 
-.PHONY: $(LINTERS) test
+lint: $(LINTERS)
+
+.PHONY: $(LINTERS) test lint
 
 #################################################
 # Releasing
