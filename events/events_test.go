@@ -10,9 +10,16 @@ import (
 
 func TestAnalytics(t *testing.T) {
 	id, _ := manifold.NewID(idtype.Resource)
+	tid, _ := manifold.NewID(idtype.Team)
 
 	event := Event{
 		Body: &OperationProvisioned{
+			BaseBody: BaseBody{
+				StructScope: &Scope{
+					ID:   tid,
+					Name: "manifold",
+				},
+			},
 			Data: &OperationProvisionedData{
 				Source: "catalog",
 				Resource: &Resource{
@@ -65,6 +72,8 @@ func TestAnalytics(t *testing.T) {
 		"region_location": "US",
 		"region_platform": "AWS",
 		"region_priority": float64(1),
+		"team_id":         tid,
+		"team_name":       "manifold",
 	}
 
 	got := event.Analytics()

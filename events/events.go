@@ -115,7 +115,16 @@ func (e *Event) SetUpdatedAt() {
 
 // Analytics returns a property map for analytics consumption.
 func (e *Event) Analytics() map[string]interface{} {
-	return analyticsProperties(e.Body)
+	m := analyticsProperties(e.Body)
+
+	scope := e.Body.Scope()
+
+	if scope != nil && scope.ID.Type() == idtype.Team {
+		m["team_id"] = scope.ID
+		m["team_name"] = scope.Name
+	}
+
+	return m
 }
 
 type outEvent struct {
