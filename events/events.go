@@ -3,6 +3,7 @@ package events
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -110,6 +111,11 @@ func (e *Event) SetState(state string) {
 // SetUpdatedAt sets the event's updated at time to the current time.
 func (e *Event) SetUpdatedAt() {
 	e.Body.SetUpdatedAt()
+}
+
+// Analytics returns a property map for analytics consumption.
+func (e *Event) Analytics() map[string]interface{} {
+	return analyticsProperties(e.Body)
 }
 
 type outEvent struct {
@@ -349,7 +355,7 @@ type OperationProvisioned struct {
 // OperationProvisionedData holds the event specific data.
 type OperationProvisionedData struct {
 	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source"`
+	Source      string      `json:"source" analytics:"type"`
 
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
@@ -379,7 +385,7 @@ type OperationDeprovisioned struct {
 // OperationDeprovisionedData holds the event specific data.
 type OperationDeprovisionedData struct {
 	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source"`
+	Source      string      `json:"source" analytics:"type"`
 
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
@@ -409,7 +415,7 @@ type OperationResized struct {
 // OperationResizedData holds the event specific data.
 type OperationResizedData struct {
 	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source"`
+	Source      string      `json:"source" analytics:"type"`
 
 	ResourceID manifold.ID `json:"resource_id"`
 	Resource   *Resource   `json:"resource,omitempty"`
@@ -541,8 +547,8 @@ func (OperationError) Validate(v interface{}) error {
 
 // Resource is a simplified version for events data.
 type Resource struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID   manifold.ID `json:"id" analytics:"resource_id"`
+	Name string      `json:"name" analytics:"resource_name"`
 }
 
 // Validate returns whether or not the given Resource is valid
@@ -552,8 +558,8 @@ func (Resource) Validate(v interface{}) error {
 
 // Project is a simplified version for events data.
 type Project struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID   manifold.ID `json:"id" analytics:"project_id"`
+	Name string      `json:"name" analytics:"project_name"`
 }
 
 // Validate returns whether or not the given Project is valid
@@ -563,8 +569,8 @@ func (Project) Validate(v interface{}) error {
 
 // Provider is a simplified version for events data.
 type Provider struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID   manifold.ID `json:"id" analytics:"provider_id"`
+	Name string      `json:"name" analytics:"provider_name"`
 }
 
 // Validate returns whether or not the given Provider is valid
@@ -574,8 +580,8 @@ func (Provider) Validate(v interface{}) error {
 
 // Product is a simplified version for events data.
 type Product struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
+	ID   manifold.ID `json:"id" analytics:"product_id"`
+	Name string      `json:"name" analytics:"product_name"`
 }
 
 // Validate returns whether or not the given Product is valid
@@ -585,9 +591,9 @@ func (Product) Validate(v interface{}) error {
 
 // Plan is a simplified version for events data.
 type Plan struct {
-	ID   manifold.ID `json:"id"`
-	Name string      `json:"name"`
-	Cost int         `json:"cost"`
+	ID   manifold.ID `json:"id" analytics:"plan_id"`
+	Name string      `json:"name" analytics:"plan_name"`
+	Cost int         `json:"cost" analytics:"plan_cost"`
 }
 
 // Validate returns whether or not the given Plan is valid
@@ -597,14 +603,47 @@ func (Plan) Validate(v interface{}) error {
 
 // Region is a simplified version for events data.
 type Region struct {
-	ID       manifold.ID `json:"id"`
-	Name     string      `json:"name"`
-	Platform string      `json:"platform"`
-	Location string      `json:"location"`
-	Priority float64     `json:"priority"`
+	ID       manifold.ID `json:"id" analytics:"region_id"`
+	Name     string      `json:"name" analytics:"region_name"`
+	Platform string      `json:"platform" analytics:"region_platform"`
+	Location string      `json:"location" analytics:"region_location"`
+	Priority float64     `json:"priority" analytics:"region_priority"`
 }
 
 // Validate returns whether or not the given Region is valid
 func (Region) Validate(v interface{}) error {
 	return nil
+}
+
+// analyticsProperties generates property map for analytics consumption by
+// finding all struct fields with the analytics tag and copying its value to a
+// map
+func analyticsProperties(s interface{}) map[string]interface{} {
+	m := make(map[string]interface{})
+
+	v := reflect.ValueOf(s).Elem()
+	t := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+
+		if field.Kind() == reflect.Ptr {
+			if field.IsNil() {
+				continue
+			}
+
+			mm := analyticsProperties(field.Interface())
+			for k, v := range mm {
+				m[k] = v
+			}
+		} else {
+			tag := t.Field(i).Tag.Get("analytics")
+			if tag != "" {
+				m[tag] = field.Interface()
+			}
+		}
+
+	}
+
+	return m
 }
