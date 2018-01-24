@@ -30,6 +30,7 @@ func TestAnalytics(t *testing.T) {
 					ID:   id,
 					Name: "local",
 				},
+				ProviderID: &id,
 				Provider: &Provider{
 					ID:   id,
 					Name: "Degraffdb",
