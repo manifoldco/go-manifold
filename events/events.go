@@ -633,11 +633,9 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 	v := reflect.ValueOf(s).Elem()
 	t := v.Type()
 
-	/*
-		if v.Kind() != reflect.Struct {
-			return m
-		}
-	*/
+	if v.Kind() != reflect.Struct {
+		return m
+	}
 
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
