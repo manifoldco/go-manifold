@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-openapi/strfmt"
 	"github.com/manifoldco/go-manifold"
 	"github.com/manifoldco/go-manifold/errors"
@@ -634,6 +635,7 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 	t := v.Type()
 
 	if v.Kind() != reflect.Struct {
+		spew.Dump(s)
 		return m
 	}
 
