@@ -493,8 +493,8 @@ type ResourceMeasuresAdded struct {
 
 // ResourceMeasuresAddedData holds the event specific data.
 type ResourceMeasuresAddedData struct {
-	ResourceID *manifold.ID `json:"resource_id,omitempty"`
-	Resource   *Resource    `json:"resource,omitempty"`
+	ResourceID manifold.ID `json:"resource_id"`
+	Resource   *Resource   `json:"resource,omitempty"`
 
 	ProjectID *manifold.ID `json:"project_id,omitempty"`
 	Project   *Project     `json:"project,omitempty"`
