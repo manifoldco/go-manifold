@@ -491,7 +491,7 @@ type ResourceMeasuresAdded struct {
 	Data *ResourceMeasuresAddedData `json:"data"`
 }
 
-// OperationFailedData holds the event specific data.
+// ResourceMeasuresAddedData holds the event specific data.
 type ResourceMeasuresAddedData struct {
 	ResourceID *manifold.ID `json:"resource_id,omitempty"`
 	Resource   *Resource    `json:"resource,omitempty"`
