@@ -27,6 +27,9 @@ const (
 
 	// TypeOperationFailed represents a failed operation
 	TypeOperationFailed Type = "operation.failed"
+
+	// TypeResourceMeasuresAdded represents a change on resource usage
+	TypeResourceMeasuresAdded = "resource.measures.added"
 )
 
 // State represents the state of an event. Events usually starts only
@@ -158,6 +161,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &OperationResized{}
 	case TypeOperationFailed:
 		body = &OperationFailed{}
+	case TypeResourceMeasuresAdded:
+		body = &ResourceMeasuresAdded{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -478,6 +483,35 @@ type OperationFailedData struct {
 	Region   *Region      `json:"region,omitempty"`
 
 	Error OperationError `json:"error"`
+}
+
+// ResourceMeasuresAdded represents a change on resource usage.
+type ResourceMeasuresAdded struct {
+	BaseBody
+	Data *ResourceMeasuresAddedData `json:"data"`
+}
+
+// OperationFailedData holds the event specific data.
+type ResourceMeasuresAddedData struct {
+	ResourceID *manifold.ID `json:"resource_id,omitempty"`
+	Resource   *Resource    `json:"resource,omitempty"`
+
+	ProjectID *manifold.ID `json:"project_id,omitempty"`
+	Project   *Project     `json:"project,omitempty"`
+
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
+
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
+
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
+
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
+
+	Measures map[string]int64 `json:"measures"`
 }
 
 // Actor represents a simplified version of either a user or a team.
