@@ -40,3 +40,15 @@ func TestNames(t *testing.T) {
 		}
 	})
 }
+
+func TestForResource(t *testing.T) {
+	product := manifold.Label("degraffdb")
+	rid, _ := manifold.DecodeIDFromString("268d37vht44f1e3t0n07jjx4d0qe8")
+
+	expect := manifold.Label("degraffdb-dual-heart-gold-octagon")
+	got := ForResource(product, rid)
+
+	if got != expect {
+		t.Errorf("Expected %q == %q", expect, got)
+	}
+}

@@ -2,6 +2,7 @@ package names
 
 import (
 	"encoding/binary"
+	"fmt"
 	"strings"
 
 	"github.com/manifoldco/go-manifold"
@@ -27,6 +28,7 @@ func init() {
 // New returns a generated name based on the provided id, and its matching label.
 // Names are title cased with spaces between words.
 // Labels are lowercased with hyphens between words
+// Deprecated: for resource names use `ForResource` instead
 func New(id manifold.ID) (string, string) {
 	idBytes := id[2:]
 
@@ -38,6 +40,22 @@ func New(id manifold.ID) (string, string) {
 	name := strings.Title(adj + " " + color + " " + shape)
 	label := strings.Replace(strings.ToLower(name), " ", "-", -1)
 	return name, label
+}
+
+// ForResource returns a new label combining a product label with a random label
+// for the resource based on its id.
+func ForResource(product manifold.Label, id manifold.ID) manifold.Label {
+	idBytes := id[2:]
+
+	offset := 0
+	adj, offset := fetchWord(idBytes, data.Adjectives, offset, aShare)
+	color, offset := fetchWord(idBytes, data.Colors, offset, cShare)
+	shape, _ := fetchWord(idBytes, data.Shapes, offset, sShare)
+
+	label := fmt.Sprintf("%s-%s-%s-%s", product, adj, color, shape)
+	label = strings.ToLower(strings.Replace(label, " ", "-", -1))
+
+	return manifold.Label(label)
 }
 
 func fetchWord(idBytes []byte, wordList []string, offset, bitShare int) (string, int) {
