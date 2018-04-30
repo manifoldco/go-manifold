@@ -268,12 +268,7 @@ func (c *CredentialsClient) List(ctx context.Context, resourceID []ID) *Credenti
 	}
 
 	_, iter.err = c.backend.Do(ctx, req, &iter.page, func(code int) error {
-		switch code {
-		case 400, 401, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	return &iter
 }
@@ -301,12 +296,7 @@ func (c *InternalClient) DeleteProjects(ctx context.Context, id ID) error {
 	}
 
 	_, err = c.backend.Do(ctx, req, nil, func(code int) error {
-		switch code {
-		case 400, 401, 404, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	if err != nil {
 		return err
@@ -358,12 +348,7 @@ func (c *ProjectsClient) Get(ctx context.Context, id ID) (*Project, error) {
 
 	var resp Project
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
-		switch code {
-		case 401, 403, 404, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	if err != nil {
 		return nil, err
@@ -410,12 +395,7 @@ func (c *ProjectsClient) List(ctx context.Context, opts *ProjectsListOpts) *Proj
 	}
 
 	_, iter.err = c.backend.Do(ctx, req, &iter.page, func(code int) error {
-		switch code {
-		case 400, 401, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	return &iter
 }
@@ -438,12 +418,7 @@ func (c *ProjectsClient) Update(ctx context.Context, id ID, publicUpdateProject 
 
 	var resp Project
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
-		switch code {
-		case 400, 401, 403, 409, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	if err != nil {
 		return nil, err
@@ -473,12 +448,7 @@ func (c *ResourcesClient) Get(ctx context.Context, id ID) (*Resource, error) {
 
 	var resp Resource
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
-		switch code {
-		case 401, 404, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	if err != nil {
 		return nil, err
@@ -508,12 +478,7 @@ func (c *ResourcesClient) GetConfig(ctx context.Context, id ID) (*map[string]str
 
 	var resp map[string]string
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
-		switch code {
-		case 400, 401, 404, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	if err != nil {
 		return nil, err
@@ -572,12 +537,7 @@ func (c *ResourcesClient) List(ctx context.Context, opts *ResourcesListOpts) *Re
 	}
 
 	_, iter.err = c.backend.Do(ctx, req, &iter.page, func(code int) error {
-		switch code {
-		case 401, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	return &iter
 }
@@ -601,12 +561,7 @@ func (c *ResourcesClient) Update(ctx context.Context, id ID, publicUpdateResourc
 
 	var resp Resource
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
-		switch code {
-		case 400, 401, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	if err != nil {
 		return nil, err
@@ -641,12 +596,7 @@ func (c *ResourcesClient) UpdateConfig(ctx context.Context, id ID, configPatch *
 
 	var resp map[string]string
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
-		switch code {
-		case 400, 401, 404, 409, 500:
-			return &Error{}
-		default:
-			return nil
-		}
+		return &Error{}
 	})
 	if err != nil {
 		return nil, err
