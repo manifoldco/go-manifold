@@ -144,11 +144,7 @@ func (id ID) Type() idtype.Type {
 	return idtype.Decode(id[0]&0x0F, id[1])
 }
 
-func (id *ID) String() string {
-	if id == nil {
-		return ""
-	}
-
+func (id ID) String() string {
 	return base32.EncodeToString(id[:])
 }
 
