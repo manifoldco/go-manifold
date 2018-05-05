@@ -12,6 +12,7 @@ import (
 // Human friendly error values
 var (
 	ErrNameRequired           = errors.New("a label is required to perform this query")
+	ErrProjectInvalid         = errors.New("the project is invalid")
 	ErrResourceInvalid        = errors.New("the resource is invalid")
 	ErrMultipleResourcesFound = errors.New("multiple resources with the same label are found. Please provide a specific project")
 
@@ -62,6 +63,43 @@ func (c *Client) GetResource(ctx context.Context, project *string, res *primitiv
 	return rs[0], nil
 }
 
+// GetProjectCredentialValues is a function that fetches a Project's set of
+// CredentialValues for a given Project. If a list of resource is given as
+// well, then the CredentialValues are mapped to that Resource using the
+// Resource name. This will also provide defaults if you have requested
+// a Resource's Credentials if you have provided a Default value.
+// Unlike GetResourcesCredentialValues, only the Resources that are a member
+// of Project are loaded
+func (c *Client) GetProjectCredentialValues(ctx context.Context, project *primitives.Project) (map[string][]*primitives.CredentialValue, error) {
+	if !project.Valid() {
+		return nil, ErrProjectInvalid
+	}
+
+	for _, r := range project.Resources {
+		if !r.Valid() {
+			return nil, ErrResourceInvalid
+		}
+	}
+
+	resources, err := c.GetResources(ctx, &project.Name, project.Resources)
+	if err != nil {
+		return nil, err
+	}
+
+	resourceNames := map[manifold.ID]string{}
+	for _, res := range resources {
+		resourceNames[res.ID] = res.Body.Label
+	}
+
+	pid, err := c.ProjectID(&project.Name)
+	if err != nil {
+		return nil, err
+	}
+	return c.credentialsByParam(ctx, &project.Name, project.Resources, resourceNames, &manifold.CredentialsListOpts{
+		ProjectID: pid,
+	})
+}
+
 // GetResourceCredentialValues is a wrapper function that knows how to get a set
 // of specific credentials for a given requested resource.
 func (c *Client) GetResourceCredentialValues(ctx context.Context, project *string, res *primitives.Resource) ([]*primitives.CredentialValue, error) {
@@ -104,7 +142,13 @@ func (c *Client) GetResourcesCredentialValues(ctx context.Context, project *stri
 		resourceNames[res.ID] = res.Body.Label
 	}
 
-	credList := c.Client.Credentials.List(ctx, resourceIDs)
+	return c.credentialsByParam(ctx, project, res, resourceNames, &manifold.CredentialsListOpts{
+		ResourceID: &resourceIDs,
+	})
+}
+
+func (c *Client) credentialsByParam(ctx context.Context, project *string, res []*primitives.Resource, resourceNames map[manifold.ID]string, params *manifold.CredentialsListOpts) (map[string][]*primitives.CredentialValue, error) {
+	credList := c.Client.Credentials.List(ctx, params)
 	defer credList.Close()
 
 	resourceCredentials := map[string][]*primitives.CredentialValue{}
@@ -144,6 +188,12 @@ func (c *Client) GetResourcesCredentialValues(ctx context.Context, project *stri
 
 	if err := fillDefaultCredentials(resourceCredentials, res); err != nil {
 		return nil, err
+	}
+
+	// for Projects with mutiple resources, it will try and fill these in (since Next() has more
+	// credentials we don't care about (in the case we passed a sub-resource))
+	if _, ok := resourceCredentials[""]; ok {
+		delete(resourceCredentials, "")
 	}
 
 	return resourceCredentials, nil
