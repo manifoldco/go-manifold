@@ -43,6 +43,17 @@ type Credential struct {
 	} `json:"body"`
 }
 
+// CredentialsListOpts holds optional argument values
+type CredentialsListOpts struct {
+	// ID of the Resource to filter Credentials by, stored as a
+	// base32 encoded 18 byte identifier.
+	ResourceID *[]ID `json:"resource_id"`
+
+	// ID of the Project to filter Credentials by, stored as a
+	// base32 encoded 18 byte identifier.
+	ProjectID *ID `json:"project_id"`
+}
+
 // Project is a data type for API communication.
 type Project struct {
 	ID      ID     `json:"id"`
@@ -244,7 +255,7 @@ type CredentialsClient endpoint
 // List corresponds to the GET /credentials endpoint.
 //
 // List credentials
-func (c *CredentialsClient) List(ctx context.Context, resourceID []ID) *CredentialIter {
+func (c *CredentialsClient) List(ctx context.Context, opts *CredentialsListOpts) *CredentialIter {
 	iter := CredentialIter{
 		first: true,
 		i:     -1,
@@ -252,13 +263,26 @@ func (c *CredentialsClient) List(ctx context.Context, resourceID []ID) *Credenti
 
 	p := "/credentials"
 
-	q := make(url.Values)
-	for _, v := range resourceID {
-		b, err := v.MarshalText()
-		if err != nil {
-			return &iter
+	var q url.Values
+	if opts != nil {
+		q = make(url.Values)
+		if opts.ResourceID != nil {
+			for _, v := range *opts.ResourceID {
+				b, err := v.MarshalText()
+				if err != nil {
+					return &iter
+				}
+				q.Add("resource_id", string(b))
+			}
 		}
-		q.Add("resource_id", string(b))
+
+		if opts.ProjectID != nil {
+			b, err := opts.ProjectID.MarshalText()
+			if err != nil {
+				return &iter
+			}
+			q.Set("project_id", string(b))
+		}
 	}
 
 	var req *http.Request

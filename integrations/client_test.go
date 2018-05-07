@@ -107,6 +107,138 @@ func TestGetResources(t *testing.T) {
 	})
 }
 
+func TestGetProjectCredentialValues(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("with an invalid project", func(t *testing.T) {
+		invalidProject := &primitives.Project{}
+
+		_, err := testClient.GetProjectCredentialValues(ctx, invalidProject)
+		expectErrorEqual(t, err, integrations.ErrProjectInvalid)
+	})
+
+	t.Run("with a valid project", func(t *testing.T) {
+		project := &primitives.Project{
+			Name: "kubernetes-secrets",
+		}
+
+		t.Run("without a valid credentials subset", func(t *testing.T) {
+			creds, err := testClient.GetProjectCredentialValues(ctx, project)
+			expectNoError(t, err)
+
+			if len(creds) != 2 {
+				t.Fatalf("Expected '2' CredentialValues for 'kubernetes-secrets', got '%d'", len(creds))
+			}
+
+			data, err := integrations.FlattenResourcesCredentialValues(creds)
+			expectNoError(t, err)
+
+			expectStringEqual(t, data["TOKEN_SECRET"], "my-secret-token-secret")
+			expectStringEqual(t, data["TOKEN_ID"], "my-secret-token-id")
+			expectStringEqual(t, data["PASSWORD"], "manifold-secret")
+			expectStringEqual(t, data["USERNAME"], "manifold")
+		})
+
+		t.Run("with a valid credentials subset", func(t *testing.T) {
+			sub := &primitives.Resource{
+				Name: "custom-resource1",
+				Credentials: []*primitives.Credential{
+					{
+						Key: "TOKEN_ID",
+					},
+				},
+			}
+
+			subProj := &primitives.Project{
+				Name:      project.Name,
+				Resources: []*primitives.Resource{sub},
+			}
+
+			creds, err := testClient.GetProjectCredentialValues(ctx, subProj)
+			expectNoError(t, err)
+
+			if len(creds) != 1 {
+				t.Fatalf("Expected '1' CredentialValues in project 'kubernetes-secrets' for sub request. Got '%d'", len(creds))
+			}
+
+			if len(creds["custom-resource1"]) != 1 {
+				t.Fatalf("Expected '1' CredentailValues in resource 'custom-resource1', got '%d'", len(creds["custom-resource1"]))
+			}
+			data, err := integrations.FlattenResourcesCredentialValues(creds)
+			expectNoError(t, err)
+			expectStringEqual(t, data["TOKEN_ID"], "my-secret-token-id")
+
+		})
+
+		t.Run("with a non-existing key", func(t *testing.T) {
+			t.Run("with a default value", func(t *testing.T) {
+				sub := &primitives.Resource{
+					Name: "custom-resource1",
+					Credentials: []*primitives.Credential{
+						{
+							Key:     "NON_EXISTING",
+							Default: "my-default-value",
+						},
+					},
+				}
+
+				subProj := &primitives.Project{
+					Name:      project.Name,
+					Resources: []*primitives.Resource{sub},
+				}
+
+				creds, err := testClient.GetProjectCredentialValues(ctx, subProj)
+				expectNoError(t, err)
+
+				if len(creds) != 1 {
+					t.Fatalf("Expected '1' CustomCredentials value for 'kubere-secrets' sub request. Got '%d'", len(creds))
+				}
+
+				data, err := integrations.FlattenResourcesCredentialValues(creds)
+				expectNoError(t, err)
+				expectStringEqual(t, data["NON_EXISTING"], "my-default-value")
+			})
+			t.Run("without a defalt value", func(t *testing.T) {
+				sub := &primitives.Resource{
+					Name: "custom-resource1",
+					Credentials: []*primitives.Credential{
+						{
+							Key: "NON_EXISTING",
+						},
+					},
+				}
+
+				subProj := &primitives.Project{
+					Name:      project.Name,
+					Resources: []*primitives.Resource{sub},
+				}
+
+				_, err := testClient.GetProjectCredentialValues(ctx, subProj)
+				expectErrorEqual(t, err, integrations.ErrCredentialDefaultNotSet)
+			})
+		})
+
+		t.Run("with an invalid credentials subset", func(t *testing.T) {
+			sub := &primitives.Resource{
+				Name: "custom-resource1",
+				Credentials: []*primitives.Credential{
+					{
+						Name: "invalid",
+					},
+				},
+			}
+
+			subProj := &primitives.Project{
+				Name:      project.Name,
+				Resources: []*primitives.Resource{sub},
+			}
+
+			_, err := testClient.GetProjectCredentialValues(ctx, subProj)
+			expectErrorEqual(t, err, integrations.ErrProjectInvalid)
+		})
+	})
+}
+
 func TestGetResourceCredentialValues(t *testing.T) {
 	ctx := context.Background()
 
