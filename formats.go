@@ -9,9 +9,10 @@ import (
 )
 
 var (
-	labelRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-_]{1,128}$")
-	nameRegex  = regexp.MustCompile(`^[a-zA-Z0-9][a-z0-9A-Z\. \-_]{2,128}$`)
-	codeRegex  = regexp.MustCompile("^([0-9abcdefghjkmnpqrtuvwxyz]{16}|[0-9]{6})$")
+	labelRegex             = regexp.MustCompile("^[a-z0-9][a-z0-9-_]{1,128}$")
+	nameRegex              = regexp.MustCompile(`^[a-zA-Z0-9][a-z0-9A-Z\. \-_]{2,128}$`)
+	codeRegex              = regexp.MustCompile("^([0-9abcdefghjkmnpqrtuvwxyz]{16}|[0-9]{6})$")
+	featureValueLabelRegex = regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.]{1,128}$`)
 )
 
 var (
@@ -20,6 +21,8 @@ var (
 	errInvalidEmail = NewError(errors.BadRequestError, "Invalid Email Provided")
 	errInvalidCode  = NewError(errors.BadRequestError,
 		"Invalid email verification code provided")
+	errInvalidFeatureValueLabel = NewError(errors.BadRequestError,
+		"Invalid feature value label provided")
 )
 
 // Label represents any object's label field
@@ -68,4 +71,16 @@ func (c Code) Validate(_ interface{}) error {
 	}
 
 	return errInvalidCode
+}
+
+// FeatureValueLabel represents any object's label field
+type FeatureValueLabel string
+
+// Validate ensures the label value is valid
+func (lbl FeatureValueLabel) Validate(_ interface{}) error {
+	if featureValueLabelRegex.Match([]byte(lbl)) {
+		return nil
+	}
+
+	return errInvalidFeatureValueLabel
 }
