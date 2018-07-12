@@ -32,26 +32,6 @@ const (
 	TypeResourceMeasuresAdded = "resource.measures.added"
 )
 
-// State represents the state of an event. Events usually starts only
-// containing raw references to the system and later are processed to expand
-// objects information.
-type State string
-
-const (
-	// StatePending represents the event information is pending expansion. That's
-	// accomplished by an asynchronous job. Users don't have access to an event
-	// while it is pending.
-	StatePending State = "pending"
-
-	// StateTracking represents the event is sending information to a 3rd-party
-	// analytics. Users can access an event while is in the tracking state.
-	StateTracking State = "tracking"
-
-	// StateDone represents the event information expansion is done. The event
-	// is immutable going forward. Users can access a completed event.
-	StateDone State = "done"
-)
-
 // SourceType represents where the request came from.
 type SourceType string
 
@@ -99,16 +79,6 @@ func (e *Event) Validate(v interface{}) error {
 // StateType returns the event state type as a string
 func (e *Event) StateType() string {
 	return string(e.Body.Type())
-}
-
-// GetState returns the event's state
-func (e *Event) GetState() string {
-	return string(e.Body.State())
-}
-
-// SetState sets the event's state
-func (e *Event) SetState(state string) {
-	e.Body.SetState(State(state))
 }
 
 // SetUpdatedAt sets the event's updated at time to the current time.
@@ -187,17 +157,8 @@ type Body interface {
 	Type() Type
 	SetType(string)
 
-	State() State
-	SetState(State)
-
-	ActorID() manifold.ID
-	SetActorID(manifold.ID)
-
 	Actor() *Actor
 	SetActor(*Actor)
-
-	ScopeID() manifold.ID
-	SetScopeID(manifold.ID)
 
 	Scope() *Scope
 	SetScope(*Scope)
@@ -221,10 +182,7 @@ type Body interface {
 // BaseBody contains data associated with all events.
 type BaseBody struct {
 	EventType       Type        `json:"type"`
-	StructState     State       `json:"state"`
-	StructActorID   manifold.ID `json:"actor_id"`
 	StructActor     *Actor      `json:"actor,omitempty"`
-	StructScopeID   manifold.ID `json:"scope_id"`
 	StructScope     *Scope      `json:"scope,omitempty"`
 	StructRefID     manifold.ID `json:"ref_id"`
 	StructCreatedAt time.Time   `json:"created_at"`
@@ -249,26 +207,6 @@ func (b *BaseBody) SetType(s string) {
 	b.EventType = Type(s)
 }
 
-// State returns the body's State
-func (b *BaseBody) State() State {
-	return b.StructState
-}
-
-// SetState sets the body's State
-func (b *BaseBody) SetState(s State) {
-	b.StructState = s
-}
-
-// ActorID returns the body's ActorID
-func (b *BaseBody) ActorID() manifold.ID {
-	return b.StructActorID
-}
-
-// SetActorID sets the body's ActorID
-func (b *BaseBody) SetActorID(id manifold.ID) {
-	b.StructActorID = id
-}
-
 // Actor returns the body's Actor
 func (b *BaseBody) Actor() *Actor {
 	return b.StructActor
@@ -277,16 +215,6 @@ func (b *BaseBody) Actor() *Actor {
 // SetActor returns the body's Actor
 func (b *BaseBody) SetActor(a *Actor) {
 	b.StructActor = a
-}
-
-// ScopeID returns the body's ScopeID
-func (b *BaseBody) ScopeID() manifold.ID {
-	return b.StructScopeID
-}
-
-// SetScopeID sets the body's ScopeID
-func (b *BaseBody) SetScopeID(id manifold.ID) {
-	b.StructScopeID = id
 }
 
 // Scope returns the body's Scope
