@@ -4,9 +4,29 @@ import (
 	"reflect"
 	"testing"
 
-	manifold "github.com/manifoldco/go-manifold"
+	"github.com/manifoldco/go-manifold"
 	"github.com/manifoldco/go-manifold/idtype"
 )
+
+func TestNew(t *testing.T) {
+	evt, err := New()
+
+	if err != nil {
+		t.Fatalf("error not expected %v", err)
+	}
+
+	if evt.ID.IsEmpty() {
+		t.Error("expected event id not to be empty")
+	}
+
+	if evt.StructType != "event" {
+		t.Errorf(`expected event type to be "events" got %q`, evt.StructType)
+	}
+
+	if evt.StructVersion != 1 {
+		t.Errorf(`expected event version to be 1 got %d`, evt.StructVersion)
+	}
+}
 
 func TestAnalytics(t *testing.T) {
 	id, _ := manifold.NewID(idtype.Resource)

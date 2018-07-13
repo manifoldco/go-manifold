@@ -54,6 +54,22 @@ type Event struct {
 	Body          Body        `json:"body"`
 }
 
+// New returns a new event without a body.
+func New() (*Event, error) {
+	id, err := manifold.NewID(idtype.ActivityEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	evt := &Event{
+		ID:            id,
+		StructType:    "event",
+		StructVersion: 1,
+	}
+
+	return evt, nil
+}
+
 // GetID returns the ID associated with this event
 func (e *Event) GetID() manifold.ID { return e.ID }
 
