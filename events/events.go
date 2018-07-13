@@ -35,6 +35,20 @@ const (
 // SourceType represents where the request came from.
 type SourceType string
 
+// Validate whether source type is valid
+func (s *SourceType) Validate(interface{}) error {
+	if s == nil {
+		return manifold.NewError(errors.BadRequestError, "source cannot be nil")
+	}
+
+	switch *s {
+	case SourceDashboard, SourceCLI, SourceSystem, SourceProvider:
+		return nil
+	default:
+		return manifold.NewError(errors.BadRequestError, fmt.Sprintf("invalid source type %q", *s))
+	}
+}
+
 const (
 	// SourceDashboard is a request coming from the dashboard
 	SourceDashboard SourceType = "dashboard"
@@ -44,6 +58,9 @@ const (
 
 	// SourceSystem is an internal request
 	SourceSystem SourceType = "system"
+
+	// SourceProvider is a request from provider
+	SourceProvider SourceType = "provider"
 )
 
 // Event represents meaningful activities performed on the system.
