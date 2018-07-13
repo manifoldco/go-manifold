@@ -450,24 +450,12 @@ type ResourceMeasuresAdded struct {
 
 // ResourceMeasuresAddedData holds the event specific data.
 type ResourceMeasuresAddedData struct {
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
-
+	Resource Resource         `json:"resource,omitempty"`
+	Project  *Project         `json:"project,omitempty"`
+	Provider Provider         `json:"provider,omitempty"`
+	Product  Product          `json:"product,omitempty"`
+	Plan     Plan             `json:"plan,omitempty"`
+	Region   Region           `json:"region,omitempty"`
 	Measures map[string]int64 `json:"measures"`
 }
 
