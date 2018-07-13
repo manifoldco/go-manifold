@@ -36,16 +36,12 @@ const (
 type SourceType string
 
 // Validate whether source type is valid
-func (s *SourceType) Validate(interface{}) error {
-	if s == nil {
-		return manifold.NewError(errors.BadRequestError, "source cannot be nil")
-	}
-
-	switch *s {
+func (s SourceType) Validate(interface{}) error {
+	switch s {
 	case SourceDashboard, SourceCLI, SourceSystem, SourceProvider:
 		return nil
 	default:
-		return manifold.NewError(errors.BadRequestError, fmt.Sprintf("invalid source type %q", *s))
+		return manifold.NewError(errors.BadRequestError, fmt.Sprintf("invalid source type %q", s))
 	}
 }
 
