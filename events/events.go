@@ -110,11 +110,6 @@ func (e *Event) StateType() string {
 	return string(e.Body.Type())
 }
 
-// SetUpdatedAt sets the event's updated at time to the current time.
-func (e *Event) SetUpdatedAt() {
-	e.Body.SetUpdatedAt()
-}
-
 // Analytics returns a property map for analytics consumption.
 func (e *Event) Analytics() map[string]interface{} {
 	m := analyticsProperties(e.Body)
@@ -198,9 +193,6 @@ type Body interface {
 	CreatedAt() *strfmt.DateTime
 	SetCreatedAt(*strfmt.DateTime)
 
-	UpdatedAt() *strfmt.DateTime
-	SetUpdatedAt()
-
 	Source() *string
 	SetSource(*string)
 
@@ -215,7 +207,6 @@ type BaseBody struct {
 	StructScope     *Scope      `json:"scope,omitempty"`
 	StructRefID     manifold.ID `json:"ref_id"`
 	StructCreatedAt time.Time   `json:"created_at"`
-	StructUpdatedAt time.Time   `json:"updated_at"`
 	StructSource    SourceType  `json:"source"`
 	StructIPAddress string      `json:"ip_address"`
 }
@@ -279,17 +270,6 @@ func (b *BaseBody) SetCreatedAt(t *strfmt.DateTime) {
 	} else {
 		b.StructCreatedAt = time.Time(*t)
 	}
-}
-
-// UpdatedAt returns the body's CreatedAt
-func (b *BaseBody) UpdatedAt() *strfmt.DateTime {
-	t := strfmt.DateTime(b.StructUpdatedAt)
-	return &t
-}
-
-// SetUpdatedAt sets the body's CreatedAt
-func (b *BaseBody) SetUpdatedAt() {
-	b.StructUpdatedAt = time.Now().UTC()
 }
 
 // Source returns the body's Source
