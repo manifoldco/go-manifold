@@ -527,8 +527,8 @@ type ResourceOwnerChangedData struct {
 	ProductID *manifold.ID `json:"product_id,omitempty"`
 	Product   *Product     `json:"product,omitempty"`
 
-	ProjectID manifold.ID `json:"project_id"`
-	Project   *Project    `json:"project,omitempty"`
+	ProjectID *manifold.ID `json:"project_id"`
+	Project   *Project     `json:"project,omitempty"`
 
 	RegionID *manifold.ID `json:"region_id,omitempty"`
 	Region   *Region      `json:"region,omitempty"`
