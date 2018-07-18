@@ -483,6 +483,9 @@ type ResourceProjectChangedData struct {
 	ProductID *manifold.ID `json:"product_id,omitempty"`
 	Product   *Product     `json:"product,omitempty"`
 
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
+
 	OldProjectID manifold.ID `json:"old_project_id"`
 	OldProject   *Project    `json:"old_project,omitempty"`
 
@@ -514,6 +517,9 @@ type ResourceOwnerChangedData struct {
 	NewOwnerID manifold.ID `json:"new_owner_id"`
 	NewUser    *User       `json:"new_user,omitempty"`
 	NewTeam    *Team       `json:"new_team,omitempty"`
+
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
 
 	ProviderID *manifold.ID `json:"provider_id,omitempty"`
 	Provider   *Provider    `json:"provider,omitempty"`
