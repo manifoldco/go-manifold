@@ -486,11 +486,11 @@ type ResourceProjectChangedData struct {
 	PlanID *manifold.ID `json:"plan_id,omitempty"`
 	Plan   *Plan        `json:"plan,omitempty"`
 
-	OldProjectID manifold.ID `json:"old_project_id"`
-	OldProject   *Project    `json:"old_project,omitempty"`
+	OldProjectID *manifold.ID `json:"old_project_id"`
+	OldProject   *Project     `json:"old_project,omitempty"`
 
-	NewProjectID manifold.ID `json:"new_project_id"`
-	NewProject   *Project    `json:"new_project,omitempty"`
+	NewProjectID *manifold.ID `json:"new_project_id"`
+	NewProject   *Project     `json:"new_project,omitempty"`
 
 	RegionID *manifold.ID `json:"region_id,omitempty"`
 	Region   *Region      `json:"region,omitempty"`
