@@ -25,6 +25,12 @@ const (
 	// TypeOperationResized represents a provision operation
 	TypeOperationResized Type = "operation.resized"
 
+	// TypeResourceProjectChanged represents a move operation
+	TypeResourceProjectChanged Type = "resource.project.changed"
+
+	// TypeResourceOwnerChanged represents a transfer operation
+	TypeResourceOwnerChanged Type = "resource.owner.changed"
+
 	// TypeOperationFailed represents a failed operation
 	TypeOperationFailed Type = "operation.failed"
 
@@ -153,6 +159,10 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &OperationDeprovisioned{}
 	case TypeOperationResized:
 		body = &OperationResized{}
+	case TypeResourceProjectChanged:
+		body = &ResourceProjectChanged{}
+	case TypeResourceOwnerChanged:
+		body = &ResourceOwnerChanged{}
 	case TypeOperationFailed:
 		body = &OperationFailed{}
 	case TypeResourceMeasuresAdded:
@@ -385,6 +395,77 @@ type OperationResizedData struct {
 
 	NewPlanID manifold.ID `json:"new_plan_id"`
 	NewPlan   *Plan       `json:"new_plan,omitempty"`
+
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
+}
+
+// ResourceProjectChanged records a move operation event
+type ResourceProjectChanged struct {
+	BaseBody
+	Data *ResourceProjectChangedData `json:"data"`
+}
+
+// ResourceProjectChangedData holds the specific move event details
+type ResourceProjectChangedData struct {
+	OperationID manifold.ID `json:"operation_id"`
+	Source      string      `json:"source" analytics:"type"`
+
+	ResourceID manifold.ID `json:"resource_id"`
+	Resource   *Resource   `json:"resource,omitempty"`
+
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
+
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
+
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
+
+	OldProjectID *manifold.ID `json:"old_project_id"`
+	OldProject   *Project     `json:"old_project,omitempty"`
+
+	NewProjectID *manifold.ID `json:"new_project_id"`
+	NewProject   *Project     `json:"new_project,omitempty"`
+
+	RegionID *manifold.ID `json:"region_id,omitempty"`
+	Region   *Region      `json:"region,omitempty"`
+}
+
+// ResourceOwnerChanged records a transfer operation event
+type ResourceOwnerChanged struct {
+	BaseBody
+	Data *ResourceOwnerChangedData `json:"data"`
+}
+
+// ResourceOwnerChangedData holds the specific transfer event data
+type ResourceOwnerChangedData struct {
+	OperationID manifold.ID `json:"operation_id"`
+	Source      string      `json:"source" analytics:"type"`
+
+	ResourceID manifold.ID `json:"resource_id"`
+	Resource   *Resource   `json:"resource,omitempty"`
+
+	OldOwnerID manifold.ID `json:"old_owner_id"`
+	OldUser    *User       `json:"old_user,omitempty"`
+	OldTeam    *Team       `json:"old_team,omitempty"`
+
+	NewOwnerID manifold.ID `json:"new_owner_id"`
+	NewUser    *User       `json:"new_user,omitempty"`
+	NewTeam    *Team       `json:"new_team,omitempty"`
+
+	PlanID *manifold.ID `json:"plan_id,omitempty"`
+	Plan   *Plan        `json:"plan,omitempty"`
+
+	ProviderID *manifold.ID `json:"provider_id,omitempty"`
+	Provider   *Provider    `json:"provider,omitempty"`
+
+	ProductID *manifold.ID `json:"product_id,omitempty"`
+	Product   *Product     `json:"product,omitempty"`
+
+	ProjectID *manifold.ID `json:"project_id"`
+	Project   *Project     `json:"project,omitempty"`
 
 	RegionID *manifold.ID `json:"region_id,omitempty"`
 	Region   *Region      `json:"region,omitempty"`
