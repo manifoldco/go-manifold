@@ -315,26 +315,14 @@ type OperationProvisioned struct {
 
 // OperationProvisionedData holds the event specific data.
 type OperationProvisionedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	Project   *Project  `json:"project,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	Plan      *Plan     `json:"plan,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // OperationDeprovisioned represents a deprovision operation event.
@@ -345,26 +333,14 @@ type OperationDeprovisioned struct {
 
 // OperationDeprovisionedData holds the event specific data.
 type OperationDeprovisionedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	Project   *Project  `json:"project,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	Plan      *Plan     `json:"plan,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // OperationResized represents a resize operation event.
@@ -375,29 +351,15 @@ type OperationResized struct {
 
 // OperationResizedData holds the event specific data.
 type OperationResizedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	OldPlanID manifold.ID `json:"old_plan_id"`
-	OldPlan   *Plan       `json:"old_plan,omitempty"`
-
-	NewPlanID manifold.ID `json:"new_plan_id"`
-	NewPlan   *Plan       `json:"new_plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	Project   *Project  `json:"project,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	OldPlan   *Plan     `json:"old_plan,omitempty"`
+	NewPlan   *Plan     `json:"new_plan,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // ResourceProjectChanged records a move operation event
@@ -408,29 +370,15 @@ type ResourceProjectChanged struct {
 
 // ResourceProjectChangedData holds the specific move event details
 type ResourceProjectChangedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	OldProjectID *manifold.ID `json:"old_project_id"`
-	OldProject   *Project     `json:"old_project,omitempty"`
-
-	NewProjectID *manifold.ID `json:"new_project_id"`
-	NewProject   *Project     `json:"new_project,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation  Operation `json:"operation"`
+	Source     string    `json:"source" analytics:"type"`
+	Resource   Resource  `json:"resource"`
+	Provider   *Provider `json:"provider,omitempty"`
+	Product    *Product  `json:"product,omitempty"`
+	Plan       *Plan     `json:"plan,omitempty"`
+	OldProject *Project  `json:"old_project,omitempty"`
+	NewProject *Project  `json:"new_project,omitempty"`
+	Region     *Region   `json:"region,omitempty"`
 }
 
 // ResourceOwnerChanged records a transfer operation event
@@ -441,34 +389,18 @@ type ResourceOwnerChanged struct {
 
 // ResourceOwnerChangedData holds the specific transfer event data
 type ResourceOwnerChangedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	OldOwnerID manifold.ID `json:"old_owner_id"`
-	OldUser    *User       `json:"old_user,omitempty"`
-	OldTeam    *Team       `json:"old_team,omitempty"`
-
-	NewOwnerID manifold.ID `json:"new_owner_id"`
-	NewUser    *User       `json:"new_user,omitempty"`
-	NewTeam    *Team       `json:"new_team,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id"`
-	Project   *Project     `json:"project,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	OldUser   *User     `json:"old_user,omitempty"`
+	OldTeam   *Team     `json:"old_team,omitempty"`
+	NewUser   *User     `json:"new_user,omitempty"`
+	NewTeam   *Team     `json:"new_team,omitempty"`
+	Plan      *Plan     `json:"plan,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	Project   *Project  `json:"project,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // OperationFailed represents a resize operation event.
@@ -479,28 +411,14 @@ type OperationFailed struct {
 
 // OperationFailedData holds the event specific data.
 type OperationFailedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Operation   *Operation  `json:"operation"`
-
-	ResourceID *manifold.ID `json:"resource_id,omitempty"`
-	Resource   *Resource    `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
-
-	Error OperationError `json:"error"`
+	Operation Operation      `json:"operation"`
+	Resource  *Resource      `json:"resource,omitempty"`
+	Project   *Project       `json:"project,omitempty"`
+	Provider  *Provider      `json:"provider,omitempty"`
+	Product   *Product       `json:"product,omitempty"`
+	Plan      *Plan          `json:"plan,omitempty"`
+	Region    *Region        `json:"region,omitempty"`
+	Error     OperationError `json:"error"`
 }
 
 // ResourceMeasuresAdded represents a change on resource usage.
@@ -513,10 +431,10 @@ type ResourceMeasuresAdded struct {
 type ResourceMeasuresAddedData struct {
 	Resource Resource         `json:"resource,omitempty"`
 	Project  *Project         `json:"project,omitempty"`
-	Provider Provider         `json:"provider,omitempty"`
-	Product  Product          `json:"product,omitempty"`
-	Plan     Plan             `json:"plan,omitempty"`
-	Region   Region           `json:"region,omitempty"`
+	Provider Provider         `json:"provider"`
+	Product  Product          `json:"product"`
+	Plan     Plan             `json:"plan"`
+	Region   Region           `json:"region"`
 	Measures map[string]int64 `json:"measures"`
 }
 
