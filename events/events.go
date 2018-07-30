@@ -83,7 +83,7 @@ func New() (*Event, error) {
 	evt := &Event{
 		ID:            id,
 		StructType:    "event",
-		StructVersion: 2,
+		StructVersion: 1,
 	}
 
 	return evt, nil
