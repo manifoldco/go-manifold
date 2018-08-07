@@ -71,7 +71,8 @@ var (
 	PayoutEvent               Type = 0x1FB // record of payout of failure to payout
 	PayoutProfile             Type = 0x1FC // Payout profile for providers
 
-	ActivityEvent Type = 0x25D
+	ActivityEventJob Type = 0x25D
+	ActivityEvent    Type = 0x25E
 
 	// Values from 0xF00 to 0x1000 are reserved for Manifold private internal
 	// only use.
