@@ -206,5 +206,6 @@ func init() {
 	Register(Payout, false, "payout")
 	Register(PayoutEvent, false, "payout_event")
 
+	Register(ActivityEventJob, true, "event_job")
 	Register(ActivityEvent, true, "event")
 }
