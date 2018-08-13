@@ -598,7 +598,8 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 
-		if field.Kind() == reflect.Ptr {
+		switch field.Kind() {
+		case reflect.Ptr:
 			if field.IsNil() {
 				continue
 			}
@@ -607,13 +608,17 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 			for k, v := range mm {
 				m[k] = v
 			}
-		} else {
+		case reflect.Struct:
+			mm := analyticsProperties(field.Addr().Interface())
+			for k, v := range mm {
+				m[k] = v
+			}
+		default:
 			tag := t.Field(i).Tag.Get("analytics")
 			if tag != "" {
 				m[tag] = field.Interface()
 			}
 		}
-
 	}
 
 	return m

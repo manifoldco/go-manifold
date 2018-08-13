@@ -42,7 +42,7 @@ func TestAnalytics(t *testing.T) {
 			},
 			Data: &OperationProvisionedData{
 				Source: "catalog",
-				Resource: &Resource{
+				Resource: Resource{
 					ID:   id,
 					Name: "database",
 				},
@@ -50,7 +50,6 @@ func TestAnalytics(t *testing.T) {
 					ID:   id,
 					Name: "local",
 				},
-				ProviderID: &id,
 				Provider: &Provider{
 					ID:   id,
 					Name: "Degraffdb",
