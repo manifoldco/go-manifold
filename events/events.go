@@ -38,28 +38,18 @@ const (
 	TypeResourceMeasuresAdded = "resource.measures.added"
 )
 
-// State represents the state of an event. Events usually starts only
-// containing raw references to the system and later are processed to expand
-// objects information.
-type State string
-
-const (
-	// StatePending represents the event information is pending expansion. That's
-	// accomplished by an asynchronous job. Users don't have access to an event
-	// while it is pending.
-	StatePending State = "pending"
-
-	// StateTracking represents the event is sending information to a 3rd-party
-	// analytics. Users can access an event while is in the tracking state.
-	StateTracking State = "tracking"
-
-	// StateDone represents the event information expansion is done. The event
-	// is immutable going forward. Users can access a completed event.
-	StateDone State = "done"
-)
-
 // SourceType represents where the request came from.
 type SourceType string
+
+// Validate whether source type is valid
+func (s SourceType) Validate(interface{}) error {
+	switch s {
+	case SourceDashboard, SourceCLI, SourceSystem, SourceProvider:
+		return nil
+	default:
+		return manifold.NewError(errors.BadRequestError, fmt.Sprintf("invalid source type %q", s))
+	}
+}
 
 const (
 	// SourceDashboard is a request coming from the dashboard
@@ -70,6 +60,9 @@ const (
 
 	// SourceSystem is an internal request
 	SourceSystem SourceType = "system"
+
+	// SourceProvider is a request from provider
+	SourceProvider SourceType = "provider"
 )
 
 // Event represents meaningful activities performed on the system.
@@ -78,6 +71,22 @@ type Event struct {
 	StructType    string      `json:"type"`
 	StructVersion int         `json:"version"`
 	Body          Body        `json:"body"`
+}
+
+// New returns a new event without a body.
+func New() (*Event, error) {
+	id, err := manifold.NewID(idtype.ActivityEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	evt := &Event{
+		ID:            id,
+		StructType:    "event",
+		StructVersion: 1,
+	}
+
+	return evt, nil
 }
 
 // GetID returns the ID associated with this event
@@ -105,21 +114,6 @@ func (e *Event) Validate(v interface{}) error {
 // StateType returns the event state type as a string
 func (e *Event) StateType() string {
 	return string(e.Body.Type())
-}
-
-// GetState returns the event's state
-func (e *Event) GetState() string {
-	return string(e.Body.State())
-}
-
-// SetState sets the event's state
-func (e *Event) SetState(state string) {
-	e.Body.SetState(State(state))
-}
-
-// SetUpdatedAt sets the event's updated at time to the current time.
-func (e *Event) SetUpdatedAt() {
-	e.Body.SetUpdatedAt()
 }
 
 // Analytics returns a property map for analytics consumption.
@@ -197,17 +191,8 @@ type Body interface {
 	Type() Type
 	SetType(string)
 
-	State() State
-	SetState(State)
-
-	ActorID() manifold.ID
-	SetActorID(manifold.ID)
-
 	Actor() *Actor
 	SetActor(*Actor)
-
-	ScopeID() manifold.ID
-	SetScopeID(manifold.ID)
 
 	Scope() *Scope
 	SetScope(*Scope)
@@ -217,9 +202,6 @@ type Body interface {
 
 	CreatedAt() *strfmt.DateTime
 	SetCreatedAt(*strfmt.DateTime)
-
-	UpdatedAt() *strfmt.DateTime
-	SetUpdatedAt()
 
 	Source() *string
 	SetSource(*string)
@@ -231,14 +213,10 @@ type Body interface {
 // BaseBody contains data associated with all events.
 type BaseBody struct {
 	EventType       Type        `json:"type"`
-	StructState     State       `json:"state"`
-	StructActorID   manifold.ID `json:"actor_id"`
 	StructActor     *Actor      `json:"actor,omitempty"`
-	StructScopeID   manifold.ID `json:"scope_id"`
 	StructScope     *Scope      `json:"scope,omitempty"`
 	StructRefID     manifold.ID `json:"ref_id"`
 	StructCreatedAt time.Time   `json:"created_at"`
-	StructUpdatedAt time.Time   `json:"updated_at"`
 	StructSource    SourceType  `json:"source"`
 	StructIPAddress string      `json:"ip_address"`
 }
@@ -259,26 +237,6 @@ func (b *BaseBody) SetType(s string) {
 	b.EventType = Type(s)
 }
 
-// State returns the body's State
-func (b *BaseBody) State() State {
-	return b.StructState
-}
-
-// SetState sets the body's State
-func (b *BaseBody) SetState(s State) {
-	b.StructState = s
-}
-
-// ActorID returns the body's ActorID
-func (b *BaseBody) ActorID() manifold.ID {
-	return b.StructActorID
-}
-
-// SetActorID sets the body's ActorID
-func (b *BaseBody) SetActorID(id manifold.ID) {
-	b.StructActorID = id
-}
-
 // Actor returns the body's Actor
 func (b *BaseBody) Actor() *Actor {
 	return b.StructActor
@@ -287,16 +245,6 @@ func (b *BaseBody) Actor() *Actor {
 // SetActor returns the body's Actor
 func (b *BaseBody) SetActor(a *Actor) {
 	b.StructActor = a
-}
-
-// ScopeID returns the body's ScopeID
-func (b *BaseBody) ScopeID() manifold.ID {
-	return b.StructScopeID
-}
-
-// SetScopeID sets the body's ScopeID
-func (b *BaseBody) SetScopeID(id manifold.ID) {
-	b.StructScopeID = id
 }
 
 // Scope returns the body's Scope
@@ -334,17 +282,6 @@ func (b *BaseBody) SetCreatedAt(t *strfmt.DateTime) {
 	}
 }
 
-// UpdatedAt returns the body's CreatedAt
-func (b *BaseBody) UpdatedAt() *strfmt.DateTime {
-	t := strfmt.DateTime(b.StructUpdatedAt)
-	return &t
-}
-
-// SetUpdatedAt sets the body's CreatedAt
-func (b *BaseBody) SetUpdatedAt() {
-	b.StructUpdatedAt = time.Now().UTC()
-}
-
 // Source returns the body's Source
 func (b *BaseBody) Source() *string {
 	s := string(b.StructSource)
@@ -378,26 +315,14 @@ type OperationProvisioned struct {
 
 // OperationProvisionedData holds the event specific data.
 type OperationProvisionedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	Project   *Project  `json:"project,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	Plan      *Plan     `json:"plan,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // OperationDeprovisioned represents a deprovision operation event.
@@ -408,26 +333,14 @@ type OperationDeprovisioned struct {
 
 // OperationDeprovisionedData holds the event specific data.
 type OperationDeprovisionedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	Project   *Project  `json:"project,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	Plan      *Plan     `json:"plan,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // OperationResized represents a resize operation event.
@@ -438,29 +351,15 @@ type OperationResized struct {
 
 // OperationResizedData holds the event specific data.
 type OperationResizedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	OldPlanID manifold.ID `json:"old_plan_id"`
-	OldPlan   *Plan       `json:"old_plan,omitempty"`
-
-	NewPlanID manifold.ID `json:"new_plan_id"`
-	NewPlan   *Plan       `json:"new_plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	Project   *Project  `json:"project,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	OldPlan   *Plan     `json:"old_plan,omitempty"`
+	NewPlan   *Plan     `json:"new_plan,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // ResourceProjectChanged records a move operation event
@@ -471,29 +370,15 @@ type ResourceProjectChanged struct {
 
 // ResourceProjectChangedData holds the specific move event details
 type ResourceProjectChangedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	OldProjectID *manifold.ID `json:"old_project_id"`
-	OldProject   *Project     `json:"old_project,omitempty"`
-
-	NewProjectID *manifold.ID `json:"new_project_id"`
-	NewProject   *Project     `json:"new_project,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation  Operation `json:"operation"`
+	Source     string    `json:"source" analytics:"type"`
+	Resource   Resource  `json:"resource"`
+	Provider   *Provider `json:"provider,omitempty"`
+	Product    *Product  `json:"product,omitempty"`
+	Plan       *Plan     `json:"plan,omitempty"`
+	OldProject *Project  `json:"old_project,omitempty"`
+	NewProject *Project  `json:"new_project,omitempty"`
+	Region     *Region   `json:"region,omitempty"`
 }
 
 // ResourceOwnerChanged records a transfer operation event
@@ -504,34 +389,18 @@ type ResourceOwnerChanged struct {
 
 // ResourceOwnerChangedData holds the specific transfer event data
 type ResourceOwnerChangedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Source      string      `json:"source" analytics:"type"`
-
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	OldOwnerID manifold.ID `json:"old_owner_id"`
-	OldUser    *User       `json:"old_user,omitempty"`
-	OldTeam    *Team       `json:"old_team,omitempty"`
-
-	NewOwnerID manifold.ID `json:"new_owner_id"`
-	NewUser    *User       `json:"new_user,omitempty"`
-	NewTeam    *Team       `json:"new_team,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id"`
-	Project   *Project     `json:"project,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
+	Operation Operation `json:"operation"`
+	Source    string    `json:"source" analytics:"type"`
+	Resource  Resource  `json:"resource"`
+	OldUser   *User     `json:"old_user,omitempty"`
+	OldTeam   *Team     `json:"old_team,omitempty"`
+	NewUser   *User     `json:"new_user,omitempty"`
+	NewTeam   *Team     `json:"new_team,omitempty"`
+	Plan      *Plan     `json:"plan,omitempty"`
+	Provider  *Provider `json:"provider,omitempty"`
+	Product   *Product  `json:"product,omitempty"`
+	Project   *Project  `json:"project,omitempty"`
+	Region    *Region   `json:"region,omitempty"`
 }
 
 // OperationFailed represents a resize operation event.
@@ -542,28 +411,14 @@ type OperationFailed struct {
 
 // OperationFailedData holds the event specific data.
 type OperationFailedData struct {
-	OperationID manifold.ID `json:"operation_id"`
-	Operation   *Operation  `json:"operation"`
-
-	ResourceID *manifold.ID `json:"resource_id,omitempty"`
-	Resource   *Resource    `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
-
-	Error OperationError `json:"error"`
+	Operation Operation      `json:"operation"`
+	Resource  *Resource      `json:"resource,omitempty"`
+	Project   *Project       `json:"project,omitempty"`
+	Provider  *Provider      `json:"provider,omitempty"`
+	Product   *Product       `json:"product,omitempty"`
+	Plan      *Plan          `json:"plan,omitempty"`
+	Region    *Region        `json:"region,omitempty"`
+	Error     OperationError `json:"error"`
 }
 
 // ResourceMeasuresAdded represents a change on resource usage.
@@ -574,24 +429,12 @@ type ResourceMeasuresAdded struct {
 
 // ResourceMeasuresAddedData holds the event specific data.
 type ResourceMeasuresAddedData struct {
-	ResourceID manifold.ID `json:"resource_id"`
-	Resource   *Resource   `json:"resource,omitempty"`
-
-	ProjectID *manifold.ID `json:"project_id,omitempty"`
-	Project   *Project     `json:"project,omitempty"`
-
-	ProviderID *manifold.ID `json:"provider_id,omitempty"`
-	Provider   *Provider    `json:"provider,omitempty"`
-
-	ProductID *manifold.ID `json:"product_id,omitempty"`
-	Product   *Product     `json:"product,omitempty"`
-
-	PlanID *manifold.ID `json:"plan_id,omitempty"`
-	Plan   *Plan        `json:"plan,omitempty"`
-
-	RegionID *manifold.ID `json:"region_id,omitempty"`
-	Region   *Region      `json:"region,omitempty"`
-
+	Resource Resource         `json:"resource,omitempty"`
+	Project  *Project         `json:"project,omitempty"`
+	Provider Provider         `json:"provider"`
+	Product  Product          `json:"product"`
+	Plan     Plan             `json:"plan"`
+	Region   Region           `json:"region"`
 	Measures map[string]int64 `json:"measures"`
 }
 
@@ -755,7 +598,8 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 
-		if field.Kind() == reflect.Ptr {
+		switch field.Kind() {
+		case reflect.Ptr:
 			if field.IsNil() {
 				continue
 			}
@@ -764,13 +608,17 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 			for k, v := range mm {
 				m[k] = v
 			}
-		} else {
+		case reflect.Struct:
+			mm := analyticsProperties(field.Addr().Interface())
+			for k, v := range mm {
+				m[k] = v
+			}
+		default:
 			tag := t.Field(i).Tag.Get("analytics")
 			if tag != "" {
 				m[tag] = field.Interface()
 			}
 		}
-
 	}
 
 	return m
