@@ -3,6 +3,7 @@ package events
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 	"time"
 
@@ -601,6 +602,11 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 		switch field.Kind() {
 		case reflect.Ptr:
 			if field.IsNil() {
+				continue
+			}
+
+			if !field.CanInterface() {
+				log.Printf("field: %v", field)
 				continue
 			}
 
