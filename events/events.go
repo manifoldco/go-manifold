@@ -36,6 +36,9 @@ const (
 
 	// TypeResourceMeasuresAdded represents a change on resource usage
 	TypeResourceMeasuresAdded = "resource.measures.added"
+
+	// TypeResourceMeasuresFailed represents a failed change to resource usage
+	TypeResourceMeasuresFailed = "resource.measures.failed"
 )
 
 // SourceType represents where the request came from.
@@ -167,6 +170,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &OperationFailed{}
 	case TypeResourceMeasuresAdded:
 		body = &ResourceMeasuresAdded{}
+	case TypeResourceMeasuresFailed:
+		body = &ResourceMeasuresFailed{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -429,13 +434,30 @@ type ResourceMeasuresAdded struct {
 
 // ResourceMeasuresAddedData holds the event specific data.
 type ResourceMeasuresAddedData struct {
-	Resource Resource         `json:"resource,omitempty"`
+	Resource Resource         `json:"resource"`
 	Project  *Project         `json:"project,omitempty"`
 	Provider Provider         `json:"provider"`
 	Product  Product          `json:"product"`
 	Plan     Plan             `json:"plan"`
 	Region   Region           `json:"region"`
 	Measures map[string]int64 `json:"measures"`
+}
+
+// ResourceMeasuresFailed represents a failed change to resource usage.
+type ResourceMeasuresFailed struct {
+	BaseBody
+	Data *ResourceMeasuresFailedData `json:"data"`
+}
+
+// ResourceMeasuresFailedData holds the event specific data.
+type ResourceMeasuresFailedData struct {
+	Resource Resource `json:"resource"`
+	Project  *Project `json:"project,omitempty"`
+	Provider Provider `json:"provider"`
+	Product  Product  `json:"product"`
+	Plan     Plan     `json:"plan"`
+	Region   Region   `json:"region"`
+	Error    Error    `json:"error"`
 }
 
 // Actor represents a simplified version of either a user or a team.
@@ -579,6 +601,25 @@ type Region struct {
 
 // Validate returns whether or not the given Region is valid
 func (Region) Validate(v interface{}) error {
+	return nil
+}
+
+// Error represents an error message.
+type Error struct {
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+}
+
+// Validate returns whether or not the given Error is valid
+func (e Error) Validate(v interface{}) error {
+	if e.Message == "" {
+		return fmt.Errorf("invalid error message %q", e.Message)
+	}
+
+	if e.Code <= 0 {
+		return fmt.Errorf("invalid error code %d", e.Code)
+	}
+
 	return nil
 }
 
