@@ -3,6 +3,7 @@ package events
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/manifoldco/go-manifold"
 	"github.com/manifoldco/go-manifold/idtype"
@@ -30,15 +31,30 @@ func TestNew(t *testing.T) {
 
 func TestAnalytics(t *testing.T) {
 	id, _ := manifold.NewID(idtype.Resource)
+	uid, _ := manifold.NewID(idtype.User)
 	tid, _ := manifold.NewID(idtype.Team)
+	rid, _ := manifold.NewID(idtype.Resource)
 
 	event := Event{
+		ID:            id,
+		StructType:    "event",
+		StructVersion: 1,
 		Body: &OperationProvisioned{
 			BaseBody: BaseBody{
+				EventType: TypeOperationProvisioned,
+				StructActor: &Actor{
+					ID:    uid,
+					Name:  "luiz",
+					Email: "luiz@manifold.co",
+				},
 				StructScope: &Scope{
 					ID:   tid,
 					Name: "manifold",
 				},
+				StructRefID:     rid,
+				StructCreatedAt: time.Now(),
+				StructSource:    SourceSystem,
+				StructIPAddress: "127.0.01",
 			},
 			Data: &OperationProvisionedData{
 				Source: "catalog",

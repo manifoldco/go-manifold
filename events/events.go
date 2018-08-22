@@ -641,7 +641,7 @@ func analyticsProperties(s interface{}) map[string]interface{} {
 
 		switch field.Kind() {
 		case reflect.Ptr:
-			if field.IsNil() {
+			if field.IsNil() || !field.CanInterface() {
 				continue
 			}
 
