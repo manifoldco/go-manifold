@@ -98,12 +98,12 @@ func TestMetadata(t *testing.T) {
 
 	t.Run("Expected Metadata is considered valid", func(t *testing.T) {
 		mds := []Metadata{
-			Metadata{
+			{
 				"abra":       1,
 				"bulbasaur":  "TWO",
 				"charmander": false,
 			},
-			Metadata{
+			{
 				"abra":       1,
 				"bulbasaur":  "TWO",
 				"charmander": false,
@@ -113,7 +113,7 @@ func TestMetadata(t *testing.T) {
 					"charmander": false,
 				},
 			},
-			Metadata{
+			{
 				"abra":       1,
 				"bulbasaur":  "TWO",
 				"charmander": false,
@@ -134,23 +134,23 @@ func TestMetadata(t *testing.T) {
 
 	t.Run("Expected Metadata is considered invalid", func(t *testing.T) {
 		mds := []Metadata{
-			Metadata{
+			{
 				"$$$BADLABEL$$": 1,
 			},
-			Metadata{
+			{
 				"bad-value-type": json.Encoder{},
 			},
-			Metadata{
+			{
 				"nested-value-err": Metadata{
 					"$$$BADLABEL$$": 1,
 				},
 			},
-			Metadata{
+			{
 				"nested-value-err": map[string]interface{}{
 					"$$$BADLABEL$$": 1,
 				},
 			},
-			Metadata{
+			{
 				"json-too-big": makeBigString(MetadataMaxSize),
 			},
 		}
