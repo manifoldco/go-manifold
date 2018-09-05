@@ -1,13 +1,4 @@
-LINTERS=\
-	gofmt \
-	golint \
-	gosimple \
-	vet \
-	misspell \
-	ineffassign \
-	deadcode
-
-ci: $(LINTERS) test
+ci: lint test
 
 .PHONY: ci
 
@@ -15,9 +6,18 @@ ci: $(LINTERS) test
 # Bootstrapping for base golang package deps
 #################################################
 
-vendor: go.mod
-	go get -v -d ./...
+BOOTSTRAP=\
+  github.com/golangci/golangci-lint/cmd/golangci-lint \
+	github.com/jbowes/oag
 
+$(BOOTSTRAP):
+	go get -u $@
+bootstrap: $(BOOTSTRAP)
+
+vendor: go.mod
+	go get -v ./...
+
+.PHONY: bootstrap $(BOOTSTRAP)
 
 #################################################
 # Code generation
@@ -36,13 +36,10 @@ generated: $(patsubst specs/%.oag.yaml,generated-%,$(wildcard specs/*.oag.yaml))
 test: vendor $(GENERATED_NAMING_FILES)
 	@CGO_ENABLED=0 go test -v $$(go list ./... | grep -v vendor)
 
-METALINT=gometalinter --exclude $$(go env GOROOT) --tests --disable-all --vendor --deadline=5m -s data \
-	 ./... --enable
+lint:
+	golangci-lint run --disable-all -E gofmt -E golint -E gosimple -E govet -E misspell -E ineffassign -E deadcode --skip-dirs=data
 
-$(LINTERS): vendor $(GENERATED_NAMING_FILES)
-	$(METALINT) $@
-
-.PHONY: $(LINTERS) test
+.PHONY: lint test
 
 #################################################
 # Releasing
