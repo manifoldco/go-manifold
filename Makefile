@@ -15,20 +15,9 @@ ci: $(LINTERS) test
 # Bootstrapping for base golang package deps
 #################################################
 
-BOOTSTRAP=\
-	github.com/alecthomas/gometalinter \
-	github.com/jbowes/oag
-
-$(BOOTSTRAP):
-	go get -u $@
-bootstrap: $(BOOTSTRAP)
-	gometalinter --install
-
 vendor: go.mod
 	go get -v -d ./...
 
-
-.PHONY: bootstrap $(BOOTSTRAP)
 
 #################################################
 # Code generation
