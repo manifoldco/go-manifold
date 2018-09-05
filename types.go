@@ -187,7 +187,7 @@ type Metadata map[string]MetadataValue
 // MetadataMaxSize defines the max size of the metadata JSON in bytes
 const MetadataMaxSize = 10 * 1024
 
-// ErrMetadataNonexistantKey decribes and error for when the expected key is not present
+// ErrMetadataNonexistantKey describes and error for when the expected key is not present
 var ErrMetadataNonexistantKey = errors.New("Key does not exist")
 
 // ErrMetadataUnexpectedValueType describes and error when a metadata type isn't what's expected
