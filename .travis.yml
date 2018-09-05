@@ -1,7 +1,6 @@
 language: go
 go:
-- 1.8.x
-- 1.9.x
+- 1.11.x
 branches:
   only:
   - master
@@ -14,3 +13,4 @@ env:
   - MANIFOLD_TEAM=manifold-integration-ci
     # MANIFOLD_API_TOKEN
   - secure: gTzH6OVnmhjmWQ0MNSv1P5raoX1OmR4FSopQIbjK74bSeI9naN9sFfSoZ5cy9TmnKWLzTHUF3Bi+WBiVM3jj7PQrdvQRpkRzWioRwk3Y3BscYOqakndUTp8wv7K/626xHcwLMAs/jAL+lyRQE3VZIhXksVRZNZ5xK+zZz6tu2nqL3QfYzdOEQhiLvWsVGwSoRr3Q4HYsslIOALhJ8OnK7rvVW4pWNRVS5doFpUn6rrbN3uwuNScXAmxUi38EFIYr1gh/hl/MDvonRVGO0lcs9k+MqOwpuEH+rO5dp8YmCy1Am+rYP2ERaVptyfW0K8A+RLKQSNhFk7I8JxnhbdWe/Sp43Kq6EY4zYoONqQDGcpBFmKai9lRM5/BazOQIGm2E9c5GZd3bUzwjJv0caxWgdYLHSgrBttCgNafjb3db2DzqQdCDtARVOzHN/33Uaxm0Qkpv7QlvZcIlJZtgFpEWegNcwJO7qi0q2XRUStlpYFq/WDuL7VLDd+c/677BZbGLdhb1qJykHF76dZKHq2g+m0DliF9zJxY2vH/6/nGSp1Du+Eg+xDnceJQ4lq5znrV0hCv0lRpFaHf4669S6l+S532ZcAmwYVUZmHVjDwpUZo7i1xwTEmT58+cxwnZprfzS25YNFDMwClsaTdIyArI/rJAl3N4hT2b8ba/ztCU0YHk=
+  - GO111MODULE=on
