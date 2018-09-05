@@ -26,9 +26,25 @@ func (f FeatureMap) Equals(fm FeatureMap) bool {
 
 // MetadataValue stores MetadataValue for a Manifold resource
 type MetadataValue struct {
-	Type  string      `json:"type"`
-	Value interface{} `json:"value"`
+	Type  MetadataValueType `json:"type"`
+	Value interface{}       `json:"value"`
 }
+
+// MetadataValueType defines metadata type identifiers
+type MetadataValueType string
+
+const (
+	// MetadataValueTypeString identifies the string type
+	MetadataValueTypeString MetadataValueType = "string"
+	// MetadataValueTypeBool identifies the bool type
+	MetadataValueTypeBool MetadataValueType = "bool"
+	// MetadataValueTypeInt identifies the int type
+	MetadataValueTypeInt MetadataValueType = "int"
+	// MetadataValueTypeFloat identifies the float type
+	MetadataValueTypeFloat MetadataValueType = "float"
+	// MetadataValueTypeObject identifies the object type
+	MetadataValueTypeObject MetadataValueType = "object"
+)
 
 // Equals checks the equality of another MetadataValue against this one
 func (m *MetadataValue) Equals(md MetadataValue) bool {
@@ -37,31 +53,31 @@ func (m *MetadataValue) Equals(md MetadataValue) bool {
 
 func (m *MetadataValue) tryCastFields() error {
 	switch m.Type {
-	case "string":
+	case MetadataValueTypeString:
 		_, ok := m.Value.(string)
 		if !ok {
 			return errors.New("Expected value to be a string but it was not")
 		}
-	case "bool":
+	case MetadataValueTypeBool:
 		_, ok := m.Value.(bool)
 		if !ok {
 			return errors.New("Expected value to be a boolean but it was not")
 		}
-	case "int":
+	case MetadataValueTypeInt:
 		val, err := number.ToInt64(m.Value)
 		if err != nil {
 			return errors.Errorf(
 				"Expected value to be castable to int64 but it was not: %s", err.Error())
 		}
 		m.Value = val
-	case "float":
+	case MetadataValueTypeFloat:
 		val, err := number.ToFloat64(m.Value)
 		if err != nil {
 			return errors.Errorf(
 				"Expected value to be castable to float64 but it was not: %s", err.Error())
 		}
 		m.Value = val
-	case "object":
+	case MetadataValueTypeObject:
 		val, ok := m.Value.(Metadata)
 		if !ok {
 			valMap, ok := m.Value.(map[string]interface{})
@@ -86,7 +102,7 @@ func (m *MetadataValue) tryCastFields() error {
 		m.Value = val
 	default:
 		return errors.Errorf(
-			"%s is not a valid type, expected 'string', 'int', 'float', 'bool', or 'object", m.Type)
+			"%s is not a valid type, expected 'string', 'int', 'float', 'bool', or 'object'", m.Type)
 	}
 	return nil
 }
@@ -105,7 +121,7 @@ func (m *MetadataValue) FromMap(md map[string]interface{}) error {
 	if !ok {
 		return errors.New("Could not make MetadataValue from map, it did not contain a 'value' key")
 	}
-	m.Type = typ
+	m.Type = MetadataValueType(typ)
 	m.Value = val
 	if err := m.tryCastFields(); err != nil {
 		return errors.Errorf("Could not make MetadataValue from map: %s", err.Error())
@@ -115,12 +131,13 @@ func (m *MetadataValue) FromMap(md map[string]interface{}) error {
 
 // UnmarshalJSON controls how a MetadataValue is parsed from JSON
 func (m *MetadataValue) UnmarshalJSON(data []byte) error {
+	// New replica of struct for unmarshal to avoid infinite unmarshal loop
 	mv := &struct {
 		Type  string      `json:"type"`
 		Value interface{} `json:"value"`
 	}{}
 	json.Unmarshal(data, &mv)
-	m.Type = mv.Type
+	m.Type = MetadataValueType(mv.Type)
 	m.Value = mv.Value
 	return m.tryCastFields()
 }
@@ -128,27 +145,27 @@ func (m *MetadataValue) UnmarshalJSON(data []byte) error {
 // Validate validates this MetadataValue
 func (m *MetadataValue) Validate(_ interface{}) error {
 	switch m.Type {
-	case "string":
+	case MetadataValueTypeString:
 		_, ok := m.Value.(string)
 		if !ok {
 			return errors.New("Expected value to be a string but it was not")
 		}
-	case "int":
+	case MetadataValueTypeInt:
 		_, ok := m.Value.(int64)
 		if !ok {
 			return errors.New("Expected value to be a int64 but it was not")
 		}
-	case "float":
+	case MetadataValueTypeFloat:
 		_, ok := m.Value.(float64)
 		if !ok {
 			return errors.New("Expected value to be a float64 but it was not")
 		}
-	case "bool":
+	case MetadataValueTypeBool:
 		_, ok := m.Value.(bool)
 		if !ok {
 			return errors.New("Expected value to be a bool but it was not")
 		}
-	case "object":
+	case MetadataValueTypeObject:
 		val, ok := m.Value.(Metadata)
 		if !ok {
 			return errors.New("Expected value to be a Metadata but it was not")
@@ -159,7 +176,7 @@ func (m *MetadataValue) Validate(_ interface{}) error {
 		}
 	default:
 		return errors.Errorf(
-			"%s is not a valid type, expected 'string', 'int', 'float', 'bool', or 'object", m.Type)
+			"%s is not a valid type, expected 'string', 'int', 'float', 'bool', or 'object'", m.Type)
 	}
 	return nil
 }
@@ -169,6 +186,12 @@ type Metadata map[string]MetadataValue
 
 // MetadataMaxSize defines the max size of the metadata JSON in bytes
 const MetadataMaxSize = 10 * 1024
+
+// ErrMetadataNonexistantKey decribes and error for when the expected key is not present
+var ErrMetadataNonexistantKey = errors.New("Key does not exist")
+
+// ErrMetadataUnexpectedValueType describes and error when a metadata type isn't what's expected
+var ErrMetadataUnexpectedValueType = errors.New("Found value but it was not the expected type")
 
 // Equals checks the equality of another Metadata against this one
 func (m Metadata) Equals(md Metadata) bool {
@@ -204,4 +227,69 @@ func (m Metadata) Validate(_ interface{}) error {
 			bLen, MetadataMaxSize-bLen, MetadataMaxSize)
 	}
 	return nil
+}
+
+// GetString returns the value of the specified key as a string, or returns an error
+func (m Metadata) GetString(key string) (*string, error) {
+	val, ok := m[key]
+	if !ok {
+		return nil, ErrMetadataNonexistantKey
+	}
+	if val.Type != MetadataValueTypeString {
+		return nil, ErrMetadataUnexpectedValueType
+	}
+	out, _ := val.Value.(string)
+	return &out, nil
+}
+
+// GetBool returns the value of the specified key as a bool, or returns an error
+func (m Metadata) GetBool(key string) (*bool, error) {
+	val, ok := m[key]
+	if !ok {
+		return nil, ErrMetadataNonexistantKey
+	}
+	if val.Type != MetadataValueTypeBool {
+		return nil, ErrMetadataUnexpectedValueType
+	}
+	out, _ := val.Value.(bool)
+	return &out, nil
+}
+
+// GetInt returns the value of the specified key as a int64, or returns an error
+func (m Metadata) GetInt(key string) (*int64, error) {
+	val, ok := m[key]
+	if !ok {
+		return nil, ErrMetadataNonexistantKey
+	}
+	if val.Type != MetadataValueTypeInt {
+		return nil, ErrMetadataUnexpectedValueType
+	}
+	out, _ := val.Value.(int64)
+	return &out, nil
+}
+
+// GetFloat returns the value of the specified key as a float64, or returns an error
+func (m Metadata) GetFloat(key string) (*float64, error) {
+	val, ok := m[key]
+	if !ok {
+		return nil, ErrMetadataNonexistantKey
+	}
+	if val.Type != MetadataValueTypeFloat {
+		return nil, ErrMetadataUnexpectedValueType
+	}
+	out, _ := val.Value.(float64)
+	return &out, nil
+}
+
+// GetObject returns the value of the specified key as a Metadata, or returns an error
+func (m Metadata) GetObject(key string) (Metadata, error) {
+	val, ok := m[key]
+	if !ok {
+		return nil, ErrMetadataNonexistantKey
+	}
+	if val.Type != MetadataValueTypeObject {
+		return nil, ErrMetadataUnexpectedValueType
+	}
+	out, _ := val.Value.(Metadata)
+	return out, nil
 }
