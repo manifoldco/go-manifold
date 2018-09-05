@@ -36,7 +36,7 @@ generated: $(patsubst specs/%.oag.yaml,generated-%,$(wildcard specs/*.oag.yaml))
 test: vendor $(GENERATED_NAMING_FILES)
 	@CGO_ENABLED=0 go test -v $$(go list ./... | grep -v vendor)
 
-lint:
+lint: vendor
 	golangci-lint run --disable-all -E gofmt -E golint -E gosimple -E govet -E misspell -E ineffassign -E deadcode --skip-dirs=data
 
 .PHONY: lint test
