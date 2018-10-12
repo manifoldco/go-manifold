@@ -63,13 +63,12 @@ func (c *Client) GetResource(ctx context.Context, project *string, res *primitiv
 	return rs[0], nil
 }
 
-// GetProjectCredentialValues is a function that fetches a Project's set of
-// CredentialValues for a given Project. If a list of resource is given as
-// well, then the CredentialValues are mapped to that Resource using the
-// Resource name. This will also provide defaults if you have requested
-// a Resource's Credentials if you have provided a Default value.
-// Unlike GetResourcesCredentialValues, only the Resources that are a member
-// of Project are loaded
+// GetProjectCredentialValues fetches a Project's set of CredentialValues
+// If the Project's list of resource is populated, then the CredentialValues
+// are mapped to their owning Resource using the Resource name. This will
+// also provide defaults if you have provided a Default value. Unlike
+// GetResourcesCredentialValues, only the Resources that are a member of
+// the Project are loaded.
 func (c *Client) GetProjectCredentialValues(ctx context.Context, project *primitives.Project) (map[string][]*primitives.CredentialValue, error) {
 	if !project.Valid() {
 		return nil, ErrProjectInvalid
