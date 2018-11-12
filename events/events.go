@@ -39,6 +39,9 @@ const (
 
 	// TypeResourceMeasuresFailed represents a failed change to resource usage
 	TypeResourceMeasuresFailed = "resource.measures.failed"
+
+	// TypeAccountStatusUpdated represents an account state update
+	TypeAccountStatusUpdated = "account.status.updated"
 )
 
 // SourceType represents where the request came from.
@@ -172,6 +175,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &ResourceMeasuresAdded{}
 	case TypeResourceMeasuresFailed:
 		body = &ResourceMeasuresFailed{}
+	case TypeAccountStatusUpdated:
+		body = &AccountStatusUpdated{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -458,6 +463,19 @@ type ResourceMeasuresFailedData struct {
 	Plan     Plan     `json:"plan"`
 	Region   Region   `json:"region"`
 	Error    Error    `json:"error"`
+}
+
+// AccountStatusUpdated represents an account state change
+type AccountStatusUpdated struct {
+	BaseBody
+	Data *AccountStatusUpdatedData `json:"data"`
+}
+
+// AccountStatusUpdatedData holds the event specific data.
+type AccountStatusUpdatedData struct {
+	Reason   string `json:"reason,omitempty"`
+	OldState string `json:"old_state"`
+	NewState string `json:"new_state"`
 }
 
 // Actor represents a simplified version of either a user or a team.
