@@ -96,3 +96,79 @@ func TestFeatureValueLabel(t *testing.T) {
 		}
 	})
 }
+
+func TestAnnotationKey(t *testing.T) {
+	t.Run("errors on invalid annotation key", func(t *testing.T) {
+		l := AnnotationKey("HASMAJ")
+		err := l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+		l = AnnotationKey("/startwithslash")
+		err = l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+		l = AnnotationKey("endswithdot.")
+		err = l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+
+		_, ok := err.(*Error)
+		if !ok {
+			t.Error("Expected a manifold Error")
+		}
+	})
+
+	t.Run("does not error on valid annotation key", func(t *testing.T) {
+		l := AnnotationKey("manfiold.co/test")
+		err := l.Validate(nil)
+		if err != nil {
+			t.Errorf("Unexpected Error: %s", err)
+		}
+		l = AnnotationKey("iam/a.valid-value")
+		err = l.Validate(nil)
+		if err != nil {
+			t.Errorf("Unexpected Error: %s", err)
+		}
+	})
+}
+
+func TestAnnotationValue(t *testing.T) {
+	t.Run("errors on invalid annotation value", func(t *testing.T) {
+		l := AnnotationValue("has_invalid_char")
+		err := l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+		l = AnnotationValue("/startwithslash")
+		err = l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+		l = AnnotationValue("endswithdot.")
+		err = l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+
+		_, ok := err.(*Error)
+		if !ok {
+			t.Error("Expected a manifold Error")
+		}
+	})
+
+	t.Run("does not error on valid annotation value", func(t *testing.T) {
+		l := AnnotationValue("Iam/A.Valid-Value")
+		err := l.Validate(nil)
+		if err != nil {
+			t.Errorf("Unexpected Error: %s", err)
+		}
+		l = AnnotationValue("alsovalid")
+		err = l.Validate(nil)
+		if err != nil {
+			t.Errorf("Unexpected Error: %s", err)
+		}
+	})
+}

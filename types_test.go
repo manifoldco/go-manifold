@@ -1,7 +1,7 @@
 package manifold
 
 import (
-	json "encoding/json"
+	"encoding/json"
 	"testing"
 )
 
@@ -321,6 +321,107 @@ func TestMetadataValue(t *testing.T) {
 			}
 			if err := mdv.Validate(nil); err == nil {
 				t.Errorf("Expected err for Validate of: %s", j)
+			}
+		}
+	})
+}
+
+func TestAnnotationsMap(t *testing.T) {
+	t.Run("Different AnnotationsMap are not equal", func(t *testing.T) {
+		a := AnnotationsMap{
+			"a": []string{"1"},
+			"b": []string{"TWO"},
+			"c": []string{"false"},
+		}
+		b := AnnotationsMap{
+			"a": []string{"2"},
+			"b": []string{"one"},
+			"c": []string{"true"},
+		}
+		c := AnnotationsMap{
+			"a": []string{"1"},
+			"b": []string{"TWO"},
+			"c": []string{"false", "true"},
+		}
+
+		if a.Equals(b) {
+			t.Error("Expected A to not equal B, but it did.")
+		}
+		if b.Equals(c) {
+			t.Error("Expected B to not equal C, but it did.")
+		}
+		if a.Equals(c) {
+			t.Error("Expected A to not equal C, but it did.")
+		}
+	})
+
+	t.Run("AnnotationsMap with the same values are equal", func(t *testing.T) {
+		a := AnnotationsMap{
+			"a": []string{"1"},
+			"b": []string{"TWO"},
+			"c": []string{"false", "true"},
+		}
+		b := AnnotationsMap{
+			"a": []string{"1"},
+			"b": []string{"TWO"},
+			"c": []string{"false", "true"},
+		}
+
+		if !a.Equals(b) {
+			t.Error("Expected A to equal B, but it didn't.")
+		}
+	})
+
+	t.Run("Expected AnnotationMap is considered valid", func(t *testing.T) {
+		m := AnnotationsMap{
+			"abra":             []string{"1"},
+			"bulb-asaur":       []string{"TWO"},
+			"manifold.co/tool": []string{"false", "true"},
+		}
+
+		if err := m.Validate(nil); err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("AnnotationMap with invalid keys expected to be invalid", func(t *testing.T) {
+		mds := []AnnotationsMap{
+			// Invalid key
+			{
+				"/startswithslash": []string{"1"},
+			},
+			// Key is too long
+			{
+				"thisstringissolongitiisactuallydizzigingwowcommingupwithcontenttofill64bytesishard": []string{"1"},
+			},
+			//Key is not a known reserved
+			{
+				"manifold.co/hopefully-not-known": []string{"1"},
+			},
+		}
+
+		for _, m := range mds {
+			if err := m.Validate(nil); err == nil {
+				t.Error("Expected err for Validate")
+			}
+		}
+	})
+
+	t.Run("AnnotationMap with invalid values expected to be invalid", func(t *testing.T) {
+		mds := []AnnotationsMap{
+			// Invalid value
+			{
+				"/startswithslash": []string{"1"},
+			},
+			// Value is too long
+			{
+				"test": []string{"thisstringissolongitiisactuallydizzigingwowcommingupwithcontenttofill64bytesishardthisstringissolongitiisactuallydizzigingwowcommingupwithcontenttofill64bytesishardthisstringissolongitiisactuallydizzigingwowcommingupwithcontenttofill64bytesishardthisissomebuffercontentbecauseitwasntlongenough"},
+			},
+		}
+
+		for _, m := range mds {
+			if err := m.Validate(nil); err == nil {
+				t.Error("Expected err for Validate")
 			}
 		}
 	})
