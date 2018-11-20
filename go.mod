@@ -31,8 +31,15 @@ require (
 	golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3 // indirect
 	golang.org/x/net v0.0.0-20170406210907-d1e1b351919c // indirect
 	golang.org/x/tools v0.0.0-20181120200622-9c8bd463e3ac // indirect
-	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
+	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20171010053543-63abe20a23e2 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20160818020120-3f83fa500528 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 )
+
+// This version of kingpin is incompatible with the released version of
+// gometalinter until the next release of gometalinter, and possibly until it
+// has go module support, we'll need this exclude, and perhaps some more.
+//
+// After that point, we should be able to remove it.
+exclude gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c
