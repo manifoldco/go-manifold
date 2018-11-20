@@ -295,6 +295,7 @@ func (m Metadata) GetObject(key string) (Metadata, error) {
 	return out, nil
 }
 
+// AnnotationsMap defines a map of string arrays that contain the annotations data
 type AnnotationsMap map[string][]string
 
 // AnnotationKeyMaxSize defines the max size of an annotation key in bytes
