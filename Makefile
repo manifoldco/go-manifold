@@ -66,7 +66,7 @@ $(LINTERS): %: vendor/bin/gometalinter %-bin vendor
 # Releasing
 #################################################
 
-release:
+release: mod-tidy
 ifneq ($(shell git rev-parse --abbrev-ref HEAD),master)
 	$(error You are not on the master branch)
 endif
