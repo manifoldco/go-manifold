@@ -13,8 +13,8 @@ var (
 	nameRegex              = regexp.MustCompile(`^[a-zA-Z0-9][a-z0-9A-Z\. \-_]{2,128}$`)
 	codeRegex              = regexp.MustCompile("^([0-9abcdefghjkmnpqrtuvwxyz]{16}|[0-9]{6})$")
 	featureValueLabelRegex = regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.]{1,128}$`)
-	annotationKey          = regexp.MustCompile(`^([a-z0-9][a-z0-9-\.\/]{0,62}[a-z0-9]|[a-z0-9])$`)
-	annotationValue        = regexp.MustCompile(`^([a-zA-Z0-9][a-zA-Z0-9-\.\/]{0,252}[a-zA-Z0-9]|[a-zA-Z0-9])$`)
+	annotationKeyRegex     = regexp.MustCompile(`^([a-z0-9][a-z0-9-\.\/]{0,62}[a-z0-9]|[a-z0-9])$`)
+	annotationValueRegex   = regexp.MustCompile(`^([a-zA-Z0-9][a-zA-Z0-9-\.\/]{0,252}[a-zA-Z0-9]|[a-zA-Z0-9])$`)
 )
 
 var (
@@ -96,7 +96,7 @@ type AnnotationKey string
 
 // Validate ensures the annotation key is valid
 func (key AnnotationKey) Validate(_ interface{}) error {
-	if annotationKey.Match([]byte(key)) {
+	if annotationKeyRegex.Match([]byte(key)) {
 		return nil
 	}
 
@@ -108,7 +108,7 @@ type AnnotationValue string
 
 // Validate ensures the annotation value is valid
 func (val AnnotationValue) Validate(_ interface{}) error {
-	if annotationValue.Match([]byte(val)) {
+	if annotationValueRegex.Match([]byte(val)) {
 		return nil
 	}
 
