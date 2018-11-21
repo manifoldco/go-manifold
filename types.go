@@ -298,12 +298,6 @@ func (m Metadata) GetObject(key string) (Metadata, error) {
 // AnnotationsMap defines a map of string arrays that contain the annotations data
 type AnnotationsMap map[string][]string
 
-// AnnotationKeyMaxSize defines the max size of an annotation key in bytes
-const AnnotationKeyMaxSize = 64
-
-// AnnotationValueMaxSize defines the max size of an annotation values in bytes
-const AnnotationValueMaxSize = 254
-
 // AnnotationMaxReservedKeys defines the max number of reserved keys (Keys prefixed with manifold.co)
 const AnnotationMaxReservedKeys = 20
 
@@ -342,13 +336,9 @@ func (a AnnotationsMap) Equals(fm AnnotationsMap) bool {
 func (a AnnotationsMap) Validate(_ interface{}) error {
 	countReserved := 0
 	for key, value := range a {
-		// Make sure the key is a valid label
+		// Make sure the key is a valid key
 		if err := AnnotationKey(key).Validate(nil); err != nil {
 			return errors.Errorf("Key '%s' is not a valid annotation key", key)
-		}
-		// Make sure the key is smaller than the allowed size
-		if len(key) > AnnotationKeyMaxSize {
-			return errors.Errorf("Key '%s' is larger than 64 bytes", key)
 		}
 		// Make sure that, if the key is reserved, it is validated
 		if strings.HasPrefix(key, AnnotationReservedKeyPrefix) {
@@ -364,13 +354,10 @@ func (a AnnotationsMap) Validate(_ interface{}) error {
 			countReserved++
 		}
 
-		// Make sure every value is a valid value and is of the right size
+		// Make sure every value is a valid value
 		for _, subvalue := range value {
 			if err := AnnotationValue(subvalue).Validate(nil); err != nil {
 				return errors.Errorf("Value '%s' is not a valid annotation value", subvalue)
-			}
-			if len(subvalue) > AnnotationValueMaxSize {
-				return errors.Errorf("Value '%s' is larger than 254 bytes", key)
 			}
 		}
 	}
