@@ -13,8 +13,8 @@ var (
 	nameRegex              = regexp.MustCompile(`^[a-zA-Z0-9][a-z0-9A-Z\. \-_]{2,128}$`)
 	codeRegex              = regexp.MustCompile("^([0-9abcdefghjkmnpqrtuvwxyz]{16}|[0-9]{6})$")
 	featureValueLabelRegex = regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.]{1,128}$`)
-	annotationKey          = regexp.MustCompile(`^([^-\.\/][a-z0-9-\.\/]*[^-\.\/]|[a-z0-9-])$`)
-	annotationValue        = regexp.MustCompile(`^([^-\.\/][a-zA-Z0-9-\.\/]*[^-\.\/]|[a-z0-9-])$`)
+	annotationKey          = regexp.MustCompile(`^([a-z0-9][a-z0-9-\.\/]*[a-z0-9]|[a-z0-9])$`)
+	annotationValue        = regexp.MustCompile(`^([a-zA-Z0-9][a-zA-Z0-9-\.\/]*[a-zA-Z0-9]|[a-zA-Z0-9])$`)
 )
 
 var (
