@@ -2,6 +2,7 @@ package manifold
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/manifoldco/go-manifold/number"
 	"github.com/pkg/errors"
@@ -292,4 +293,78 @@ func (m Metadata) GetObject(key string) (Metadata, error) {
 	}
 	out, _ := val.Value.(Metadata)
 	return out, nil
+}
+
+// AnnotationsMap defines a map of string arrays that contain the annotations data
+type AnnotationsMap map[string][]string
+
+// AnnotationMaxReservedKeys defines the max number of reserved keys (Keys prefixed with manifold.co)
+const AnnotationMaxReservedKeys = 20
+
+// AnnotationReservedKeyPrefix is the prefix a key must start with to be considered reserved
+const AnnotationReservedKeyPrefix = "manifold.co"
+
+// AnnotationKnownReservedKeys is an array of all the known reserved keys, any other key prefixed with the reserved
+// key prefix will cause an error.
+var AnnotationKnownReservedKeys = []string{
+	"manifold.co/tool",
+	"manifold.co/package",
+	"manifold.co/environment",
+}
+
+// Equals checks the equality of another AnnotationsMap against this one
+func (a AnnotationsMap) Equals(fm AnnotationsMap) bool {
+	if len(a) != len(fm) {
+		return false
+	}
+	for key, value := range a {
+		val, ok := fm[key]
+		if !ok || len(value) != len(val) {
+			return false
+		}
+		for subkey, subvalue := range value {
+			if subval := fm[key][subkey]; subvalue != subval {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// Validate validates this AnnotationsMap
+func (a AnnotationsMap) Validate(_ interface{}) error {
+	countReserved := 0
+	for key, value := range a {
+		// Make sure the key is a valid key
+		if err := AnnotationKey(key).Validate(nil); err != nil {
+			return errors.Errorf("Key '%s' is not a valid annotation key", key)
+		}
+		// Make sure that, if the key is reserved, it is validated
+		if strings.HasPrefix(key, AnnotationReservedKeyPrefix) {
+			found := false
+			for _, reservedKey := range AnnotationKnownReservedKeys {
+				if reservedKey == key {
+					found = true
+				}
+			}
+			if !found {
+				return errors.Errorf("Key '%s' is not an accepted reserved key", key)
+			}
+			countReserved++
+		}
+
+		// Make sure every value is a valid value
+		for _, subvalue := range value {
+			if err := AnnotationValue(subvalue).Validate(nil); err != nil {
+				return errors.Errorf("Value '%s' is not a valid annotation value", subvalue)
+			}
+		}
+	}
+
+	// Finally, make sure we didn't overflow the mx number of reserved keys
+	if countReserved > AnnotationMaxReservedKeys {
+		return errors.New("Annotation has more than 20 annotation keys")
+	}
+	return nil
 }

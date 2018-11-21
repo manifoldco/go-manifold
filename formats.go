@@ -13,6 +13,8 @@ var (
 	nameRegex              = regexp.MustCompile(`^[a-zA-Z0-9][a-z0-9A-Z\. \-_]{2,128}$`)
 	codeRegex              = regexp.MustCompile("^([0-9abcdefghjkmnpqrtuvwxyz]{16}|[0-9]{6})$")
 	featureValueLabelRegex = regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.]{1,128}$`)
+	annotationKeyRegex     = regexp.MustCompile(`^(?:[a-z0-9][a-z0-9-\.\/]{0,62}[a-z0-9]|[a-z0-9])$`)
+	annotationValueRegex   = regexp.MustCompile(`^(?:[a-zA-Z0-9][a-zA-Z0-9-\.\/]{0,252}[a-zA-Z0-9]|[a-zA-Z0-9])$`)
 )
 
 var (
@@ -23,6 +25,10 @@ var (
 		"Invalid email verification code provided")
 	errInvalidFeatureValueLabel = NewError(errors.BadRequestError,
 		"Invalid feature value label provided")
+	errInvalidAnnotationKey = NewError(errors.BadRequestError,
+		"Invalid annotation key provided")
+	errInvalidAnnotationValue = NewError(errors.BadRequestError,
+		"Invalid annotation value provided")
 )
 
 // Label represents any object's label field
@@ -83,4 +89,28 @@ func (lbl FeatureValueLabel) Validate(_ interface{}) error {
 	}
 
 	return errInvalidFeatureValueLabel
+}
+
+// AnnotationKey represents any annotation map's key
+type AnnotationKey string
+
+// Validate ensures the annotation key is valid
+func (key AnnotationKey) Validate(_ interface{}) error {
+	if annotationKeyRegex.Match([]byte(key)) {
+		return nil
+	}
+
+	return errInvalidAnnotationKey
+}
+
+// AnnotationValue represents any annotation map's value in the array of values
+type AnnotationValue string
+
+// Validate ensures the annotation value is valid
+func (val AnnotationValue) Validate(_ interface{}) error {
+	if annotationValueRegex.Match([]byte(val)) {
+		return nil
+	}
+
+	return errInvalidAnnotationValue
 }
