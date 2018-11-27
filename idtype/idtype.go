@@ -74,6 +74,8 @@ var (
 	ActivityEventJob Type = 0x25D
 	ActivityEvent    Type = 0x25E
 
+	Partner Type = 0x2C1
+
 	// Values from 0xF00 to 0x1000 are reserved for Manifold private internal
 	// only use.
 	ManifoldInternalReserved Type = 0xF00
