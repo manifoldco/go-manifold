@@ -210,4 +210,6 @@ func init() {
 
 	Register(ActivityEventJob, true, "event_job")
 	Register(ActivityEvent, true, "event")
+
+	Register(Partner, true, "partner")
 }
