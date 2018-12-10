@@ -11,7 +11,7 @@ import (
 var (
 	validManifoldID   *ManifoldID
 	validFlexID       *FlexID
-	validFlexIDString string = "web.com" + pathSeperator + "user" + pathSeperator + "abc123"
+	validFlexIDString = "web.com" + pathSeperator + "user" + pathSeperator + "abc123"
 	expectedString    string
 )
 

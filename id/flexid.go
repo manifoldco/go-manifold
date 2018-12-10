@@ -74,14 +74,22 @@ func (eid ExternalID) Validate(_ interface{}) error {
 //  Example: manifold.co/user/2003btphq7z6dzvjut370jkvkdgcp
 //  Has `manifold.co` as the domain, a type of `user`, followed by the Manifold ID.
 type CompositeID interface {
+	// Domain returns the Domain ( first ) portion of the CompositeID
 	Domain() Domain
+	// Type returns the Type ( second ) portion of the CompositeID
 	Type() manifold.Label
+	// ID returns the ID ( third ) portion of the CompositeID
 	ID() ExternalID
+	// AsFlexID allows for easy conversion of all CompositeIDs to the most forgiving struct
 	AsFlexID() *FlexID
-	// Common interfaces
+	// Stringer interface for easy translation to string
 	String() string
+	// Validate allows for OpenAPI validation of our structs so we can use them in
+	//  OpenAPI schemas
 	Validate(interface{}) error
+	// MarshalText allows CompositeIDs to be easily converted to text
 	MarshalText() ([]byte, error)
+	// UnmarshalText allows CompositeIDs to be easily parsed from text
 	UnmarshalText(b []byte) error
 }
 
