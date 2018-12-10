@@ -19,7 +19,7 @@ const (
 var (
 	// domainRegex expects that the string is a valid and easy to understand hostname
 	domainRegex = regexp.
-			MustCompile(`^([a-zA-Z0-9-_]+\.)*[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$`)
+			MustCompile(`^((?:[a-zA-Z0-9-_]+\.)*)[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$`)
 	// idRegex expects that an ID at least has a length of one, an only includes
 	//  characters expected in Base64 encoded values, GUIDs and UUIDs
 	idRegex = regexp.MustCompile(`^\{?[a-zA-Z0-9+/-_]{1,256}={0,2}\}?$`)
@@ -56,6 +56,18 @@ func (d Domain) Validate(_ interface{}) error {
 	}
 
 	return errInvalidDomain
+}
+
+// SubDomain returns the subdomain portion of the domain
+func (d Domain) SubDomain() string {
+	parts := domainRegex.FindSubmatch([]byte(d))
+
+	if len(parts[1]) > 0 {
+		subdomain := string(parts[1])
+		return subdomain[:len(subdomain)-1]
+	}
+
+	return ""
 }
 
 // ExternalID is a string that can be Validated based on Regex to expect a string

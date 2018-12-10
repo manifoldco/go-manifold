@@ -244,3 +244,34 @@ func TestFlexID_AsManifoldID(t *testing.T) {
 		t.Errorf("FlexID.AsManifoldID() got: %v, expected: %v", err, validManifoldID)
 	}
 }
+
+func TestDomain_SubDomain(t *testing.T) {
+	tests := []struct {
+		name string
+		d    Domain
+		want string
+	}{
+		{
+			name: "Subdomain returns as expected",
+			d:    "test.manifold.co",
+			want: "test",
+		},
+		{
+			name: "Multi-segment subdomain returns as expected",
+			d:    "test.tony.manifold.co",
+			want: "test.tony",
+		},
+		{
+			name: "No subdomain returns empty string",
+			d:    ManifoldDomain,
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.d.SubDomain(); got != tt.want {
+				t.Errorf("Domain.SubDomain() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
