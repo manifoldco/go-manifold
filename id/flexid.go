@@ -24,6 +24,8 @@ var (
 	//  characters expected in Base64 encoded values, GUIDs and UUIDs
 	idRegex = regexp.MustCompile(`^\{?[a-zA-Z0-9+/-_]{1,256}={0,2}\}?$`)
 
+	errNilValue = manifold.NewError(errors.InternalServerError,
+		"Invalid CompositeID, cannot unmarshal to nil ID")
 	errInvalidParts = manifold.NewError(errors.BadRequestError,
 		"Invalid CompositeID, expected 3 parts, Domain, Type, and ID")
 	errInvalidDomain = manifold.NewError(errors.BadRequestError,
@@ -135,14 +137,18 @@ func (m *ManifoldID) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface
 func (m *ManifoldID) UnmarshalText(b []byte) error {
-	var (
-		id  FlexID
-		err error
-	)
-	if err = id.UnmarshalText(b); err != nil {
+	if m == nil {
+		return errNilValue
+	}
+	id := &FlexID{}
+	if err := id.UnmarshalText(b); err != nil {
 		return err
 	}
-	m, err = id.AsManifoldID()
+	mid, err := id.AsManifoldID()
+	if err != nil {
+		return err
+	}
+	copy(m[:], mid[:])
 	return err
 }
 
@@ -190,18 +196,15 @@ func (id *FlexID) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface
 func (id *FlexID) UnmarshalText(b []byte) error {
+	if id == nil {
+		return errNilValue
+	}
 	parts := strings.Split(string(b), pathSeperator)
 	if len(parts) != 3 {
 		return errInvalidParts
 	}
 
-	if id == nil {
-		id = &FlexID{parts[0], parts[1], parts[2]}
-	} else {
-		id[0] = parts[0]
-		id[1] = parts[1]
-		id[2] = parts[2]
-	}
+	copy(id[:], parts)
 
 	if err := id.Domain().Validate(nil); err != nil {
 		return err
