@@ -2,6 +2,7 @@ package id
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/manifoldco/go-manifold"
@@ -9,14 +10,19 @@ import (
 )
 
 var (
-	validManifoldID   *ManifoldID
-	validFlexID       *FlexID
-	validFlexIDString = "web.com" + pathSeperator + "user" + pathSeperator + "abc123"
-	expectedString    string
+	validID               manifold.ID
+	validManifoldID       *ManifoldID
+	validFlexID           *FlexID
+	validFlexIDString     = "web.com" + pathSeperator + "user" + pathSeperator + "abc123"
+	validFlexIDJSONString = `"` + strings.Replace(validFlexIDString, "\\", "\\\\", -1) + `"`
+	validFlexIDJSONArray  = `["` + strings.Replace(validFlexIDString, "\\", "\", \"", -1) + `"]`
+	expectedString        string
+	expectedJSONString    string
 )
 
 func init() {
-	validID, err := manifold.NewID(idtype.Partner)
+	var err error
+	validID, err = manifold.NewID(idtype.Partner)
 	if err != nil {
 		panic(err)
 	}
@@ -25,6 +31,7 @@ func init() {
 
 	expectedString = fmt.Sprintf("%s%spartner%s%s", ManifoldDomain, pathSeperator,
 		pathSeperator, validID)
+	expectedJSONString = `"` + strings.Replace(expectedString, "\\", "\\\\", -1) + `"`
 }
 
 func TestDomain_Validate(t *testing.T) {
@@ -105,6 +112,30 @@ func TestManifoldID_MarshalText(t *testing.T) {
 		t.Errorf("ManifoldID.MarshalText() expected '%s', got '%s'", expectedString, out)
 		return
 	}
+	var mid *ManifoldID
+	_, err = mid.MarshalText()
+	if err != errNilValue {
+		t.Errorf("ManifoldID.MarshalText() expected errNilValue when called on nil, got '%s'", err)
+		return
+	}
+}
+
+func TestManifoldID_MarshalJSON(t *testing.T) {
+	out, err := validManifoldID.MarshalJSON()
+	if err != nil {
+		t.Errorf("ManifoldID.MarshalJSON() unexpected error: %v", err)
+		return
+	}
+	if string(out) != expectedJSONString {
+		t.Errorf("ManifoldID.MarshalJSON() expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+	var mid *ManifoldID
+	_, err = mid.MarshalJSON()
+	if err != errNilValue {
+		t.Errorf("ManifoldID.MarshalJSON() expected errNilValue when called on nil, got '%s'", err)
+		return
+	}
 }
 
 func TestFlexID_MarshalText(t *testing.T) {
@@ -115,6 +146,30 @@ func TestFlexID_MarshalText(t *testing.T) {
 	}
 	if string(out) != expectedString {
 		t.Errorf("FlexID.MarshalText() expected '%s', got '%s'", expectedString, out)
+		return
+	}
+	var fid *FlexID
+	_, err = fid.MarshalText()
+	if err != errNilValue {
+		t.Errorf("FlexID.MarshalText() expected errNilValue when called on nil, got '%s'", err)
+		return
+	}
+}
+
+func TestFlexID_MarshalJSON(t *testing.T) {
+	out, err := validFlexID.MarshalJSON()
+	if err != nil {
+		t.Errorf("FlexID.MarshalJSON() unexpected error: %v", err)
+		return
+	}
+	if string(out) != expectedJSONString {
+		t.Errorf("FlexID.MarshalJSON() expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+	var fid *FlexID
+	_, err = fid.MarshalJSON()
+	if err != errNilValue {
+		t.Errorf("FlexID.MarshalJSON() expected errNilValue when called on nil, got '%s'", err)
 		return
 	}
 }
@@ -174,6 +229,79 @@ func TestManifoldID_UnmarshalText(t *testing.T) {
 	}
 }
 
+func TestManifoldID_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name     string
+		m        *ManifoldID
+		arg      string
+		err      error
+		expected *ManifoldID
+	}{
+		{
+			name: "Fails to unmarshal from JSON when nil",
+			arg:  expectedJSONString,
+			err:  errNilValue,
+		},
+		{
+			name:     "Unmarshals from JSON to expected ID",
+			m:        &ManifoldID{},
+			arg:      expectedJSONString,
+			expected: validManifoldID,
+		},
+		{
+			name: "Errors with valid FlexID JSON string that is not a manifoldID",
+			m:    &ManifoldID{},
+			arg:  validFlexIDJSONString,
+			err:  ErrNotAManifoldID,
+		},
+		{
+			name: "Errors with valid FlexID JSON array that is not a manifoldID",
+			m:    &ManifoldID{},
+			arg:  validFlexIDJSONArray,
+			err:  ErrNotAManifoldID,
+		},
+		{
+			name: "Errors with invalid ManifoldID JSON",
+			m:    &ManifoldID{},
+			arg:  "THIS_IS_TOTALLY_INVALID",
+			err:  errInvalidParts,
+		},
+		{
+			name: "Errors with valid FlexID JSON string that is not a manifoldID because of ID",
+			m:    &ManifoldID{},
+			arg:  `"` + string(ManifoldDomain) + `\\user\\abc123"`,
+			err:  ErrNotAManifoldID,
+		},
+		{
+			name: "Errors with valid FlexID JSON string that is not a manifoldID because of Type mismatch",
+			m:    &ManifoldID{},
+			arg:  `"` + string(ManifoldDomain) + `\\user\\` + manifold.ID(*validManifoldID).String() + `"`,
+			err:  ErrManifoldIDTypeMismatch,
+		},
+		{
+			name: "Errors with valid FlexID JSON array that is not a manifoldID because of ID",
+			m:    &ManifoldID{},
+			arg:  `["` + string(ManifoldDomain) + `", "user", "abc123"]`,
+			err:  ErrNotAManifoldID,
+		},
+		{
+			name: "Errors with valid FlexID JSON array that is not a manifoldID because of Type mismatch",
+			m:    &ManifoldID{},
+			arg:  `["` + string(ManifoldDomain) + `", "user", "` + manifold.ID(*validManifoldID).String() + `"]`,
+			err:  ErrManifoldIDTypeMismatch,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.m.UnmarshalJSON([]byte(tt.arg)); err != tt.err {
+				t.Errorf("ManifoldID.UnmarshalJSON() error: %v, expected: %v", err, tt.err)
+			} else if tt.expected != nil && *tt.m != *tt.expected {
+				t.Errorf("ManifoldID.UnmarshalJSON() expected: %v, to equal: %v", tt.m, tt.expected)
+			}
+		})
+	}
+}
+
 func TestFlexID_UnmarshalText(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -228,9 +356,104 @@ func TestFlexID_UnmarshalText(t *testing.T) {
 			if err := tt.id.UnmarshalText([]byte(tt.arg)); err != tt.err {
 				t.Errorf("FlexID.UnmarshalText() error: %v, expected: %v", err, tt.err)
 			} else if tt.expected != nil && *tt.id != *tt.expected {
-				t.Errorf("ManifoldID.UnmarshalText() expected: %v, to equal: %v", tt.id, tt.expected)
+				t.Errorf("FlexID.UnmarshalText() expected: %v, to equal: %v", tt.id, tt.expected)
 			}
 		})
+	}
+}
+
+func TestFlexID_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name     string
+		id       *FlexID
+		arg      string
+		err      error
+		expected *FlexID
+	}{
+		{
+			name: "Fails to unmarshal from JSON when nil",
+			arg:  expectedJSONString,
+			err:  errNilValue,
+		},
+		{
+			name:     "Unmarshals from JSON to expected ID",
+			id:       &FlexID{},
+			arg:      expectedJSONString,
+			expected: validFlexID,
+		},
+		{
+			name: "Passes with valid FlexID JSON string that is not a manifoldID",
+			id:   &FlexID{},
+			arg:  validFlexIDJSONString,
+		},
+		{
+			name: "Passes with valid FlexID JSON array that is not a manifoldID",
+			id:   &FlexID{},
+			arg:  validFlexIDJSONArray,
+		},
+		{
+			name: "Errors with invalid FlexID JSON",
+			id:   &FlexID{},
+			arg:  "THIS_IS_TOTALLY_INVALID",
+			err:  errInvalidParts,
+		},
+		{
+			name: "Errors with invalid FlexID JSON string because of Domain",
+			id:   &FlexID{},
+			arg:  `"nope\\user\\abc123"`,
+			err:  errInvalidDomain,
+		},
+		{
+			name: "Errors with invalid FlexID JSON string because of Type",
+			id:   &FlexID{},
+			arg:  `"nope.com\\$$$\\abc123"`,
+			err:  errInvalidType,
+		},
+		{
+			name: "Errors with invalid FlexID JSON string because of ID",
+			id:   &FlexID{},
+			arg:  `"nope.com\\user\\"`,
+			err:  errInvalidID,
+		},
+		{
+			name: "Errors with invalid FlexID JSON array because of Domain",
+			id:   &FlexID{},
+			arg:  `["nope", "user", "abc123"]`,
+			err:  errInvalidDomain,
+		},
+		{
+			name: "Errors with invalid FlexID JSON array because of Type",
+			id:   &FlexID{},
+			arg:  `["nope.com", "$$$", "abc123"]`,
+			err:  errInvalidType,
+		},
+		{
+			name: "Errors with invalid FlexID JSON array because of ID",
+			id:   &FlexID{},
+			arg:  `["nope.com", "user", ""]`,
+			err:  errInvalidID,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.id.UnmarshalJSON([]byte(tt.arg)); err != tt.err {
+				t.Errorf("FlexID.UnmarshalJSON() error: %v, expected: %v", err, tt.err)
+			} else if tt.expected != nil && *tt.id != *tt.expected {
+				t.Errorf("FlexID.UnmarshalJSON() expected: %v, to equal: %v", tt.id, tt.expected)
+			}
+		})
+	}
+}
+
+func TestManifoldID_AsID(t *testing.T) {
+	converted := validManifoldID.AsID()
+	if converted == nil {
+		t.Errorf("ManifoldID.AsID() got: nil, expected: %v", validID)
+	}
+	var mid *ManifoldID
+	converted = mid.AsID()
+	if converted != nil {
+		t.Errorf("ManifoldID.AsID() got: %s, expected: nil", converted)
 	}
 }
 
