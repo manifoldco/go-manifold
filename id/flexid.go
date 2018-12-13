@@ -1,9 +1,14 @@
 package id
 
 import (
+	"encoding"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 
 	"github.com/manifoldco/go-manifold"
 	"github.com/manifoldco/go-manifold/errors"
@@ -50,7 +55,7 @@ var (
 type Domain string
 
 // Validate ensures the name value is valid
-func (d Domain) Validate(_ interface{}) error {
+func (d Domain) Validate(_ strfmt.Registry) error {
 	if domainRegex.Match([]byte(d)) {
 		return nil
 	}
@@ -75,7 +80,7 @@ func (d Domain) SubDomain() string {
 type ExternalID string
 
 // Validate ensures the name value is valid
-func (eid ExternalID) Validate(_ interface{}) error {
+func (eid ExternalID) Validate(_ strfmt.Registry) error {
 	if idRegex.Match([]byte(eid)) {
 		return nil
 	}
@@ -100,11 +105,15 @@ type CompositeID interface {
 	String() string
 	// Validate allows for OpenAPI validation of our structs so we can use them in
 	//  OpenAPI schemas
-	Validate(interface{}) error
+	Validate(strfmt.Registry) error
 	// MarshalText allows CompositeIDs to be easily converted to text
 	MarshalText() ([]byte, error)
 	// UnmarshalText allows CompositeIDs to be easily parsed from text
 	UnmarshalText(b []byte) error
+	// MarshalText allows CompositeIDs to be easily converted to text
+	MarshalJSON() ([]byte, error)
+	// UnmarshalText allows CompositeIDs to be easily parsed from text
+	UnmarshalJSON(b []byte) error
 }
 
 // ManifoldID is an implementation of CompositeID that wraps the existing Manifold ID type.
@@ -138,12 +147,15 @@ func (m *ManifoldID) String() string {
 }
 
 // Validate implements the Validate interface for goswagger
-func (m *ManifoldID) Validate(_ interface{}) error {
+func (m *ManifoldID) Validate(_ strfmt.Registry) error {
 	return manifold.ID(*m).Validate(nil)
 }
 
 // MarshalText implements the encoding.TextMarshaler interface
 func (m *ManifoldID) MarshalText() ([]byte, error) {
+	if m == nil {
+		return nil, errNilValue
+	}
 	return []byte(m.String()), nil
 }
 
@@ -162,6 +174,40 @@ func (m *ManifoldID) UnmarshalText(b []byte) error {
 	}
 	copy(m[:], mid[:])
 	return err
+}
+
+// UnmarshalJSON implements the encoding/json.Unmarshaler interface
+func (m *ManifoldID) UnmarshalJSON(b []byte) error {
+	if m == nil {
+		return errNilValue
+	}
+	id := &FlexID{}
+	if err := id.UnmarshalJSON(b); err != nil {
+		return err
+	}
+	mid, err := id.AsManifoldID()
+	if err != nil {
+		return err
+	}
+	copy(m[:], mid[:])
+	return err
+}
+
+// MarshalJSON implements the encoding/json.Marshaler interface
+func (m *ManifoldID) MarshalJSON() ([]byte, error) {
+	if m == nil {
+		return nil, errNilValue
+	}
+	return json.Marshal(m.String())
+}
+
+// AsID casts the ManifoldID pointer to a manifold.ID pointer for convenience
+func (m *ManifoldID) AsID() *manifold.ID {
+	if m == nil {
+		return nil
+	}
+	id := manifold.ID(*m)
+	return &id
 }
 
 // FlexID is an implementation of CompositeID that is designed to store internal
@@ -197,12 +243,25 @@ func (id *FlexID) String() string {
 
 // Validate implements the Validate interface for goswagger
 //  which always succeeds because the ID is already parsed
-func (id *FlexID) Validate(_ interface{}) error {
+func (id *FlexID) Validate(_ strfmt.Registry) error {
+	if err := id.Domain().Validate(nil); err != nil {
+		return err
+	}
+	if id.Type().Validate(nil) != nil {
+		return errInvalidType
+	}
+	if err := id.ID().Validate(nil); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // MarshalText implements the encoding.TextMarshaler interface
 func (id *FlexID) MarshalText() ([]byte, error) {
+	if id == nil {
+		return nil, errNilValue
+	}
 	return []byte(id.String()), nil
 }
 
@@ -218,17 +277,43 @@ func (id *FlexID) UnmarshalText(b []byte) error {
 
 	copy(id[:], parts)
 
-	if err := id.Domain().Validate(nil); err != nil {
-		return err
-	}
-	if id.Type().Validate(nil) != nil {
-		return errInvalidType
-	}
-	if err := id.ID().Validate(nil); err != nil {
+	if err := id.Validate(nil); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// UnmarshalJSON implements the encoding/json.Unmarshaler interface
+func (id *FlexID) UnmarshalJSON(b []byte) error {
+	if id == nil {
+		return errNilValue
+	}
+	var parts [3]string
+	if err := json.Unmarshal(b, &parts); err != nil {
+		// Attempt to unmarshal as string
+		var s string
+		if err := json.Unmarshal(b, &s); err != nil {
+			return errInvalidParts
+		}
+		return id.UnmarshalText([]byte(s))
+	}
+
+	copy(id[:], parts[:])
+
+	if err := id.Validate(nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalJSON implements the encoding/json.Marshaler interface
+func (id *FlexID) MarshalJSON() ([]byte, error) {
+	if id == nil {
+		return nil, errNilValue
+	}
+	return json.Marshal(id.String())
 }
 
 // AsManifoldID validates that the FlexID adheres with the requirements of a ManifoldID
@@ -248,8 +333,7 @@ func (id *FlexID) AsManifoldID() (*ManifoldID, error) {
 	return &out, nil
 }
 
-// FromID can be used for easy conversion of a Manifold ID to ManifoldID without
-//  the need for package import
+// FromID can be used for easy conversion of a manifold.ID to ManifoldID
 func FromID(id manifold.ID) *ManifoldID {
 	out := ManifoldID(id)
 	return &out
@@ -257,6 +341,20 @@ func FromID(id manifold.ID) *ManifoldID {
 
 // Ensure interface adherence
 var (
-	_ CompositeID = &ManifoldID{}
-	_ CompositeID = &FlexID{}
+	_ runtime.Validatable      = Domain("")
+	_ runtime.Validatable      = ExternalID("")
+	_ CompositeID              = &ManifoldID{}
+	_ fmt.Stringer             = &ManifoldID{}
+	_ runtime.Validatable      = &ManifoldID{}
+	_ encoding.TextMarshaler   = &ManifoldID{}
+	_ encoding.TextUnmarshaler = &ManifoldID{}
+	_ json.Marshaler           = &ManifoldID{}
+	_ json.Unmarshaler         = &ManifoldID{}
+	_ CompositeID              = &FlexID{}
+	_ fmt.Stringer             = &FlexID{}
+	_ runtime.Validatable      = &FlexID{}
+	_ encoding.TextMarshaler   = &FlexID{}
+	_ encoding.TextUnmarshaler = &FlexID{}
+	_ json.Marshaler           = &FlexID{}
+	_ json.Unmarshaler         = &FlexID{}
 )
