@@ -43,11 +43,11 @@ var (
 	// ErrNotAManifoldID is an error returned when a CompositeID is expected to
 	//  be a ManifoldID, but is not.
 	ErrNotAManifoldID = manifold.NewError(errors.BadRequestError,
-		"Malformed ManifoldID, expected form `manifold.co/TYPE/MANIFOLDID`")
+		"Malformed ManifoldID, expected form `manifold.co\\TYPE\\MANIFOLDID`")
 	// ErrManifoldIDTypeMismatch is an error returned when a CompositeID is expected to
 	//  be a ManifoldID, but is not because the type does not match.
 	ErrManifoldIDTypeMismatch = manifold.NewError(errors.BadRequestError,
-		"Invalid ManifoldID, expected TYPE from `manifold.co/TYPE/ID` to match ID Type")
+		"Invalid ManifoldID, expected TYPE from `manifold.co\\TYPE\\ID` to match ID Type")
 )
 
 // Domain is a string that can be Validated based on Regex to expect a string
@@ -121,41 +121,38 @@ type CompositeID interface {
 type ManifoldID manifold.ID
 
 // Domain returns the domain portion as a string
-func (m *ManifoldID) Domain() Domain {
+func (m ManifoldID) Domain() Domain {
 	return ManifoldDomain
 }
 
 // Type returns the type portion as string
-func (m *ManifoldID) Type() manifold.Label {
-	return manifold.Label(manifold.ID(*m).Type().Name())
+func (m ManifoldID) Type() manifold.Label {
+	return manifold.Label(manifold.ID(m).Type().Name())
 }
 
 // ID returns the ID portion as a string
-func (m *ManifoldID) ID() ExternalID {
-	return ExternalID(manifold.ID(*m).String())
+func (m ManifoldID) ID() ExternalID {
+	return ExternalID(manifold.ID(m).String())
 }
 
 // AsFlexID returns the ID as the FlexID type as required by the CompositeID interface
-func (m *ManifoldID) AsFlexID() *FlexID {
+func (m ManifoldID) AsFlexID() *FlexID {
 	return &FlexID{string(m.Domain()), string(m.Type()), string(m.ID())}
 }
 
 // String implements the Stringer interface for go
-func (m *ManifoldID) String() string {
+func (m ManifoldID) String() string {
 	return fmt.Sprintf("%s%s%s%s%s", m.Domain(), pathSeperator, m.Type(),
 		pathSeperator, m.ID())
 }
 
 // Validate implements the Validate interface for goswagger
-func (m *ManifoldID) Validate(_ strfmt.Registry) error {
-	return manifold.ID(*m).Validate(nil)
+func (m ManifoldID) Validate(_ strfmt.Registry) error {
+	return manifold.ID(m).Validate(nil)
 }
 
 // MarshalText implements the encoding.TextMarshaler interface
-func (m *ManifoldID) MarshalText() ([]byte, error) {
-	if m == nil {
-		return nil, errNilValue
-	}
+func (m ManifoldID) MarshalText() ([]byte, error) {
 	return []byte(m.String()), nil
 }
 
@@ -164,7 +161,7 @@ func (m *ManifoldID) UnmarshalText(b []byte) error {
 	if m == nil {
 		return errNilValue
 	}
-	id := &FlexID{}
+	id := FlexID{}
 	if err := id.UnmarshalText(b); err != nil {
 		return err
 	}
@@ -194,10 +191,7 @@ func (m *ManifoldID) UnmarshalJSON(b []byte) error {
 }
 
 // MarshalJSON implements the encoding/json.Marshaler interface
-func (m *ManifoldID) MarshalJSON() ([]byte, error) {
-	if m == nil {
-		return nil, errNilValue
-	}
+func (m ManifoldID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.String())
 }
 
@@ -216,34 +210,34 @@ func (m *ManifoldID) AsID() *manifold.ID {
 type FlexID [3]string
 
 // Domain returns the domain portion as a string
-func (id *FlexID) Domain() Domain {
+func (id FlexID) Domain() Domain {
 	return Domain(id[0])
 }
 
 // Type returns the type portion as string
-func (id *FlexID) Type() manifold.Label {
+func (id FlexID) Type() manifold.Label {
 	return manifold.Label(id[1])
 }
 
 // ID returns the ID portion as a string
-func (id *FlexID) ID() ExternalID {
+func (id FlexID) ID() ExternalID {
 	return ExternalID(id[2])
 }
 
 // AsFlexID returns the ID as the FlexID type as required by the CompositeID interface
-func (id *FlexID) AsFlexID() *FlexID {
-	return id
+func (id FlexID) AsFlexID() *FlexID {
+	return &id
 }
 
 // String implements the Stringer interface for go
-func (id *FlexID) String() string {
+func (id FlexID) String() string {
 	return fmt.Sprintf("%s%s%s%s%s", id.Domain(), pathSeperator, id.Type(),
 		pathSeperator, id.ID())
 }
 
 // Validate implements the Validate interface for goswagger
 //  which always succeeds because the ID is already parsed
-func (id *FlexID) Validate(_ strfmt.Registry) error {
+func (id FlexID) Validate(_ strfmt.Registry) error {
 	if err := id.Domain().Validate(nil); err != nil {
 		return err
 	}
@@ -258,10 +252,7 @@ func (id *FlexID) Validate(_ strfmt.Registry) error {
 }
 
 // MarshalText implements the encoding.TextMarshaler interface
-func (id *FlexID) MarshalText() ([]byte, error) {
-	if id == nil {
-		return nil, errNilValue
-	}
+func (id FlexID) MarshalText() ([]byte, error) {
 	return []byte(id.String()), nil
 }
 
@@ -309,16 +300,13 @@ func (id *FlexID) UnmarshalJSON(b []byte) error {
 }
 
 // MarshalJSON implements the encoding/json.Marshaler interface
-func (id *FlexID) MarshalJSON() ([]byte, error) {
-	if id == nil {
-		return nil, errNilValue
-	}
+func (id FlexID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(id.String())
 }
 
 // AsManifoldID validates that the FlexID adheres with the requirements of a ManifoldID
 //  and attempts to cast it to one
-func (id *FlexID) AsManifoldID() (*ManifoldID, error) {
+func (id FlexID) AsManifoldID() (*ManifoldID, error) {
 	if id.Domain() != ManifoldDomain {
 		return nil, ErrNotAManifoldID
 	}

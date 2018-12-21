@@ -1,6 +1,7 @@
 package id
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -113,14 +114,15 @@ func TestManifoldID_MarshalText(t *testing.T) {
 		return
 	}
 	var mid *ManifoldID
+	defer func() {
+		_ = recover()
+	}()
 	_, err = mid.MarshalText()
-	if err != errNilValue {
-		t.Errorf("ManifoldID.MarshalText() expected errNilValue when called on nil, got '%s'", err)
-		return
-	}
+	t.Errorf("ManifoldID.MarshalText() expected panic when called on nil, got '%s'", err)
 }
 
 func TestManifoldID_MarshalJSON(t *testing.T) {
+
 	out, err := validManifoldID.MarshalJSON()
 	if err != nil {
 		t.Errorf("ManifoldID.MarshalJSON() unexpected error: %v", err)
@@ -130,12 +132,33 @@ func TestManifoldID_MarshalJSON(t *testing.T) {
 		t.Errorf("ManifoldID.MarshalJSON() expected '%s', got '%s'", expectedJSONString, out)
 		return
 	}
-	var mid *ManifoldID
-	_, err = mid.MarshalJSON()
-	if err != errNilValue {
-		t.Errorf("ManifoldID.MarshalJSON() expected errNilValue when called on nil, got '%s'", err)
+
+	out, err = json.Marshal(validManifoldID)
+	if err != nil {
+		t.Errorf("json.Marshal(*ManifoldID) unexpected error: %v", err)
 		return
 	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(*ManifoldID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	out, err = json.Marshal(*validManifoldID)
+	if err != nil {
+		t.Errorf("json.Marshal(ManifoldID) unexpected error: %v", err)
+		return
+	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(ManifoldID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	var mid *ManifoldID
+	defer func() {
+		_ = recover()
+	}()
+	_, err = mid.MarshalJSON()
+	t.Errorf("ManifoldID.MarshalJSON() expected panic when called on nil, got '%s'", err)
 }
 
 func TestFlexID_MarshalText(t *testing.T) {
@@ -149,14 +172,15 @@ func TestFlexID_MarshalText(t *testing.T) {
 		return
 	}
 	var fid *FlexID
+	defer func() {
+		_ = recover()
+	}()
 	_, err = fid.MarshalText()
-	if err != errNilValue {
-		t.Errorf("FlexID.MarshalText() expected errNilValue when called on nil, got '%s'", err)
-		return
-	}
+	t.Errorf("FlexID.MarshalText() expected panic when called on nil, got '%s'", err)
 }
 
 func TestFlexID_MarshalJSON(t *testing.T) {
+
 	out, err := validFlexID.MarshalJSON()
 	if err != nil {
 		t.Errorf("FlexID.MarshalJSON() unexpected error: %v", err)
@@ -166,12 +190,33 @@ func TestFlexID_MarshalJSON(t *testing.T) {
 		t.Errorf("FlexID.MarshalJSON() expected '%s', got '%s'", expectedJSONString, out)
 		return
 	}
-	var fid *FlexID
-	_, err = fid.MarshalJSON()
-	if err != errNilValue {
-		t.Errorf("FlexID.MarshalJSON() expected errNilValue when called on nil, got '%s'", err)
+
+	out, err = json.Marshal(validFlexID)
+	if err != nil {
+		t.Errorf("json.Marshal(*FlexID) unexpected error: %v", err)
 		return
 	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(*FlexID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	out, err = json.Marshal(*validFlexID)
+	if err != nil {
+		t.Errorf("json.Marshal(FlexID) unexpected error: %v", err)
+		return
+	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(FlexID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	var fid *FlexID
+	defer func() {
+		_ = recover()
+	}()
+	_, err = fid.MarshalJSON()
+	t.Errorf("FlexID.MarshalJSON() expected panic when called on nil, got '%s'", err)
 }
 
 func TestManifoldID_UnmarshalText(t *testing.T) {
