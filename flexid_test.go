@@ -26,7 +26,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	validManifoldID = FromID(validID)
+	validManifoldID = validID.AsComposite()
 	validFlexID = validManifoldID.AsFlexID().AsFlexID()
 
 	expectedString = fmt.Sprintf("%s%spartner%s%s", ManifoldDomain, pathSeperator,

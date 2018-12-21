@@ -320,12 +320,6 @@ func (id FlexID) AsManifoldID() (*ManifoldID, error) {
 	return &out, nil
 }
 
-// FromID can be used for easy conversion of a ID to ManifoldID
-func FromID(id ID) *ManifoldID {
-	out := ManifoldID(id)
-	return &out
-}
-
 // Ensure interface adherence
 var (
 	_ runtime.Validatable      = Domain("")
