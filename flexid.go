@@ -1,4 +1,4 @@
-package id
+package manifold
 
 import (
 	"encoding"
@@ -10,7 +10,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/manifoldco/go-manifold"
 	"github.com/manifoldco/go-manifold/errors"
 )
 
@@ -29,24 +28,24 @@ var (
 	//  characters expected in Base64 encoded values, GUIDs and UUIDs
 	idRegex = regexp.MustCompile(`^\{?[a-zA-Z0-9+/-_]{1,256}={0,2}\}?$`)
 
-	errNilValue = manifold.NewError(errors.InternalServerError,
+	errNilValue = NewError(errors.InternalServerError,
 		"Invalid CompositeID, cannot unmarshal to nil ID")
-	errInvalidParts = manifold.NewError(errors.BadRequestError,
+	errInvalidParts = NewError(errors.BadRequestError,
 		"Invalid CompositeID, expected 3 parts, Domain, Type, and ID")
-	errInvalidDomain = manifold.NewError(errors.BadRequestError,
+	errInvalidDomain = NewError(errors.BadRequestError,
 		"Invalid CompositeID, expected a valid Domain in the first segment")
-	errInvalidType = manifold.NewError(errors.BadRequestError,
+	errInvalidType = NewError(errors.BadRequestError,
 		"Invalid CompositeID, expected a valid Type in the last segment")
-	errInvalidID = manifold.NewError(errors.BadRequestError,
+	errInvalidID = NewError(errors.BadRequestError,
 		"Invalid CompositeID, expected a valid ID in the last segment")
 
 	// ErrNotAManifoldID is an error returned when a CompositeID is expected to
 	//  be a ManifoldID, but is not.
-	ErrNotAManifoldID = manifold.NewError(errors.BadRequestError,
+	ErrNotAManifoldID = NewError(errors.BadRequestError,
 		"Malformed ManifoldID, expected form `manifold.co\\TYPE\\MANIFOLDID`")
 	// ErrManifoldIDTypeMismatch is an error returned when a CompositeID is expected to
 	//  be a ManifoldID, but is not because the type does not match.
-	ErrManifoldIDTypeMismatch = manifold.NewError(errors.BadRequestError,
+	ErrManifoldIDTypeMismatch = NewError(errors.BadRequestError,
 		"Invalid ManifoldID, expected TYPE from `manifold.co\\TYPE\\ID` to match ID Type")
 )
 
@@ -96,7 +95,7 @@ type CompositeID interface {
 	// Domain returns the Domain ( first ) portion of the CompositeID
 	Domain() Domain
 	// Type returns the Type ( second ) portion of the CompositeID
-	Type() manifold.Label
+	Type() Label
 	// ID returns the ID ( third ) portion of the CompositeID
 	ID() ExternalID
 	// AsFlexID allows for easy conversion of all CompositeIDs to the most forgiving struct
@@ -118,7 +117,7 @@ type CompositeID interface {
 
 // ManifoldID is an implementation of CompositeID that wraps the existing Manifold ID type.
 //  This us allows to quickly convert existing IDs to the CompositeID format
-type ManifoldID manifold.ID
+type ManifoldID ID
 
 // Domain returns the domain portion as a string
 func (m ManifoldID) Domain() Domain {
@@ -126,13 +125,13 @@ func (m ManifoldID) Domain() Domain {
 }
 
 // Type returns the type portion as string
-func (m ManifoldID) Type() manifold.Label {
-	return manifold.Label(manifold.ID(m).Type().Name())
+func (m ManifoldID) Type() Label {
+	return Label(ID(m).Type().Name())
 }
 
 // ID returns the ID portion as a string
 func (m ManifoldID) ID() ExternalID {
-	return ExternalID(manifold.ID(m).String())
+	return ExternalID(ID(m).String())
 }
 
 // AsFlexID returns the ID as the FlexID type as required by the CompositeID interface
@@ -148,7 +147,7 @@ func (m ManifoldID) String() string {
 
 // Validate implements the Validate interface for goswagger
 func (m ManifoldID) Validate(_ strfmt.Registry) error {
-	return manifold.ID(m).Validate(nil)
+	return ID(m).Validate(nil)
 }
 
 // MarshalText implements the encoding.TextMarshaler interface
@@ -195,18 +194,18 @@ func (m ManifoldID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.String())
 }
 
-// AsID casts the ManifoldID pointer to a manifold.ID pointer for convenience
-func (m *ManifoldID) AsID() *manifold.ID {
+// AsID casts the ManifoldID pointer to a ID pointer for convenience
+func (m *ManifoldID) AsID() *ID {
 	if m == nil {
 		return nil
 	}
-	id := manifold.ID(*m)
+	id := ID(*m)
 	return &id
 }
 
 // FlexID is an implementation of CompositeID that is designed to store internal
 //  and external IDs it could still store ManifoldIDs but the ManifoldID type is
-//  preferred as it is directly translatable to a `manifold.ID`
+//  preferred as it is directly translatable to a `ID`
 type FlexID [3]string
 
 // Domain returns the domain portion as a string
@@ -215,8 +214,8 @@ func (id FlexID) Domain() Domain {
 }
 
 // Type returns the type portion as string
-func (id FlexID) Type() manifold.Label {
-	return manifold.Label(id[1])
+func (id FlexID) Type() Label {
+	return Label(id[1])
 }
 
 // ID returns the ID portion as a string
@@ -310,7 +309,7 @@ func (id FlexID) AsManifoldID() (*ManifoldID, error) {
 	if id.Domain() != ManifoldDomain {
 		return nil, ErrNotAManifoldID
 	}
-	mid, err := manifold.DecodeIDFromString(string(id.ID()))
+	mid, err := DecodeIDFromString(string(id.ID()))
 	if err != nil {
 		return nil, ErrNotAManifoldID
 	}
@@ -321,8 +320,8 @@ func (id FlexID) AsManifoldID() (*ManifoldID, error) {
 	return &out, nil
 }
 
-// FromID can be used for easy conversion of a manifold.ID to ManifoldID
-func FromID(id manifold.ID) *ManifoldID {
+// FromID can be used for easy conversion of a ID to ManifoldID
+func FromID(id ID) *ManifoldID {
 	out := ManifoldID(id)
 	return &out
 }

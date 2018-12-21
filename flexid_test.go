@@ -1,4 +1,4 @@
-package id
+package manifold
 
 import (
 	"encoding/json"
@@ -6,12 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/manifoldco/go-manifold"
 	"github.com/manifoldco/go-manifold/idtype"
 )
 
 var (
-	validID               manifold.ID
+	validID               ID
 	validManifoldID       *ManifoldID
 	validFlexID           *FlexID
 	validFlexIDString     = "web.com" + pathSeperator + "user" + pathSeperator + "abc123"
@@ -23,7 +22,7 @@ var (
 
 func init() {
 	var err error
-	validID, err = manifold.NewID(idtype.Partner)
+	validID, err = NewID(idtype.Partner)
 	if err != nil {
 		panic(err)
 	}
@@ -259,7 +258,7 @@ func TestManifoldID_UnmarshalText(t *testing.T) {
 		{
 			name: "Errors with valid FlexID that is not a manifoldID because of Type mismatch",
 			m:    &ManifoldID{},
-			arg:  string(ManifoldDomain) + `\user\` + manifold.ID(*validManifoldID).String(),
+			arg:  string(ManifoldDomain) + `\user\` + ID(*validManifoldID).String(),
 			err:  ErrManifoldIDTypeMismatch,
 		},
 	}
@@ -320,7 +319,7 @@ func TestManifoldID_UnmarshalJSON(t *testing.T) {
 		{
 			name: "Errors with valid FlexID JSON string that is not a manifoldID because of Type mismatch",
 			m:    &ManifoldID{},
-			arg:  `"` + string(ManifoldDomain) + `\\user\\` + manifold.ID(*validManifoldID).String() + `"`,
+			arg:  `"` + string(ManifoldDomain) + `\\user\\` + ID(*validManifoldID).String() + `"`,
 			err:  ErrManifoldIDTypeMismatch,
 		},
 		{
@@ -332,7 +331,7 @@ func TestManifoldID_UnmarshalJSON(t *testing.T) {
 		{
 			name: "Errors with valid FlexID JSON array that is not a manifoldID because of Type mismatch",
 			m:    &ManifoldID{},
-			arg:  `["` + string(ManifoldDomain) + `", "user", "` + manifold.ID(*validManifoldID).String() + `"]`,
+			arg:  `["` + string(ManifoldDomain) + `", "user", "` + ID(*validManifoldID).String() + `"]`,
 			err:  ErrManifoldIDTypeMismatch,
 		},
 	}
@@ -521,12 +520,12 @@ func TestDomain_SubDomain(t *testing.T) {
 	}{
 		{
 			name: "Subdomain returns as expected",
-			d:    "test.manifold.co",
+			d:    "test.maniford.co",
 			want: "test",
 		},
 		{
 			name: "Multi-segment subdomain returns as expected",
-			d:    "test.tony.manifold.co",
+			d:    "test.tony.maniford.co",
 			want: "test.tony",
 		},
 		{
