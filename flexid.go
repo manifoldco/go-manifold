@@ -116,7 +116,7 @@ type CompositeID interface {
 }
 
 // ManifoldID is an implementation of CompositeID that wraps the existing Manifold ID type.
-//  This us allows to quickly convert existing IDs to the CompositeID format
+//  This allow us to quickly convert existing IDs to the CompositeID format
 type ManifoldID ID
 
 // Domain returns the domain portion as a string
@@ -146,8 +146,8 @@ func (m ManifoldID) String() string {
 }
 
 // Validate implements the Validate interface for goswagger
-func (m ManifoldID) Validate(_ strfmt.Registry) error {
-	return ID(m).Validate(nil)
+func (m ManifoldID) Validate(v strfmt.Registry) error {
+	return ID(m).Validate(v)
 }
 
 // MarshalText implements the encoding.TextMarshaler interface
@@ -236,14 +236,14 @@ func (id FlexID) String() string {
 
 // Validate implements the Validate interface for goswagger
 //  which always succeeds because the ID is already parsed
-func (id FlexID) Validate(_ strfmt.Registry) error {
-	if err := id.Domain().Validate(nil); err != nil {
+func (id FlexID) Validate(v strfmt.Registry) error {
+	if err := id.Domain().Validate(v); err != nil {
 		return err
 	}
-	if id.Type().Validate(nil) != nil {
+	if id.Type().Validate(v) != nil {
 		return errInvalidType
 	}
-	if err := id.ID().Validate(nil); err != nil {
+	if err := id.ID().Validate(v); err != nil {
 		return err
 	}
 
