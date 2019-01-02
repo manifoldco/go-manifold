@@ -39,14 +39,14 @@ var (
 	errInvalidID = NewError(errors.BadRequestError,
 		"Invalid CompositeID, expected a valid ID in the last segment")
 
-	// ErrNotAManifoldID is an error returned when a CompositeID is expected to
-	//  be a ManifoldID, but is not.
-	ErrNotAManifoldID = NewError(errors.BadRequestError,
-		"Malformed ManifoldID, expected form `manifold.co\\TYPE\\MANIFOLDID`")
-	// ErrManifoldIDTypeMismatch is an error returned when a CompositeID is expected to
-	//  be a ManifoldID, but is not because the type does not match.
-	ErrManifoldIDTypeMismatch = NewError(errors.BadRequestError,
-		"Invalid ManifoldID, expected TYPE from `manifold.co\\TYPE\\ID` to match ID Type")
+	// ErrNotAInternalID is an error returned when a CompositeID is expected to
+	//  be a InternalID, but is not.
+	ErrNotAInternalID = NewError(errors.BadRequestError,
+		"Malformed InternalID, expected form `manifold.co\\TYPE\\MANIFOLDID`")
+	// ErrInternalIDTypeMismatch is an error returned when a CompositeID is expected to
+	//  be a InternalID, but is not because the type does not match.
+	ErrInternalIDTypeMismatch = NewError(errors.BadRequestError,
+		"Invalid InternalID, expected TYPE from `manifold.co\\TYPE\\ID` to match ID Type")
 )
 
 // Domain is a string that can be Validated based on Regex to expect a string
@@ -115,48 +115,48 @@ type CompositeID interface {
 	UnmarshalJSON(b []byte) error
 }
 
-// ManifoldID is an implementation of CompositeID that wraps the existing Manifold ID type.
+// InternalID is an implementation of CompositeID that wraps the existing Manifold ID type.
 //  This allow us to quickly convert existing IDs to the CompositeID format
-type ManifoldID ID
+type InternalID ID
 
 // Domain returns the domain portion as a string
-func (m ManifoldID) Domain() Domain {
+func (m InternalID) Domain() Domain {
 	return ManifoldDomain
 }
 
 // Type returns the type portion as string
-func (m ManifoldID) Type() Label {
+func (m InternalID) Type() Label {
 	return Label(ID(m).Type().Name())
 }
 
 // ID returns the ID portion as a string
-func (m ManifoldID) ID() ExternalID {
+func (m InternalID) ID() ExternalID {
 	return ExternalID(ID(m).String())
 }
 
 // AsFlexID returns the ID as the FlexID type as required by the CompositeID interface
-func (m ManifoldID) AsFlexID() *FlexID {
+func (m InternalID) AsFlexID() *FlexID {
 	return &FlexID{string(m.Domain()), string(m.Type()), string(m.ID())}
 }
 
 // String implements the Stringer interface for go
-func (m ManifoldID) String() string {
+func (m InternalID) String() string {
 	return fmt.Sprintf("%s%s%s%s%s", m.Domain(), pathSeperator, m.Type(),
 		pathSeperator, m.ID())
 }
 
 // Validate implements the Validate interface for goswagger
-func (m ManifoldID) Validate(v strfmt.Registry) error {
+func (m InternalID) Validate(v strfmt.Registry) error {
 	return ID(m).Validate(v)
 }
 
 // MarshalText implements the encoding.TextMarshaler interface
-func (m ManifoldID) MarshalText() ([]byte, error) {
+func (m InternalID) MarshalText() ([]byte, error) {
 	return []byte(m.String()), nil
 }
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface
-func (m *ManifoldID) UnmarshalText(b []byte) error {
+func (m *InternalID) UnmarshalText(b []byte) error {
 	if m == nil {
 		return errNilValue
 	}
@@ -164,7 +164,7 @@ func (m *ManifoldID) UnmarshalText(b []byte) error {
 	if err := id.UnmarshalText(b); err != nil {
 		return err
 	}
-	mid, err := id.AsManifoldID()
+	mid, err := id.AsInternalID()
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (m *ManifoldID) UnmarshalText(b []byte) error {
 }
 
 // UnmarshalJSON implements the encoding/json.Unmarshaler interface
-func (m *ManifoldID) UnmarshalJSON(b []byte) error {
+func (m *InternalID) UnmarshalJSON(b []byte) error {
 	if m == nil {
 		return errNilValue
 	}
@@ -181,7 +181,7 @@ func (m *ManifoldID) UnmarshalJSON(b []byte) error {
 	if err := id.UnmarshalJSON(b); err != nil {
 		return err
 	}
-	mid, err := id.AsManifoldID()
+	mid, err := id.AsInternalID()
 	if err != nil {
 		return err
 	}
@@ -190,12 +190,12 @@ func (m *ManifoldID) UnmarshalJSON(b []byte) error {
 }
 
 // MarshalJSON implements the encoding/json.Marshaler interface
-func (m ManifoldID) MarshalJSON() ([]byte, error) {
+func (m InternalID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.String())
 }
 
-// AsID casts the ManifoldID pointer to a ID pointer for convenience
-func (m *ManifoldID) AsID() *ID {
+// AsID casts the InternalID pointer to a ID pointer for convenience
+func (m *InternalID) AsID() *ID {
 	if m == nil {
 		return nil
 	}
@@ -204,7 +204,7 @@ func (m *ManifoldID) AsID() *ID {
 }
 
 // FlexID is an implementation of CompositeID that is designed to store internal
-//  and external IDs it could still store ManifoldIDs but the ManifoldID type is
+//  and external IDs it could still store InternalIDs but the InternalID type is
 //  preferred as it is directly translatable to a `ID`
 type FlexID [3]string
 
@@ -303,20 +303,20 @@ func (id FlexID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(id.String())
 }
 
-// AsManifoldID validates that the FlexID adheres with the requirements of a ManifoldID
+// AsInternalID validates that the FlexID adheres with the requirements of a InternalID
 //  and attempts to cast it to one
-func (id FlexID) AsManifoldID() (*ManifoldID, error) {
+func (id FlexID) AsInternalID() (*InternalID, error) {
 	if id.Domain() != ManifoldDomain {
-		return nil, ErrNotAManifoldID
+		return nil, ErrNotAInternalID
 	}
 	mid, err := DecodeIDFromString(string(id.ID()))
 	if err != nil {
-		return nil, ErrNotAManifoldID
+		return nil, ErrNotAInternalID
 	}
 	if mid.Type().Name() != string(id.Type()) {
-		return nil, ErrManifoldIDTypeMismatch
+		return nil, ErrInternalIDTypeMismatch
 	}
-	out := ManifoldID(mid)
+	out := InternalID(mid)
 	return &out, nil
 }
 
@@ -324,13 +324,13 @@ func (id FlexID) AsManifoldID() (*ManifoldID, error) {
 var (
 	_ runtime.Validatable      = Domain("")
 	_ runtime.Validatable      = ExternalID("")
-	_ CompositeID              = &ManifoldID{}
-	_ fmt.Stringer             = &ManifoldID{}
-	_ runtime.Validatable      = &ManifoldID{}
-	_ encoding.TextMarshaler   = &ManifoldID{}
-	_ encoding.TextUnmarshaler = &ManifoldID{}
-	_ json.Marshaler           = &ManifoldID{}
-	_ json.Unmarshaler         = &ManifoldID{}
+	_ CompositeID              = &InternalID{}
+	_ fmt.Stringer             = &InternalID{}
+	_ runtime.Validatable      = &InternalID{}
+	_ encoding.TextMarshaler   = &InternalID{}
+	_ encoding.TextUnmarshaler = &InternalID{}
+	_ json.Marshaler           = &InternalID{}
+	_ json.Unmarshaler         = &InternalID{}
 	_ CompositeID              = &FlexID{}
 	_ fmt.Stringer             = &FlexID{}
 	_ runtime.Validatable      = &FlexID{}

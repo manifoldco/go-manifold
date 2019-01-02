@@ -195,7 +195,7 @@ func (id ID) IsEmpty() bool {
 }
 
 // AsComposite converts the ID to a CompositeID
-func (id ID) AsComposite() *ManifoldID {
-	mid := ManifoldID(id)
+func (id ID) AsComposite() *InternalID {
+	mid := InternalID(id)
 	return &mid
 }
