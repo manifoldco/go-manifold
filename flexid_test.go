@@ -1,17 +1,17 @@
-package id
+package manifold
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/manifoldco/go-manifold"
 	"github.com/manifoldco/go-manifold/idtype"
 )
 
 var (
-	validID               manifold.ID
-	validManifoldID       *ManifoldID
+	validID               ID
+	validInternalID       *InternalID
 	validFlexID           *FlexID
 	validFlexIDString     = "web.com" + pathSeperator + "user" + pathSeperator + "abc123"
 	validFlexIDJSONString = `"` + strings.Replace(validFlexIDString, "\\", "\\\\", -1) + `"`
@@ -22,12 +22,12 @@ var (
 
 func init() {
 	var err error
-	validID, err = manifold.NewID(idtype.Partner)
+	validID, err = NewID(idtype.Partner)
 	if err != nil {
 		panic(err)
 	}
-	validManifoldID = FromID(validID)
-	validFlexID = validManifoldID.AsFlexID().AsFlexID()
+	validInternalID = validID.AsComposite()
+	validFlexID = validInternalID.AsFlexID().AsFlexID()
 
 	expectedString = fmt.Sprintf("%s%spartner%s%s", ManifoldDomain, pathSeperator,
 		pathSeperator, validID)
@@ -86,10 +86,10 @@ func TestExternalID_Validate(t *testing.T) {
 	}
 }
 
-func TestManifoldID_Validate(t *testing.T) {
-	err := validManifoldID.Validate(nil)
+func TestInternalID_Validate(t *testing.T) {
+	err := validInternalID.Validate(nil)
 	if err != nil {
-		t.Errorf("ManifoldID.Validate() unexpected error: %v", err)
+		t.Errorf("InternalID.Validate() unexpected error: %v", err)
 		return
 	}
 }
@@ -102,40 +102,62 @@ func TestFlexID_Validate(t *testing.T) {
 	}
 }
 
-func TestManifoldID_MarshalText(t *testing.T) {
-	out, err := validManifoldID.MarshalText()
+func TestInternalID_MarshalText(t *testing.T) {
+	out, err := validInternalID.MarshalText()
 	if err != nil {
-		t.Errorf("ManifoldID.MarshalText() unexpected error: %v", err)
+		t.Errorf("InternalID.MarshalText() unexpected error: %v", err)
 		return
 	}
 	if string(out) != expectedString {
-		t.Errorf("ManifoldID.MarshalText() expected '%s', got '%s'", expectedString, out)
+		t.Errorf("InternalID.MarshalText() expected '%s', got '%s'", expectedString, out)
 		return
 	}
-	var mid *ManifoldID
+	var mid *InternalID
+	defer func() {
+		_ = recover()
+	}()
 	_, err = mid.MarshalText()
-	if err != errNilValue {
-		t.Errorf("ManifoldID.MarshalText() expected errNilValue when called on nil, got '%s'", err)
-		return
-	}
+	t.Errorf("InternalID.MarshalText() expected panic when called on nil, got '%s'", err)
 }
 
-func TestManifoldID_MarshalJSON(t *testing.T) {
-	out, err := validManifoldID.MarshalJSON()
+func TestInternalID_MarshalJSON(t *testing.T) {
+
+	out, err := validInternalID.MarshalJSON()
 	if err != nil {
-		t.Errorf("ManifoldID.MarshalJSON() unexpected error: %v", err)
+		t.Errorf("InternalID.MarshalJSON() unexpected error: %v", err)
 		return
 	}
 	if string(out) != expectedJSONString {
-		t.Errorf("ManifoldID.MarshalJSON() expected '%s', got '%s'", expectedJSONString, out)
+		t.Errorf("InternalID.MarshalJSON() expected '%s', got '%s'", expectedJSONString, out)
 		return
 	}
-	var mid *ManifoldID
+
+	out, err = json.Marshal(validInternalID)
+	if err != nil {
+		t.Errorf("json.Marshal(*InternalID) unexpected error: %v", err)
+		return
+	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(*InternalID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	out, err = json.Marshal(*validInternalID)
+	if err != nil {
+		t.Errorf("json.Marshal(InternalID) unexpected error: %v", err)
+		return
+	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(InternalID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	var mid *InternalID
+	defer func() {
+		_ = recover()
+	}()
 	_, err = mid.MarshalJSON()
-	if err != errNilValue {
-		t.Errorf("ManifoldID.MarshalJSON() expected errNilValue when called on nil, got '%s'", err)
-		return
-	}
+	t.Errorf("InternalID.MarshalJSON() expected panic when called on nil, got '%s'", err)
 }
 
 func TestFlexID_MarshalText(t *testing.T) {
@@ -149,14 +171,15 @@ func TestFlexID_MarshalText(t *testing.T) {
 		return
 	}
 	var fid *FlexID
+	defer func() {
+		_ = recover()
+	}()
 	_, err = fid.MarshalText()
-	if err != errNilValue {
-		t.Errorf("FlexID.MarshalText() expected errNilValue when called on nil, got '%s'", err)
-		return
-	}
+	t.Errorf("FlexID.MarshalText() expected panic when called on nil, got '%s'", err)
 }
 
 func TestFlexID_MarshalJSON(t *testing.T) {
+
 	out, err := validFlexID.MarshalJSON()
 	if err != nil {
 		t.Errorf("FlexID.MarshalJSON() unexpected error: %v", err)
@@ -166,21 +189,42 @@ func TestFlexID_MarshalJSON(t *testing.T) {
 		t.Errorf("FlexID.MarshalJSON() expected '%s', got '%s'", expectedJSONString, out)
 		return
 	}
-	var fid *FlexID
-	_, err = fid.MarshalJSON()
-	if err != errNilValue {
-		t.Errorf("FlexID.MarshalJSON() expected errNilValue when called on nil, got '%s'", err)
+
+	out, err = json.Marshal(validFlexID)
+	if err != nil {
+		t.Errorf("json.Marshal(*FlexID) unexpected error: %v", err)
 		return
 	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(*FlexID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	out, err = json.Marshal(*validFlexID)
+	if err != nil {
+		t.Errorf("json.Marshal(FlexID) unexpected error: %v", err)
+		return
+	}
+	if string(out) != expectedJSONString {
+		t.Errorf("json.Marshal(FlexID) expected '%s', got '%s'", expectedJSONString, out)
+		return
+	}
+
+	var fid *FlexID
+	defer func() {
+		_ = recover()
+	}()
+	_, err = fid.MarshalJSON()
+	t.Errorf("FlexID.MarshalJSON() expected panic when called on nil, got '%s'", err)
 }
 
-func TestManifoldID_UnmarshalText(t *testing.T) {
+func TestInternalID_UnmarshalText(t *testing.T) {
 	tests := []struct {
 		name     string
-		m        *ManifoldID
+		m        *InternalID
 		arg      string
 		err      error
-		expected *ManifoldID
+		expected *InternalID
 	}{
 		{
 			name: "Fails to unmarshal from text when nil",
@@ -189,53 +233,53 @@ func TestManifoldID_UnmarshalText(t *testing.T) {
 		},
 		{
 			name:     "Unmarshals from text to expected ID",
-			m:        &ManifoldID{},
+			m:        &InternalID{},
 			arg:      expectedString,
-			expected: validManifoldID,
+			expected: validInternalID,
 		},
 		{
 			name: "Errors with invalid FlexID",
-			m:    &ManifoldID{},
+			m:    &InternalID{},
 			arg:  "THIS_IS_TOTALLY_INVALID",
 			err:  errInvalidParts,
 		},
 		{
 			name: "Errors with valid FlexID that is not a manifoldID",
-			m:    &ManifoldID{},
+			m:    &InternalID{},
 			arg:  validFlexIDString,
-			err:  ErrNotAManifoldID,
+			err:  ErrNotAInternalID,
 		},
 		{
 			name: "Errors with valid FlexID that is not a manifoldID because of ID",
-			m:    &ManifoldID{},
+			m:    &InternalID{},
 			arg:  string(ManifoldDomain) + `\user\abc123`,
-			err:  ErrNotAManifoldID,
+			err:  ErrNotAInternalID,
 		},
 		{
 			name: "Errors with valid FlexID that is not a manifoldID because of Type mismatch",
-			m:    &ManifoldID{},
-			arg:  string(ManifoldDomain) + `\user\` + manifold.ID(*validManifoldID).String(),
-			err:  ErrManifoldIDTypeMismatch,
+			m:    &InternalID{},
+			arg:  string(ManifoldDomain) + `\user\` + ID(*validInternalID).String(),
+			err:  ErrInternalIDTypeMismatch,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.m.UnmarshalText([]byte(tt.arg)); err != tt.err {
-				t.Errorf("ManifoldID.UnmarshalText() error: %v, expected: %v", err, tt.err)
+				t.Errorf("InternalID.UnmarshalText() error: %v, expected: %v", err, tt.err)
 			} else if tt.expected != nil && *tt.m != *tt.expected {
-				t.Errorf("ManifoldID.UnmarshalText() expected: %v, to equal: %v", tt.m, tt.expected)
+				t.Errorf("InternalID.UnmarshalText() expected: %v, to equal: %v", tt.m, tt.expected)
 			}
 		})
 	}
 }
 
-func TestManifoldID_UnmarshalJSON(t *testing.T) {
+func TestInternalID_UnmarshalJSON(t *testing.T) {
 	tests := []struct {
 		name     string
-		m        *ManifoldID
+		m        *InternalID
 		arg      string
 		err      error
-		expected *ManifoldID
+		expected *InternalID
 	}{
 		{
 			name: "Fails to unmarshal from JSON when nil",
@@ -244,59 +288,59 @@ func TestManifoldID_UnmarshalJSON(t *testing.T) {
 		},
 		{
 			name:     "Unmarshals from JSON to expected ID",
-			m:        &ManifoldID{},
+			m:        &InternalID{},
 			arg:      expectedJSONString,
-			expected: validManifoldID,
+			expected: validInternalID,
 		},
 		{
 			name: "Errors with valid FlexID JSON string that is not a manifoldID",
-			m:    &ManifoldID{},
+			m:    &InternalID{},
 			arg:  validFlexIDJSONString,
-			err:  ErrNotAManifoldID,
+			err:  ErrNotAInternalID,
 		},
 		{
 			name: "Errors with valid FlexID JSON array that is not a manifoldID",
-			m:    &ManifoldID{},
+			m:    &InternalID{},
 			arg:  validFlexIDJSONArray,
-			err:  ErrNotAManifoldID,
+			err:  ErrNotAInternalID,
 		},
 		{
-			name: "Errors with invalid ManifoldID JSON",
-			m:    &ManifoldID{},
+			name: "Errors with invalid InternalID JSON",
+			m:    &InternalID{},
 			arg:  "THIS_IS_TOTALLY_INVALID",
 			err:  errInvalidParts,
 		},
 		{
 			name: "Errors with valid FlexID JSON string that is not a manifoldID because of ID",
-			m:    &ManifoldID{},
+			m:    &InternalID{},
 			arg:  `"` + string(ManifoldDomain) + `\\user\\abc123"`,
-			err:  ErrNotAManifoldID,
+			err:  ErrNotAInternalID,
 		},
 		{
 			name: "Errors with valid FlexID JSON string that is not a manifoldID because of Type mismatch",
-			m:    &ManifoldID{},
-			arg:  `"` + string(ManifoldDomain) + `\\user\\` + manifold.ID(*validManifoldID).String() + `"`,
-			err:  ErrManifoldIDTypeMismatch,
+			m:    &InternalID{},
+			arg:  `"` + string(ManifoldDomain) + `\\user\\` + ID(*validInternalID).String() + `"`,
+			err:  ErrInternalIDTypeMismatch,
 		},
 		{
 			name: "Errors with valid FlexID JSON array that is not a manifoldID because of ID",
-			m:    &ManifoldID{},
+			m:    &InternalID{},
 			arg:  `["` + string(ManifoldDomain) + `", "user", "abc123"]`,
-			err:  ErrNotAManifoldID,
+			err:  ErrNotAInternalID,
 		},
 		{
 			name: "Errors with valid FlexID JSON array that is not a manifoldID because of Type mismatch",
-			m:    &ManifoldID{},
-			arg:  `["` + string(ManifoldDomain) + `", "user", "` + manifold.ID(*validManifoldID).String() + `"]`,
-			err:  ErrManifoldIDTypeMismatch,
+			m:    &InternalID{},
+			arg:  `["` + string(ManifoldDomain) + `", "user", "` + ID(*validInternalID).String() + `"]`,
+			err:  ErrInternalIDTypeMismatch,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.m.UnmarshalJSON([]byte(tt.arg)); err != tt.err {
-				t.Errorf("ManifoldID.UnmarshalJSON() error: %v, expected: %v", err, tt.err)
+				t.Errorf("InternalID.UnmarshalJSON() error: %v, expected: %v", err, tt.err)
 			} else if tt.expected != nil && *tt.m != *tt.expected {
-				t.Errorf("ManifoldID.UnmarshalJSON() expected: %v, to equal: %v", tt.m, tt.expected)
+				t.Errorf("InternalID.UnmarshalJSON() expected: %v, to equal: %v", tt.m, tt.expected)
 			}
 		})
 	}
@@ -445,26 +489,26 @@ func TestFlexID_UnmarshalJSON(t *testing.T) {
 	}
 }
 
-func TestManifoldID_AsID(t *testing.T) {
-	converted := validManifoldID.AsID()
+func TestInternalID_AsID(t *testing.T) {
+	converted := validInternalID.AsID()
 	if converted == nil {
-		t.Errorf("ManifoldID.AsID() got: nil, expected: %v", validID)
+		t.Errorf("InternalID.AsID() got: nil, expected: %v", validID)
 	}
-	var mid *ManifoldID
+	var mid *InternalID
 	converted = mid.AsID()
 	if converted != nil {
-		t.Errorf("ManifoldID.AsID() got: %s, expected: nil", converted)
+		t.Errorf("InternalID.AsID() got: %s, expected: nil", converted)
 	}
 }
 
-func TestFlexID_AsManifoldID(t *testing.T) {
-	converted, err := validFlexID.AsManifoldID()
+func TestFlexID_AsInternalID(t *testing.T) {
+	converted, err := validFlexID.AsInternalID()
 	if err != nil {
-		t.Errorf("FlexID.AsManifoldID() unexpected error: %v", err)
+		t.Errorf("FlexID.AsInternalID() unexpected error: %v", err)
 		return
 	}
-	if *converted != *validManifoldID {
-		t.Errorf("FlexID.AsManifoldID() got: %v, expected: %v", err, validManifoldID)
+	if *converted != *validInternalID {
+		t.Errorf("FlexID.AsInternalID() got: %v, expected: %v", err, validInternalID)
 	}
 }
 
@@ -476,12 +520,12 @@ func TestDomain_SubDomain(t *testing.T) {
 	}{
 		{
 			name: "Subdomain returns as expected",
-			d:    "test.manifold.co",
+			d:    "test.maniford.co",
 			want: "test",
 		},
 		{
 			name: "Multi-segment subdomain returns as expected",
-			d:    "test.tony.manifold.co",
+			d:    "test.tony.maniford.co",
 			want: "test.tony",
 		},
 		{

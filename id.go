@@ -193,3 +193,9 @@ func (id ID) Validate(_ interface{}) error {
 func (id ID) IsEmpty() bool {
 	return id == emptyID
 }
+
+// AsComposite converts the ID to a CompositeID
+func (id ID) AsComposite() *InternalID {
+	mid := InternalID(id)
+	return &mid
+}
