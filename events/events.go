@@ -42,6 +42,9 @@ const (
 
 	// TypeAccountStatusUpdated represents an account state update
 	TypeAccountStatusUpdated = "account.status.updated"
+
+	// TypeAccountUpdated represents an account update
+	TypeAccountUpdated = "account.updated"
 )
 
 // SourceType represents where the request came from.
@@ -177,6 +180,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		body = &ResourceMeasuresFailed{}
 	case TypeAccountStatusUpdated:
 		body = &AccountStatusUpdated{}
+	case TypeAccountUpdated:
+		body = &AccountUpdated{}
 	default:
 		return fmt.Errorf("Unrecognized Operation Type: %s", v.Type())
 	}
@@ -476,6 +481,22 @@ type AccountStatusUpdatedData struct {
 	Reason   string `json:"reason,omitempty"`
 	OldState string `json:"old_state"`
 	NewState string `json:"new_state"`
+}
+
+// AccountUpdated represents an account update by an actor other than the user
+type AccountUpdated struct {
+	BaseBody
+	Data *AccountUpdatedData `json:"data"`
+}
+
+// AccountUpdatedData holds the event specific data
+type AccountUpdatedData struct {
+	Reason   string  `json:"reason"`
+	OldName  *string `json:"old_name,omitempty"`
+	Name     string  `json:"name"`
+	OldEmail *string `json:"old_email,omitempty"`
+	Email    string  `json:"email"`
+	GDPR     bool    `json:"gdpr"`
 }
 
 // Actor represents a simplified version of either a user or a team.
