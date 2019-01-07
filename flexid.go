@@ -111,8 +111,8 @@ func (eid ExternalID) Validate(_ strfmt.Registry) error {
 }
 
 // String implements the Stringer interface to easily convert a ExternalID to a String
-func (id ExternalID) String() string {
-	return string(id)
+func (eid ExternalID) String() string {
+	return string(eid)
 }
 
 // CompositeID is an ID that also includes the domain, and type of the identifier.
