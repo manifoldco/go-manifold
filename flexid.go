@@ -279,10 +279,12 @@ func (id FlexID) AsManifoldID() (*ID, error) {
 // Ensure interface adherence
 var (
 	_ runtime.Validatable      = Domain("")
+	_ fmt.Stringer             = Domain("")
+	_ runtime.Validatable      = Class("")
+	_ fmt.Stringer             = Class("")
 	_ runtime.Validatable      = ExternalID("")
+	_ fmt.Stringer             = ExternalID("")
 	_ CompositeID              = &FlexID{}
-	_ fmt.Stringer             = &FlexID{}
-	_ runtime.Validatable      = &FlexID{}
 	_ encoding.TextMarshaler   = &FlexID{}
 	_ encoding.TextUnmarshaler = &FlexID{}
 	_ json.Marshaler           = &FlexID{}
