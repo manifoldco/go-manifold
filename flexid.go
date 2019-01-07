@@ -122,8 +122,6 @@ func (id ExternalID) String() string {
 type CompositeID interface {
 	fmt.Stringer
 	runtime.Validatable
-	encoding.TextMarshaler
-	encoding.TextUnmarshaler
 
 	// Domain returns the Domain ( first ) portion of the CompositeID
 	Domain() Domain
