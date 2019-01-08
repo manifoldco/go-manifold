@@ -29,21 +29,21 @@ var (
 	idRegex = regexp.MustCompile(`^\{?[a-zA-Z0-9+/-_]{1,256}={0,2}\}?$`)
 
 	errNilValue = NewError(errors.InternalServerError,
-		"Invalid CompositeID, cannot unmarshal to nil ID")
+		"Invalid Identifier, cannot unmarshal to nil ID")
 	errInvalidParts = NewError(errors.BadRequestError,
-		"Invalid CompositeID, expected 3 parts, Domain, Class, and ID")
+		"Invalid Identifier, expected 3 parts, Domain, Class, and ID")
 	errInvalidDomain = NewError(errors.BadRequestError,
-		"Invalid CompositeID, expected a valid Domain in the first segment")
+		"Invalid Identifier, expected a valid Domain in the first segment")
 	errInvalidClass = NewError(errors.BadRequestError,
-		"Invalid CompositeID, expected a valid Class in the last segment")
+		"Invalid Identifier, expected a valid Class in the last segment")
 	errInvalidID = NewError(errors.BadRequestError,
-		"Invalid CompositeID, expected a valid ID in the last segment")
+		"Invalid Identifier, expected a valid ID in the last segment")
 
-	// ErrNotAManifoldID is an error returned when a CompositeID is expected to
+	// ErrNotAManifoldID is an error returned when a Identifier is expected to
 	//  be a Manifold ID, but is not.
 	ErrNotAManifoldID = NewError(errors.BadRequestError,
 		"Malformed Manifold ID, expected form `manifold.co\\CLASS\\MANIFOLDID`")
-	// ErrManifoldIDTypeMismatch is an error returned when a CompositeID is expected to
+	// ErrManifoldIDTypeMismatch is an error returned when a Identifier is expected to
 	//  be a Manifold ID, but is not because the type does not match.
 	ErrManifoldIDTypeMismatch = NewError(errors.BadRequestError,
 		"Invalid Manifold ID, expected CLASS from `manifold.co\\CLASS\\ID` to match ID Type")
@@ -115,21 +115,21 @@ func (eid ExternalID) String() string {
 	return string(eid)
 }
 
-// CompositeID is an ID that also includes the domain, and type of the identifier.
+// Identifier is an ID that also includes the domain, and type of the identifier.
 //  Composed as: DOMAIN / CLASS / ID
 //  Example: manifold.co/user/2003btphq7z6dzvjut370jkvkdgcp
 //  Has `manifold.co` as the domain, a type of `user`, followed by the Manifold ID.
-type CompositeID interface {
+type Identifier interface {
 	fmt.Stringer
 	runtime.Validatable
 
-	// Domain returns the Domain ( first ) portion of the CompositeID
+	// Domain returns the Domain ( first ) portion of the Identifier
 	Domain() Domain
-	// Class returns the Class ( second ) portion of the CompositeID
+	// Class returns the Class ( second ) portion of the Identifier
 	Class() Class
-	// ID returns the ID ( third ) portion of the CompositeID
+	// ID returns the ID ( third ) portion of the Identifier
 	ID() ExternalID
-	// AsFlexID allows for easy conversion of all CompositeIDs to the most forgiving struct
+	// AsFlexID allows for easy conversion of all Identifiers to the most forgiving struct
 	AsFlexID() *FlexID
 }
 
@@ -147,7 +147,7 @@ func FlexIDFromID(id ID) *FlexID {
 	return &FlexID{id.Domain().String(), id.Class().String(), id.ID().String()}
 }
 
-// FlexID is an implementation of CompositeID that is designed to store internal
+// FlexID is an implementation of Identifier that is designed to store internal
 //  and external IDs it could still store InternalIDs but the InternalID type is
 //  preferred as it is directly translatable to a `ID`
 type FlexID [3]string
@@ -167,7 +167,7 @@ func (id FlexID) ID() ExternalID {
 	return ExternalID(id[2])
 }
 
-// AsFlexID returns the ID as the FlexID type as required by the CompositeID interface
+// AsFlexID returns the ID as the FlexID type as required by the Identifier interface
 func (id FlexID) AsFlexID() *FlexID {
 	return &id
 }
@@ -282,10 +282,10 @@ var (
 	_ fmt.Stringer             = Class("")
 	_ runtime.Validatable      = ExternalID("")
 	_ fmt.Stringer             = ExternalID("")
-	_ CompositeID              = &FlexID{}
+	_ Identifier               = &FlexID{}
 	_ encoding.TextMarshaler   = &FlexID{}
 	_ encoding.TextUnmarshaler = &FlexID{}
 	_ json.Marshaler           = &FlexID{}
 	_ json.Unmarshaler         = &FlexID{}
-	_ CompositeID              = &ID{}
+	_ Identifier               = &ID{}
 )
