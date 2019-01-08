@@ -108,7 +108,7 @@ func (e *Event) Version() int { return e.StructVersion }
 func (e *Event) Type() idtype.Type { return idtype.ActivityEvent }
 
 // Validate returns whether or not the given Event is valid
-func (e *Event) Validate(v strfmt.Registry) error {
+func (e *Event) Validate(v interface{}) error {
 	if err := e.ID.Validate(v); err != nil {
 		return err
 	}

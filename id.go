@@ -6,8 +6,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/go-openapi/strfmt"
-
 	"github.com/dchest/blake2b"
 
 	"github.com/manifoldco/go-base32"
@@ -187,7 +185,7 @@ func decodeFromByte(raw []byte) ([]byte, error) {
 // Validate implements the Validate interface for goswagger.
 // We know that if the value has successfully parsed, it is valid, so no action
 // is required.
-func (id ID) Validate(_ strfmt.Registry) error {
+func (id ID) Validate(_ interface{}) error {
 	return nil
 }
 

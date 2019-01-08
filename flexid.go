@@ -7,9 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/strfmt"
-
 	"github.com/manifoldco/go-manifold/errors"
 )
 
@@ -54,7 +51,7 @@ var (
 type Domain string
 
 // Validate ensures the name value is valid
-func (d Domain) Validate(_ strfmt.Registry) error {
+func (d Domain) Validate(_ interface{}) error {
 	if domainRegex.Match([]byte(d)) {
 		return nil
 	}
@@ -83,7 +80,7 @@ func (d Domain) String() string {
 type Class Label
 
 // Validate implements the runtime Validatable interface
-func (c Class) Validate(r strfmt.Registry) error {
+func (c Class) Validate(r interface{}) error {
 	return c.Label().Validate(r)
 }
 
@@ -102,7 +99,7 @@ func (c Class) Label() Label {
 type ExternalID string
 
 // Validate ensures the name value is valid
-func (eid ExternalID) Validate(_ strfmt.Registry) error {
+func (eid ExternalID) Validate(_ interface{}) error {
 	if idRegex.Match([]byte(eid)) {
 		return nil
 	}
@@ -121,7 +118,9 @@ func (eid ExternalID) String() string {
 //  Has `manifold.co` as the domain, a type of `user`, followed by the Manifold ID.
 type Identifier interface {
 	fmt.Stringer
-	runtime.Validatable
+
+	// Validate validates the Identifier
+	Validate(interface{}) error
 
 	// Domain returns the Domain ( first ) portion of the Identifier
 	Domain() Domain
@@ -180,7 +179,7 @@ func (id FlexID) String() string {
 
 // Validate implements the Validate interface for goswagger
 //  which always succeeds because the ID is already parsed
-func (id FlexID) Validate(v strfmt.Registry) error {
+func (id FlexID) Validate(v interface{}) error {
 	if err := id.Domain().Validate(v); err != nil {
 		return err
 	}
@@ -276,11 +275,8 @@ func (id FlexID) AsManifoldID() (*ID, error) {
 
 // Ensure interface adherence
 var (
-	_ runtime.Validatable      = Domain("")
 	_ fmt.Stringer             = Domain("")
-	_ runtime.Validatable      = Class("")
 	_ fmt.Stringer             = Class("")
-	_ runtime.Validatable      = ExternalID("")
 	_ fmt.Stringer             = ExternalID("")
 	_ Identifier               = &FlexID{}
 	_ encoding.TextMarshaler   = &FlexID{}
