@@ -6,6 +6,8 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/dchest/blake2b"
 
 	"github.com/manifoldco/go-base32"
@@ -185,7 +187,7 @@ func decodeFromByte(raw []byte) ([]byte, error) {
 // Validate implements the Validate interface for goswagger.
 // We know that if the value has successfully parsed, it is valid, so no action
 // is required.
-func (id ID) Validate(_ interface{}) error {
+func (id ID) Validate(_ strfmt.Registry) error {
 	return nil
 }
 
@@ -194,8 +196,22 @@ func (id ID) IsEmpty() bool {
 	return id == emptyID
 }
 
-// AsComposite converts the ID to a CompositeID
-func (id ID) AsComposite() *InternalID {
-	mid := InternalID(id)
-	return &mid
+// Domain returns the domain portion as a string
+func (id ID) Domain() Domain {
+	return ManifoldDomain
+}
+
+// Class returns the type of the ID as a Class
+func (id ID) Class() Class {
+	return Class(id.Type().Name())
+}
+
+// ID returns the Manifold ID as an ExternalID string
+func (id ID) ID() ExternalID {
+	return ExternalID(id.String())
+}
+
+// AsFlexID converts the ID to a FlexID
+func (id ID) AsFlexID() *FlexID {
+	return FlexIDFromID(id)
 }
