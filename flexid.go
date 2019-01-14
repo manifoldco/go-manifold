@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	pathSeperator string = `\`
+	pathSeperator string = `/`
 
 	// ManifoldDomain is the domain name used to identify Manifold IDs
 	ManifoldDomain Domain = "manifold.co"
@@ -25,8 +25,8 @@ var (
 	domainRegex = regexp.
 			MustCompile(`^((?:[a-zA-Z0-9-_]+\.)*)[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$`)
 	// idRegex expects that an ID at least has a length of one, an only includes
-	//  characters expected in Base64 encoded values, GUIDs and UUIDs
-	idRegex = regexp.MustCompile(`^\{?[a-zA-Z0-9+/-_]{1,256}={0,2}\}?$`)
+	//  characters expected in Base64Url encoded values, GUIDs and UUIDs
+	idRegex = regexp.MustCompile(`^\{?[a-zA-Z0-9-_]{1,256}={0,2}\}?$`)
 
 	errNilValue = NewError(errors.InternalServerError,
 		"Invalid Identifier, cannot unmarshal to nil ID")
@@ -42,11 +42,11 @@ var (
 	// ErrNotAManifoldID is an error returned when a Identifier is expected to
 	//  be a Manifold ID, but is not.
 	ErrNotAManifoldID = NewError(errors.BadRequestError,
-		"Malformed Manifold ID, expected form `manifold.co\\CLASS\\MANIFOLDID`")
+		"Malformed Manifold ID, expected form `manifold.co/CLASS/MANIFOLDID`")
 	// ErrManifoldIDTypeMismatch is an error returned when a Identifier is expected to
 	//  be a Manifold ID, but is not because the type does not match.
 	ErrManifoldIDTypeMismatch = NewError(errors.BadRequestError,
-		"Invalid Manifold ID, expected CLASS from `manifold.co\\CLASS\\ID` to match ID Type")
+		"Invalid Manifold ID, expected CLASS from `manifold.co/CLASS/ID` to match ID Type")
 )
 
 // Domain is a string that can be Validated based on Regex to expect a string
@@ -131,6 +131,8 @@ type Identifier interface {
 	ID() ExternalID
 	// AsFlexID allows for easy conversion of all Identifiers to the most forgiving struct
 	AsFlexID() *FlexID
+	// IsEmpty returns true if the ID is considered empty
+	IsEmpty() bool
 }
 
 // NewFlexID constructs a FlexID from the provided Domain, Class, and ID parts
@@ -272,6 +274,25 @@ func (id FlexID) AsManifoldID() (*ID, error) {
 		return nil, ErrManifoldIDTypeMismatch
 	}
 	return &mid, nil
+}
+
+// IsEmpty checks if the FlexID is considered empty or not
+func (id FlexID) IsEmpty() bool {
+	if id.ID() == "" {
+		// Just checking the ID portion should be sufficient
+		// This will allow for Empty Domains, and Classes, though they would still
+		//  be invalid, this is not designed to check validity
+		return true
+	}
+	// We also need to check if it's a Manifold ID because it will have a ID
+	//  consisting of 0s, and not be empty string
+	if id.Domain() == ManifoldDomain {
+		mid, err := id.AsManifoldID()
+		if err == nil {
+			return mid.IsEmpty()
+		}
+	}
+	return false
 }
 
 // Ensure interface adherence

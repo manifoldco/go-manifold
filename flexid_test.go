@@ -14,8 +14,8 @@ var (
 	validID               ID
 	validFlexID           *FlexID
 	validFlexIDString     = "web.com" + pathSeperator + "user" + pathSeperator + "abc123"
-	validFlexIDJSONString = `"` + strings.Replace(validFlexIDString, "\\", "\\\\", -1) + `"`
-	validFlexIDJSONArray  = `["` + strings.Replace(validFlexIDString, "\\", "\", \"", -1) + `"]`
+	validFlexIDJSONString = `"` + validFlexIDString + `"`
+	validFlexIDJSONArray  = `["` + strings.Replace(validFlexIDString, pathSeperator, "\", \"", -1) + `"]`
 	expectedString        string
 	expectedJSONString    string
 )
@@ -31,7 +31,7 @@ func init() {
 
 	expectedString = fmt.Sprintf("%s%spartner%s%s", ManifoldDomain, pathSeperator,
 		pathSeperator, validID)
-	expectedJSONString = `"` + strings.Replace(expectedString, "\\", "\\\\", -1) + `"`
+	expectedJSONString = `"` + expectedString + `"`
 }
 
 func TestDomain_Validate(t *testing.T) {
@@ -198,25 +198,25 @@ func TestFlexID_UnmarshalText(t *testing.T) {
 		{
 			name: "Errors with invalid FlexID with two parts",
 			id:   &FlexID{},
-			arg:  `THIS_IS_TOTALLY_INVALID\durr`,
+			arg:  `THIS_IS_TOTALLY_INVALID/durr`,
 			err:  errInvalidParts,
 		},
 		{
 			name: "Errors with invalid FlexID because of Domain",
 			id:   &FlexID{},
-			arg:  `nope\user\abc123`,
+			arg:  `nope/user/abc123`,
 			err:  errInvalidDomain,
 		},
 		{
 			name: "Errors with invalid FlexID because of Class",
 			id:   &FlexID{},
-			arg:  `nope.com\$$$\abc123`,
+			arg:  `nope.com/$$$/abc123`,
 			err:  errInvalidClass,
 		},
 		{
 			name: "Errors with invalid FlexID because of ID",
 			id:   &FlexID{},
-			arg:  `nope.com\user\`,
+			arg:  `nope.com/user/`,
 			err:  errInvalidID,
 		},
 	}
@@ -269,19 +269,19 @@ func TestFlexID_UnmarshalJSON(t *testing.T) {
 		{
 			name: "Errors with invalid FlexID JSON string because of Domain",
 			id:   &FlexID{},
-			arg:  `"nope\\user\\abc123"`,
+			arg:  `"nope/user/abc123"`,
 			err:  errInvalidDomain,
 		},
 		{
 			name: "Errors with invalid FlexID JSON string because of Class",
 			id:   &FlexID{},
-			arg:  `"nope.com\\$$$\\abc123"`,
+			arg:  `"nope.com/$$$/abc123"`,
 			err:  errInvalidClass,
 		},
 		{
 			name: "Errors with invalid FlexID JSON string because of ID",
 			id:   &FlexID{},
-			arg:  `"nope.com\\user\\"`,
+			arg:  `"nope.com/user/"`,
 			err:  errInvalidID,
 		},
 		{
@@ -432,6 +432,62 @@ func TestNewFlexID(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewFlexID() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFlexID_IsEmpty(t *testing.T) {
+	tests := []struct {
+		name string
+		id   FlexID
+		want bool
+	}{
+		{
+			name: "Completely empty - expect true",
+			id:   FlexID{},
+			want: true,
+		},
+		{
+			name: "Everything but domain - expect true",
+			id:   FlexID{"dog.co"},
+			want: true,
+		},
+		{
+			name: "Everything but class - expect true",
+			id:   FlexID{"", "moose"},
+			want: true,
+		},
+		{
+			name: "Everything but domain & class - expect true",
+			id:   FlexID{"dog.co", "moose"},
+			want: true,
+		},
+		{
+			name: "Everything but ID - expect false",
+			id:   FlexID{"", "", "theFirst1"},
+			want: false,
+		},
+		{
+			name: "Valid FlexID - expect false",
+			id:   FlexID{"dogs.co", "moose", "theFirst1"},
+			want: false,
+		},
+		{
+			name: "Empty Manifold ID - expect true",
+			id:   *ID{}.AsFlexID(),
+			want: true,
+		},
+		{
+			name: "NonEmpty Manifold ID - expect false",
+			id:   *validID.AsFlexID(),
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.id.IsEmpty(); got != tt.want {
+				t.Errorf("FlexID.IsEmpty() = %v, want %v, value: %v", got, tt.want, tt.id)
 			}
 		})
 	}
