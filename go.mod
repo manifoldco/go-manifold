@@ -15,6 +15,7 @@ require (
 	github.com/manifoldco/go-base32 v1.0.2
 	github.com/manifoldco/go-base64 v1.0.1
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
+	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/tsenart/deadcode v0.0.0-20160724212837-210d2dc333e9
 	golang.org/x/crypto v0.0.0-20190102171810-8d7daa0c54b3
