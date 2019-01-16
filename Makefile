@@ -2,7 +2,7 @@ LINTERS=$(shell grep "// lint" tools.go | awk '{gsub(/\"/, "", $$1); print $$1}'
 	gofmt \
 	vet \
 
-ci: $(LINTERS) test
+ci: $(LINTERS) cover
 
 .PHONY: ci
 
@@ -61,6 +61,9 @@ $(LINTERS): %: vendor/bin/gometalinter %-bin vendor
 
 .PHONY: $(LINTERS) test
 .PHONY: cover all-cover.txt
+cover: vendor $(GENERATED_NAMING_FILES)
+	@CGO_ENABLED=0 go test -v -coverprofile=coverage.txt -covermode=atomic $$(go list ./... | grep -v vendor)
+
 
 #################################################
 # Releasing
