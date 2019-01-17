@@ -172,3 +172,44 @@ func TestAnnotationValue(t *testing.T) {
 		}
 	})
 }
+
+func TestCredentialKey(t *testing.T) {
+	t.Run("errors on invalid credential key", func(t *testing.T) {
+		l := CredentialKey("abc")
+		err := l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+	})
+
+	t.Run("does not error on valid credential key", func(t *testing.T) {
+		l := CredentialKey("ABC")
+		err := l.Validate(nil)
+		if err != nil {
+			t.Errorf("Unexpected Error: %s", err)
+		}
+	})
+}
+
+func TestCredentialBody(t *testing.T) {
+	t.Run("errors on invalid credential body", func(t *testing.T) {
+		longString := ""
+
+		for len(longString) <= maxCredentialBodySize {
+			longString += "a"
+		}
+		l := CredentialBody(longString)
+		err := l.Validate(nil)
+		if err == nil {
+			t.Error("Expected an error")
+		}
+	})
+
+	t.Run("does not error on valid credential value", func(t *testing.T) {
+		l := CredentialBody("hey, that's not 1024 bytes long!")
+		err := l.Validate(nil)
+		if err != nil {
+			t.Errorf("Unexpected Error: %s", err)
+		}
+	})
+}
