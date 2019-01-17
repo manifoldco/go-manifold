@@ -16,7 +16,7 @@ var (
 	annotationKeyRegex     = regexp.MustCompile(`^(?:[a-z0-9][a-z0-9-\.\/]{0,62}[a-z0-9]|[a-z0-9])$`)
 	annotationValueRegex   = regexp.MustCompile(`^(?:[a-zA-Z0-9][a-zA-Z0-9-\.\/]{0,252}[a-zA-Z0-9]|[a-zA-Z0-9])$`)
 	credentialKeyRegex     = regexp.MustCompile(`^[A-Z][A-Z0-9_]{0,999}$`)
-	maxCredentialBodySize  = 1024
+	maxCredentialBodySize  = 32 * 1024
 )
 
 var (
@@ -133,10 +133,10 @@ func (key CredentialKey) Validate(_ interface{}) error {
 	return errInvalidCredentialKey
 }
 
-// CredentialKey represents a key for a secret credential associated with a resource
+// CredentialBody represents the body for a secret credential associated with a resource
 type CredentialBody string
 
-// Validate ensures the credential key is valid
+// Validate ensures the credential body is valid
 func (body CredentialBody) Validate(_ interface{}) error {
 	if len(body) > maxCredentialBodySize {
 		return errInvalidCredentialValue
