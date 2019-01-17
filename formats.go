@@ -15,6 +15,8 @@ var (
 	featureValueLabelRegex = regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.]{1,128}$`)
 	annotationKeyRegex     = regexp.MustCompile(`^(?:[a-z0-9][a-z0-9-\.\/]{0,62}[a-z0-9]|[a-z0-9])$`)
 	annotationValueRegex   = regexp.MustCompile(`^(?:[a-zA-Z0-9][a-zA-Z0-9-\.\/]{0,252}[a-zA-Z0-9]|[a-zA-Z0-9])$`)
+	credentialKeyRegex     = regexp.MustCompile(`^[A-Z][A-Z0-9_]{0,999}$`)
+	maxCredentialBodySize  = 32 * 1024
 )
 
 var (
@@ -29,6 +31,10 @@ var (
 		"Invalid annotation key provided")
 	errInvalidAnnotationValue = NewError(errors.BadRequestError,
 		"Invalid annotation value provided")
+	errInvalidCredentialKey = NewError(errors.BadRequestError,
+		"Invalid credential key provided")
+	errInvalidCredentialValue = NewError(errors.BadRequestError,
+		"Invalid credential body provided")
 )
 
 // Label represents any object's label field
@@ -113,4 +119,28 @@ func (val AnnotationValue) Validate(_ interface{}) error {
 	}
 
 	return errInvalidAnnotationValue
+}
+
+// CredentialKey represents a key for a secret credential associated with a resource
+type CredentialKey string
+
+// Validate ensures the credential key is valid
+func (key CredentialKey) Validate(_ interface{}) error {
+	if credentialKeyRegex.Match([]byte(key)) {
+		return nil
+	}
+
+	return errInvalidCredentialKey
+}
+
+// CredentialBody represents the body for a secret credential associated with a resource
+type CredentialBody string
+
+// Validate ensures the credential body is valid
+func (body CredentialBody) Validate(_ interface{}) error {
+	if len(body) > maxCredentialBodySize {
+		return errInvalidCredentialValue
+	}
+
+	return nil
 }
