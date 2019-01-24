@@ -215,3 +215,19 @@ func (id ID) ID() ExternalID {
 func (id ID) AsFlexID() *FlexID {
 	return FlexIDFromID(id)
 }
+
+// AsManifoldID returns the ID as itself without error, implemented to adhere
+//  to the Identifier interface
+func (id ID) AsManifoldID() (*ID, error) {
+	return &id, nil
+}
+
+// Equals is implemented to allow for easy comparison of FlexIDs to IDs using the
+//  Identifier interface
+func (id ID) Equals(oid Identifier) bool {
+	if oid == nil {
+		return false
+	}
+	mid, _ := oid.AsManifoldID()
+	return mid != nil && *mid == id
+}
