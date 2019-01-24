@@ -26,6 +26,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	_, _ = validID.AsManifoldID()
 	// Call AsFlexID for coverage on both types :D
 	validFlexID = validID.AsFlexID().AsFlexID()
 
@@ -488,6 +489,112 @@ func TestFlexID_IsEmpty(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.id.IsEmpty(); got != tt.want {
 				t.Errorf("FlexID.IsEmpty() = %v, want %v, value: %v", got, tt.want, tt.id)
+			}
+		})
+	}
+}
+
+func TestFlexID_Equals(t *testing.T) {
+	tests := []struct {
+		name string
+		id   FlexID
+		oid  Identifier
+		want bool
+	}{
+		{
+			name: "FlexID equals FlexID - ok",
+			id:   FlexID{"bus.com", "driver", "Benny"},
+			oid:  FlexID{"bus.com", "driver", "Benny"},
+			want: true,
+		},
+		{
+			name: "FlexID equals ID - ok",
+			id:   *validFlexID,
+			oid:  validID,
+			want: true,
+		},
+		{
+			name: "Empty FlexID equals Empty FlexID - ok",
+			id:   FlexID{},
+			oid:  FlexID{},
+			want: true,
+		},
+		{
+			name: "Empty FlexID equals Empty ID - not ok",
+			id:   FlexID{},
+			oid:  ID{},
+			want: false,
+		},
+		{
+			name: "FlexID equals Nil - not ok",
+			id:   *validFlexID,
+			oid:  nil,
+			want: false,
+		},
+		{
+			name: "FlexID equals different FlexID - not ok",
+			id:   FlexID{"bus.com", "driver", "Benny"},
+			oid:  FlexID{"bus.com", "driver", "Bob"},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.id.Equals(tt.oid); got != tt.want {
+				t.Errorf("FlexID.Equals() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestID_Equals(t *testing.T) {
+	tests := []struct {
+		name string
+		id   ID
+		oid  Identifier
+		want bool
+	}{
+		{
+			name: "ID equals ID - ok",
+			id:   validID,
+			oid:  validID,
+			want: true,
+		},
+		{
+			name: "ID equals FlexID - ok",
+			id:   validID,
+			oid:  *validFlexID,
+			want: true,
+		},
+		{
+			name: "Empty ID equals Empty  ID - ok",
+			id:   ID{},
+			oid:  ID{},
+			want: true,
+		},
+		{
+			name: "Empty ID equals Empty FlexID - not ok",
+			id:   ID{},
+			oid:  FlexID{},
+			want: false,
+		},
+		{
+			name: "ID equals Nil - not ok",
+			id:   validID,
+			oid:  nil,
+			want: false,
+		},
+		{
+			name: "ID equals different ID - not ok",
+			id:   validID,
+			oid:  ID{},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.id.Equals(tt.oid); got != tt.want {
+				t.Errorf("FlexID.Equals() = %v, want %v", got, tt.want)
 			}
 		})
 	}

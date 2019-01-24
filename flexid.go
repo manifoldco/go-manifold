@@ -131,8 +131,13 @@ type Identifier interface {
 	ID() ExternalID
 	// AsFlexID allows for easy conversion of all Identifiers to the most forgiving struct
 	AsFlexID() *FlexID
+	// AsManifoldID allows for conversion of all Identifiers to a Manifold identifier if
+	//  compatible, otherwise an error is returned and the ID is nil
+	AsManifoldID() (*ID, error)
 	// IsEmpty returns true if the ID is considered empty
 	IsEmpty() bool
+	// Equals checks the equality of this Identifier against another
+	Equals(Identifier) bool
 }
 
 // NewFlexID constructs a FlexID from the provided Domain, Class, and ID parts
@@ -293,6 +298,16 @@ func (id FlexID) IsEmpty() bool {
 		}
 	}
 	return false
+}
+
+// Equals is implemented to allow for easy comparison of FlexIDs to IDs using the
+//  Identifier interface
+func (id FlexID) Equals(oid Identifier) bool {
+	if oid == nil {
+		return false
+	}
+	fid := oid.AsFlexID()
+	return fid != nil && *fid == id
 }
 
 // Ensure interface adherence
