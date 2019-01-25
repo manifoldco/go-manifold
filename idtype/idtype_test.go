@@ -44,3 +44,46 @@ func TestTypeFromString(t *testing.T) {
 		idtype.TypeFromString("non-existing")
 	})
 }
+
+func TestType_Collection(t *testing.T) {
+	tcs := []struct {
+		scenario string
+		typ      func() idtype.Type
+		plural   string
+	}{
+		{
+			scenario: "user",
+			typ: func() idtype.Type {
+				return idtype.User
+			},
+			plural: "users",
+		},
+		{
+			scenario: "resource",
+			typ: func() idtype.Type {
+				return idtype.Resource
+			},
+			plural: "resources",
+		},
+		{
+			scenario: "access",
+			typ: func() idtype.Type {
+				typ := idtype.Type(idtype.TypeOverflow - 1)
+				idtype.Register(typ, false, "access")
+
+				return typ
+			},
+			plural: "access",
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.scenario, func(t *testing.T) {
+			typ := tc.typ()
+
+			if col := typ.Collection(); col != tc.plural {
+				t.Errorf("collection '%s' does not match plural '%s'", col, tc.plural)
+			}
+		})
+	}
+}

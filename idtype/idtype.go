@@ -1,7 +1,14 @@
 // Package idtype contains our enumeration of all registered types.
 package idtype
 
-import "encoding/binary"
+import (
+	"bytes"
+	"encoding/binary"
+	"encoding/json"
+	"fmt"
+
+	"github.com/gobuffalo/flect"
+)
 
 // Type is the enumerated list of all registered types, global within the
 // marketplace. Types are encoded within 12 bits in an ID, allowing for
@@ -113,7 +120,7 @@ func (t Type) Mutable() bool {
 // Collection returns the name for a collection of these types
 func (t Type) Collection() string {
 	defn := getDefn(t)
-	return defn.name + "s"
+	return flect.Pluralize(defn.name)
 }
 
 // Name returns the name of a single instance of this type
@@ -176,6 +183,17 @@ type definition struct {
 }
 
 func init() {
+	inflections, err := json.Marshal(map[string]string{
+		"access": "access",
+	})
+	if err != nil {
+		panic(fmt.Sprintf("unable to encode inflections: %s", err))
+	}
+	err = flect.LoadInflections(bytes.NewBuffer(inflections))
+	if err != nil {
+		panic(fmt.Sprintf("unable to load inflections: %s", err))
+	}
+
 	Register(User, true, "user")
 	Register(ForgotPasswordToken, true, "forgot_password_token")
 	Register(Team, true, "team")
