@@ -75,9 +75,9 @@ var (
 	ActivityEvent    Type = 0x25E
 
 	// Partner objects
-	Partner                  Type = 0x2C1
-	PartnerProfile           Type = 0x2C2
-	PartnerProfileMembership Type = 0x2C3
+	Partner              Type = 0x2C1
+	PartnerProfile       Type = 0x2C2
+	PartnerProfileAccess Type = 0x2C3
 
 	// Values from 0xF00 to 0x1000 are reserved for Manifold private internal
 	// only use.
@@ -216,5 +216,5 @@ func init() {
 
 	Register(Partner, true, "partner")
 	Register(PartnerProfile, true, "partner_profile")
-	Register(PartnerProfileMembership, true, "partner_profilemembership")
+	Register(PartnerProfileAccess, true, "partner_profile_access")
 }
