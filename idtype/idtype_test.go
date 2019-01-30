@@ -66,14 +66,14 @@ func TestType_Collection(t *testing.T) {
 			plural: "resources",
 		},
 		{
-			scenario: "access",
+			scenario: "access suffix",
 			typ: func() idtype.Type {
 				typ := idtype.Type(idtype.TypeOverflow - 1)
-				idtype.Register(typ, false, "access")
+				idtype.Register(typ, false, "things_access")
 
 				return typ
 			},
-			plural: "access",
+			plural: "things_access",
 		},
 	}
 

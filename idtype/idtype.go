@@ -2,12 +2,9 @@
 package idtype
 
 import (
-	"bytes"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
-
-	"github.com/gobuffalo/flect"
+	"strings"
 )
 
 // Type is the enumerated list of all registered types, global within the
@@ -120,7 +117,12 @@ func (t Type) Mutable() bool {
 // Collection returns the name for a collection of these types
 func (t Type) Collection() string {
 	defn := getDefn(t)
-	return flect.Pluralize(defn.name)
+	switch {
+	case strings.HasSuffix(defn.name, "access"):
+		return defn.name
+	default:
+		return fmt.Sprintf("%ss", defn.name)
+	}
 }
 
 // Name returns the name of a single instance of this type
@@ -183,17 +185,6 @@ type definition struct {
 }
 
 func init() {
-	inflections, err := json.Marshal(map[string]string{
-		"access": "access",
-	})
-	if err != nil {
-		panic(fmt.Sprintf("unable to encode inflections: %s", err))
-	}
-	err = flect.LoadInflections(bytes.NewBuffer(inflections))
-	if err != nil {
-		panic(fmt.Sprintf("unable to load inflections: %s", err))
-	}
-
 	Register(User, true, "user")
 	Register(ForgotPasswordToken, true, "forgot_password_token")
 	Register(Team, true, "team")
