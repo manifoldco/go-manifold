@@ -310,6 +310,7 @@ var AnnotationKnownReservedKeys = []string{
 	"manifold.co/tool",
 	"manifold.co/package",
 	"manifold.co/environment",
+	"manifold.co/resource-template",
 }
 
 // Equals checks the equality of another AnnotationsMap against this one
