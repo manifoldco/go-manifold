@@ -310,6 +310,7 @@ var AnnotationKnownReservedKeys = []string{
 	"manifold.co/tool",
 	"manifold.co/package",
 	"manifold.co/environment",
+	"manifold.co/projects",
 	"manifold.co/resource-template",
 }
 
