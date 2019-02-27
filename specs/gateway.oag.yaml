@@ -1,0 +1,20 @@
+document: specs/gateway.yaml
+output: gateway/zz_oag_generated_gateway.go
+
+# Put gateway into a subpackage for now, as it is being introduced, and has
+# some values that conflict with other endpoints
+package:
+  path: github.com/manifoldco/go-manifold/gateway
+  name: gateway
+
+boilerplate:
+  base_url: disabled
+  backend: disabled
+  endpoint: disabled
+  client_prefix: API
+
+types:
+  Error: github.com/manifoldco/go-manifold.Error
+
+string_formats:
+  base32ID: github.com/manifoldco/go-manifold.ID
