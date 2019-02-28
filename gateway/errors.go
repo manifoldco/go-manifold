@@ -14,5 +14,5 @@ type gatewayError struct {
 
 // Error returns the error message represented by this Error
 func (e *gatewayError) Error() string {
-	return fmt.Sprintf("%s: %s", e.Type, strings.Join(e.Messages, ","))
+	return fmt.Sprintf("%s: %s", e.Type, e.Message)
 }
