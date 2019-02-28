@@ -88,15 +88,7 @@ func TestConfig_WithAPIToken(t *testing.T) {
 		hct.reset()
 		hct.expectHeaderEquals(t, "Authorization", "Bearer s3cr3t")
 
-		r := c.Products.List(context.Background(), nil)
-		if r != nil {
-			for r.Next() {
-				p, err := r.Current()
-				fmt.Println(p, err)
-			}
-		}
-
-		t.Error("blah")
+		c.Products.List(context.Background(), nil)
 	})
 
 	t.Run("with extra configuration", func(t *testing.T) {
