@@ -1,0 +1,2 @@
+ignore:
+  - "zz_oag_generated_*.go"
