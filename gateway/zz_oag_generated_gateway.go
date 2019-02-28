@@ -428,7 +428,7 @@ func (c *IDClient) CreatePlanCost(ctx context.Context, id gomanifold.ID, planCos
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 404, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -460,7 +460,7 @@ func (c *IDClient) DeleteResource(ctx context.Context, id gomanifold.ID) error {
 	_, err = c.backend.Do(ctx, req, nil, func(code int) error {
 		switch code {
 		case 400, 401, 409, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -493,7 +493,7 @@ func (c *IDClient) GetProduct(ctx context.Context, id gomanifold.ID) (*ResolvedP
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 404, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -526,7 +526,7 @@ func (c *IDClient) GetResource(ctx context.Context, id gomanifold.ID) (*Resource
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 404, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -559,7 +559,7 @@ func (c *IDClient) UpdateResource(ctx context.Context, id gomanifold.ID, resourc
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 401, 409, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -590,7 +590,7 @@ func (c *ProductClient) Get(ctx context.Context, label string) (*ResolvedProduct
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 404, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -641,7 +641,7 @@ func (c *ProductsClient) List(ctx context.Context, opts *ProductsListOpts) *Reso
 	_, iter.err = c.backend.Do(ctx, req, &iter.page, func(code int) error {
 		switch code {
 		case 400, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -668,7 +668,7 @@ func (c *ResourceClient) Create(ctx context.Context, resourceCreateRequest *Reso
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 401, 409, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -712,7 +712,7 @@ func (c *ResourcesClient) Get(ctx context.Context, teamLabel string, resourceLab
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 404, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
@@ -753,7 +753,7 @@ func (c *ResourcesClient) GetMe(ctx context.Context, resourceLabel string, opts 
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
 		case 400, 404, 500:
-			return &gomanifold.Error{}
+			return &gatewayError{}
 		default:
 			return nil
 		}
