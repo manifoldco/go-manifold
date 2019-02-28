@@ -9,7 +9,7 @@ import (
 // requestor
 type gatewayError struct {
 	Type     string   `json:"type"`
-	Messages []string `json:"message"`
+	Message string `json:"message"`
 }
 
 // Error returns the error message represented by this Error
