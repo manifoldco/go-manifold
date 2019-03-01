@@ -14,7 +14,7 @@ boilerplate:
   client_prefix: API
 
 types:
-  Error: github.com/manifoldco/go-manifold.Error
+  Error: github.com/manifoldco/go-manifold/gateway.Error
 
 string_formats:
   base32ID: github.com/manifoldco/go-manifold.ID
