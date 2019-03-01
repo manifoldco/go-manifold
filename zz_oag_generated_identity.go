@@ -668,7 +668,7 @@ func (c *SelfClient) Get(ctx context.Context) (*User, error) {
 	var resp User
 	_, err = c.backend.Do(ctx, req, &resp, func(code int) error {
 		switch code {
-		case 401, 500:
+		case 400, 401, 500:
 			return &Error{}
 		default:
 			return nil
