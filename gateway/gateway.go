@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -39,11 +41,7 @@ func New(cfgs ...ConfigFunc) *Client {
 
 	c.APIClient.common.backend.(*defaultBackend).client = &c.client
 
-	for _, cfg := range cfgs {
-		cfg(c)
-	}
-
-	ForURLPattern(manifold.DefaultURLPattern)(c)
+	WithURLEndpoint(baseGatewayURL)(c)
 
 	// We need to do this after we've set the configuration. In case someone
 	// provided a UserAgent, it will get loaded and overwrite our defaults since
@@ -51,6 +49,9 @@ func New(cfgs ...ConfigFunc) *Client {
 	WithUserAgent("")(c)
 	WithAPIToken(os.Getenv("MANIFOLD_API_TOKEN"))(c)
 
+	for _, cfg := range cfgs {
+		cfg(c)
+	}
 	return c
 }
 
@@ -84,6 +85,12 @@ func (b *defaultBackend) NewRequest(method, path string, query url.Values, body 
 	return req, nil
 }
 
+func readerToString(body io.Reader, dst interface{}) (string, error) {
+	b, _ := ioutil.ReadAll(body)
+	err := json.Unmarshal(b, dst)
+	return string(b), err
+}
+
 func (b *defaultBackend) Do(ctx context.Context, request *http.Request, v interface{}, errFn func(int) error) (*http.Response, error) {
 	request = request.WithContext(ctx)
 
@@ -104,17 +111,12 @@ func (b *defaultBackend) Do(ctx context.Context, request *http.Request, v interf
 			return nil, nil
 		}
 
-		dec := json.NewDecoder(resp.Body)
-		if err := dec.Decode(apiErr); err != nil {
-			return nil, err
-		}
-		return nil, apiErr
+		return nil, bodyToErr(resp.Body)
 	}
 
 	if v != nil {
-		dec := json.NewDecoder(resp.Body)
-		if err := dec.Decode(v); err != nil {
-			return nil, err
+		if s, err := readerToString(resp.Body, v); err != nil {
+			return nil, fmt.Errorf("v: [%v] %s", err, s)
 		}
 	}
 
@@ -128,11 +130,11 @@ type endpoint struct {
 // ConfigFunc is a func that configures the client during New
 type ConfigFunc func(*Client)
 
-// ForURLPattern returns a configuration func to set the URL pattern for all
+// WithURLEndpoint returns a configuration func to set the URL for all
 // endpoints.
-func ForURLPattern(pattern string) ConfigFunc {
+func WithURLEndpoint(endpoint string) ConfigFunc {
 	return func(c *Client) {
-		c.APIClient.common.backend.(*defaultBackend).base = baseGatewayURL
+		c.APIClient.common.backend.(*defaultBackend).base = endpoint
 	}
 }
 
