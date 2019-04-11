@@ -11,7 +11,7 @@ require (
 	github.com/go-openapi/swag v0.0.0-20170129222639-d5f8ebc3b1c5 // indirect
 	github.com/gordonklaus/ineffassign v0.0.0-20180909121442-1003c8bd00dc
 	github.com/mailru/easyjson v0.0.0-20170328210357-2af9a745a611 // indirect
-	github.com/manifoldco/go-base32 v1.0.2
+	github.com/manifoldco/go-base32 v1.0.3
 	github.com/manifoldco/go-base64 v1.0.2
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
