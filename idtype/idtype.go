@@ -75,6 +75,8 @@ var (
 	PayoutEvent               Type = 0x1FB // record of payout of failure to payout
 	PayoutProfile             Type = 0x1FC // Payout profile for providers
 
+	Subscription Type = 0x1FD // A customer's subscription
+
 	ActivityEventJob Type = 0x25D
 	ActivityEvent    Type = 0x25E
 
@@ -219,6 +221,8 @@ func init() {
 	Register(ProviderSubscriptionEvent, false, "provider_subscription_event")
 	Register(Payout, false, "payout")
 	Register(PayoutEvent, false, "payout_event")
+
+	Register(Subscription, true, "subscription")
 
 	Register(ActivityEventJob, true, "event_job")
 	Register(ActivityEvent, true, "event")
