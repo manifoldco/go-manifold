@@ -22,7 +22,7 @@ var (
 
 func init() {
 	var err error
-	validID, err = NewID(idtype.Partner)
+	validID, err = NewID(idtype.Provider)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +30,7 @@ func init() {
 	// Call AsFlexID for coverage on both types :D
 	validFlexID = validID.AsFlexID().AsFlexID()
 
-	expectedString = fmt.Sprintf("%s%spartner%s%s", ManifoldDomain, pathSeperator,
+	expectedString = fmt.Sprintf("%s%sprovider%s%s", ManifoldDomain, pathSeperator,
 		pathSeperator, validID)
 	expectedJSONString = `"` + expectedString + `"`
 }
