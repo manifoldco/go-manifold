@@ -45,6 +45,7 @@ var (
 	OAuthAuthorizationCode Type = 0x066 // OAuth Authorization COde
 	OAuthAccessToken       Type = 0x067 // OAuth Access Token
 	APIToken               Type = 0x068 // API access tokens
+	PlatformProfile        Type = 0x069 // Platform Profile
 
 	// Things you can buy, and how you buy them
 	Provider Type = 0x0C8
