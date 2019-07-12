@@ -98,6 +98,16 @@ func NewID(t idtype.Type) (ID, error) {
 	return id, nil
 }
 
+// MustNewID returns a new ID for a Mutable idtype using only the Type
+// It panics if NewID returns an error
+func MustNewID(t idtype.Type) ID {
+	id, err := NewID(t)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // NewImmutableID returns a new signed ID for an immutable object.
 //
 // sig should be a registry.Signature type
