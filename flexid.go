@@ -23,7 +23,7 @@ const (
 var (
 	// domainRegex expects that the string is a valid and easy to understand hostname
 	domainRegex = regexp.
-			MustCompile(`^((?:[a-zA-Z0-9-_]+\.)*)[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$`)
+			MustCompile(`^((?:[a-zA-Z0-9-_]+\.)*)[a-zA-Z0-9][a-zA-Z0-9-_]+\.[a-zA-Z]{2,11}?$|localhost`)
 	// idRegex expects that an ID at least has a length of one, an only includes
 	//  characters expected in Base64Url encoded values, GUIDs and UUIDs
 	idRegex = regexp.MustCompile(`^\{?[a-zA-Z0-9-_]{1,256}={0,2}\}?$`)
