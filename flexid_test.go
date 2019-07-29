@@ -42,6 +42,11 @@ func TestDomain_Validate(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name:    "Valid Testing Domain",
+			d:       "localhost",
+			wantErr: false,
+		},
+		{
 			name:    "Valid Domain",
 			d:       "test.com",
 			wantErr: false,
