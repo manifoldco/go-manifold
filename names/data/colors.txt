@@ -60,7 +60,6 @@ battery charged blue
 battleship grey
 bazaar
 beau blue
-beaver
 begonia
 beige
 big foot feet
@@ -71,7 +70,6 @@ bitter lemon
 bitter lime
 bittersweet
 bittersweet shimmer
-black
 black bean
 black coral
 black leather jacket
@@ -335,7 +333,6 @@ denim blue
 desaturated cyan
 desert
 desert sand
-desire
 diamond
 dim gray
 dingy dungeon
@@ -488,7 +485,6 @@ isabelline
 islamic green
 italian sky blue
 ivory
-jade
 jasmine
 jasper
 jazzberry jam
