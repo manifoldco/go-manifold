@@ -44,7 +44,6 @@ var Shapes = []string{
 	"trapezoid",
 	"trapezium",
 	"parallelogram",
-	"annulus",
 	"arbelos",
 	"circle",
 	"crescent",

@@ -84,7 +84,6 @@ amusing
 anchored
 ancient
 angelic
-angry
 anguished
 animated
 annoyed
@@ -165,7 +164,6 @@ bland
 blank
 blaring
 bleak
-blind
 blissful
 bloody
 blue-eyed
@@ -295,10 +293,8 @@ crabby
 crafty
 craven
 crazy
-creamy
 creative
 creepy
-criminal
 crisp
 critical
 crooked
@@ -379,7 +375,6 @@ dimpled
 dimwitted
 direct
 direful
-dirty
 disagreeable
 disastrous
 discreet
@@ -411,7 +406,6 @@ drained
 dramatic
 dreary
 droopy
-drunk
 dry
 dual
 dull
@@ -465,7 +459,6 @@ envious
 equable
 equal
 equatorial
-erect
 erratic
 essential
 esteemed
@@ -748,7 +741,6 @@ hurried
 hurt
 hurtful
 hushed
-husky
 hypnotic
 hysterical
 icky
@@ -761,7 +753,6 @@ idle
 idolized
 ignorant
 ill
-illegal
 ill-fated
 ill-informed
 illiterate
@@ -840,7 +831,6 @@ jazzy
 jealous
 jittery
 jobless
-joint
 jolly
 jovial
 joyful
@@ -941,7 +931,6 @@ lying
 lyrical
 macabre
 macho
-mad
 maddening
 made-up
 madly
@@ -1023,7 +1012,6 @@ mysterious
 naive
 nappy
 narrow
-nasty
 natural
 nautical
 near
@@ -1241,7 +1229,6 @@ quirky
 quixotic
 quizzical
 rabid
-racial
 radiant
 ragged
 rainy
