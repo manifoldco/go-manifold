@@ -51,6 +51,7 @@ var (
 	Product  Type = 0x0C9
 	Plan     Type = 0x0CA
 	Region   Type = 0x0CB
+	Category Type = 0x0CC
 
 	// Long-running actions for creating or modifying resources
 	Operation Type = 0x12C
@@ -196,6 +197,7 @@ func init() {
 	Register(Product, true, "product")
 	Register(Plan, true, "plan")
 	Register(Region, true, "region")
+	Register(Category, true, "category")
 
 	Register(Operation, true, "operation")
 	Register(Callback, true, "callback")
