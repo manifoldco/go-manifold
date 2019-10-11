@@ -117,7 +117,7 @@ func (t Type) Collection() string {
 	case strings.HasSuffix(defn.name, "access"):
 		return defn.name
 	default:
-		return fmt.Sprintf("%ss", defn.name)
+		return t.Plural()
 	}
 }
 
@@ -125,6 +125,17 @@ func (t Type) Collection() string {
 func (t Type) Name() string {
 	defn := getDefn(t)
 	return defn.name
+}
+
+// Plural returns the plural name of an instance of this type
+func (t Type) Plural() string {
+	defn := getDefn(t)
+
+	if defn.plural != nil {
+		return *defn.plural
+	}
+
+	return fmt.Sprintf("%ss", defn.name)
 }
 
 // String returns the string representation of the primitive type
@@ -153,12 +164,26 @@ func getDefn(t Type) definition {
 // Any types used *must* be registered. Ideally, call this from your package's
 // init function.
 //
+// The third argument of register are the options. It currently only support one option, setting the plural version
+// of the name. If omitted, the name will have an s appended to generate its plural version.
+//
 // Register panics if it is called twice with the same Type.
-func Register(typ Type, mutable bool, name string) {
+func Register(typ Type, mutable bool, name string, options ...string) {
+	var plural *string
+
 	if _, ok := definitions[typ]; ok {
 		panic("Type already registered: " + string(typ))
 	}
-	definitions[typ] = definition{mutable, name}
+
+	if len(options) >= 1 {
+		plural = &options[0]
+	}
+
+	definitions[typ] = definition{
+		mutable: mutable,
+		name:    name,
+		plural:  plural,
+	}
 }
 
 // TypeFromString will return the type from a string interpretation of the type.
@@ -178,6 +203,7 @@ var definitions = map[Type]definition{}
 type definition struct {
 	mutable bool
 	name    string
+	plural  *string
 }
 
 func init() {
@@ -197,10 +223,7 @@ func init() {
 	Register(Product, true, "product")
 	Register(Plan, true, "plan")
 	Register(Region, true, "region")
-	// Id types are used to find the database table. It is not smart enough to know that the plural of category is
-	// categories and it tries to used the table `categorys`. See the `Collection()` method on `Type`.
-	// To fix this, we rename the registered type to `categorie` so `Collection()` returns `categories`
-	Register(Category, true, "categorie")
+	Register(Category, true, "category", "categories")
 
 	Register(Operation, true, "operation")
 	Register(Callback, true, "callback")
