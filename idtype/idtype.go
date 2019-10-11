@@ -197,7 +197,10 @@ func init() {
 	Register(Product, true, "product")
 	Register(Plan, true, "plan")
 	Register(Region, true, "region")
-	Register(Category, true, "category")
+	// Id types are used to find the database table. It is not smart enough to know that the plural of category is
+	// categories and it tries to used the table `categorys`. See the `Collection()` method on `Type`.
+	// To fix this, we rename the registered type to `categorie` so `Collection()` returns `categories`
+	Register(Category, true, "categorie")
 
 	Register(Operation, true, "operation")
 	Register(Callback, true, "callback")
