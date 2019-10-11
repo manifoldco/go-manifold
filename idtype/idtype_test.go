@@ -79,7 +79,7 @@ func TestType_Collection(t *testing.T) {
 			scenario: "define plurals",
 			typ: func() idtype.Type {
 				typ := idtype.Type(idtype.TypeOverflow - 1)
-				idtype.Register(typ, false, "category", "categories")
+				idtype.Register(typ, false, "category", idtype.WithPlural("categories"))
 
 				return typ
 			},

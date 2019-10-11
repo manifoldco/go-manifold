@@ -168,15 +168,20 @@ func getDefn(t Type) definition {
 // of the name. If omitted, the name will have an s appended to generate its plural version.
 //
 // Register panics if it is called twice with the same Type.
-func Register(typ Type, mutable bool, name string, options ...string) {
+func Register(typ Type, mutable bool, name string, options ...interface{}) {
 	var plural *string
 
 	if _, ok := definitions[typ]; ok {
 		panic("Type already registered: " + string(typ))
 	}
 
-	if len(options) >= 1 {
-		plural = &options[0]
+	if len(options) > 0 {
+		for _, item := range options {
+			if val, ok := item.(PluralizedString); ok {
+				stringVal := string(val)
+				plural = &stringVal
+			}
+		}
 	}
 
 	definitions[typ] = definition{
@@ -184,6 +189,14 @@ func Register(typ Type, mutable bool, name string, options ...string) {
 		name:    name,
 		plural:  plural,
 	}
+}
+
+// PluralizedString is the pluralized version of a definition name
+type PluralizedString string
+
+// WithPlural is an utility function to pass the plural name option to the Register function
+func WithPlural(name string) PluralizedString {
+	return PluralizedString(name)
 }
 
 // TypeFromString will return the type from a string interpretation of the type.
@@ -223,7 +236,7 @@ func init() {
 	Register(Product, true, "product")
 	Register(Plan, true, "plan")
 	Register(Region, true, "region")
-	Register(Category, true, "category", "categories")
+	Register(Category, true, "category", WithPlural("categories"))
 
 	Register(Operation, true, "operation")
 	Register(Callback, true, "callback")
