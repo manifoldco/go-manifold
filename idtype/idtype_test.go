@@ -68,12 +68,22 @@ func TestType_Collection(t *testing.T) {
 		{
 			scenario: "access suffix",
 			typ: func() idtype.Type {
-				typ := idtype.Type(idtype.TypeOverflow - 1)
+				typ := idtype.Type(idtype.TypeOverflow - 2)
 				idtype.Register(typ, false, "things_access")
 
 				return typ
 			},
 			plural: "things_access",
+		},
+		{
+			scenario: "define plurals",
+			typ: func() idtype.Type {
+				typ := idtype.Type(idtype.TypeOverflow - 1)
+				idtype.Register(typ, false, "category", idtype.WithPlural("categories"))
+
+				return typ
+			},
+			plural: "categories",
 		},
 	}
 
