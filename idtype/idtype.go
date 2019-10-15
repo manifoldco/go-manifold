@@ -168,35 +168,31 @@ func getDefn(t Type) definition {
 // of the name. If omitted, the name will have an s appended to generate its plural version.
 //
 // Register panics if it is called twice with the same Type.
-func Register(typ Type, mutable bool, name string, options ...interface{}) {
-	var plural *string
-
+func Register(typ Type, mutable bool, name string, options ...Option) {
 	if _, ok := definitions[typ]; ok {
 		panic("Type already registered: " + string(typ))
 	}
 
-	if len(options) > 0 {
-		for _, item := range options {
-			if val, ok := item.(PluralizedString); ok {
-				stringVal := string(val)
-				plural = &stringVal
-			}
-		}
-	}
-
-	definitions[typ] = definition{
+	def := definition{
 		mutable: mutable,
 		name:    name,
-		plural:  plural,
 	}
+
+	for _, item := range options {
+		item(&def)
+	}
+
+	definitions[typ] = def
 }
 
-// PluralizedString is the pluralized version of a definition name
-type PluralizedString string
+// Option is a function that can update the value ofa Type struct
+type Option func(*definition)
 
 // WithPlural is an utility function to pass the plural name option to the Register function
-func WithPlural(name string) PluralizedString {
-	return PluralizedString(name)
+func WithPlural(name string) Option {
+	return func(t *definition) {
+		t.plural = &name
+	}
 }
 
 // TypeFromString will return the type from a string interpretation of the type.
