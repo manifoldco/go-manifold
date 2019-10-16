@@ -169,10 +169,6 @@ func getDefn(t Type) definition {
 //
 // Register panics if it is called twice with the same Type.
 func Register(typ Type, mutable bool, name string, options ...Option) {
-	if _, ok := definitions[typ]; ok {
-		panic("Type already registered: " + string(typ))
-	}
-
 	def := definition{
 		mutable: mutable,
 		name:    name,
@@ -180,6 +176,15 @@ func Register(typ Type, mutable bool, name string, options ...Option) {
 
 	for _, item := range options {
 		item(&def)
+	}
+
+	// types should not be registered multiple times, but we ignore it if the
+	// subsequent registrations are exactly equal to the first one.
+	if d, ok := definitions[typ]; ok {
+		if d != def {
+			panic(fmt.Sprintf("Type %d already registered as %v (trying to register %v)", typ, d, def))
+		}
+		return
 	}
 
 	definitions[typ] = def
