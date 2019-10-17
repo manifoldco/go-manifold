@@ -97,3 +97,56 @@ func TestType_Collection(t *testing.T) {
 		})
 	}
 }
+
+func Test_Register(t *testing.T) {
+	tests := map[string]struct {
+		fn        func()
+		wantPanic bool
+	}{
+		"simple registration": {
+			fn: func() {
+				typ := idtype.Type(idtype.TypeOverflow - 2)
+				idtype.Register(typ, false, "things_access")
+			},
+		},
+		"double matching registrations": {
+			fn: func() {
+				typ := idtype.Type(idtype.TypeOverflow - 2)
+				idtype.Register(typ, false, "things_access")
+				idtype.Register(typ, false, "things_access")
+			},
+		},
+		"double registrations, different names": {
+			fn: func() {
+				typ := idtype.Type(idtype.TypeOverflow - 2)
+				idtype.Register(typ, false, "things_access")
+				idtype.Register(typ, false, "something_else")
+			},
+			wantPanic: true,
+		},
+
+		"double registrations, different options": {
+			fn: func() {
+				typ := idtype.Type(idtype.TypeOverflow - 2)
+				idtype.Register(typ, false, "things_access")
+				idtype.Register(typ, false, "things_access", idtype.WithPlural("things_accesses"))
+			},
+			wantPanic: true,
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			defer func() {
+				r := recover()
+				if tc.wantPanic && r == nil {
+					t.Error("Registration should have panicked")
+				}
+				if !tc.wantPanic && r != nil {
+					t.Errorf("Expected success, got panic %v", r)
+				}
+			}()
+
+			tc.fn()
+		})
+	}
+}
