@@ -139,6 +139,16 @@ func NewImmutableID(obj Immutable, sig interface{}) (ID, error) {
 	return id, nil
 }
 
+// MustNewImmutableID returns a new signed ID for an immutable object.
+// It panics if NewImmutableID returns an error
+func MustNewImmutableID(obj Immutable, sig interface{}) ID {
+	id, err := NewImmutableID(obj, sig)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // DecodeIDFromString returns an ID that is stored in the given string.
 func DecodeIDFromString(value string) (ID, error) {
 	buf, err := decodeFromByte([]byte(value))
