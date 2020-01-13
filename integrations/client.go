@@ -191,9 +191,7 @@ func (c *Client) credentialsByParam(ctx context.Context, project *string, res []
 
 	// for Projects with mutiple resources, it will try and fill these in (since Next() has more
 	// credentials we don't care about (in the case we passed a sub-resource))
-	if _, ok := resourceCredentials[""]; ok {
-		delete(resourceCredentials, "")
-	}
+	delete(resourceCredentials, "")
 
 	return resourceCredentials, nil
 }
